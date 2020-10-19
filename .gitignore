@@ -133,8 +133,12 @@ fabric.properties
 pyvenv.cfg
 .venv
 pip-selfcheck.json
+venv/*
 
 #Test-Fasta-Files
 *.fa
+
+#Compiled Python-Files
+*.pyc
 
 # End of https://www.toptal.com/developers/gitignore/api/pycharm,virtualenv,linux
