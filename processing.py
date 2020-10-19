@@ -2,6 +2,7 @@ from setting import *
 from fileCountException import *
 
 
+# abstract class
 class Processing:
     profile1 = None
     profile2 = None
@@ -16,11 +17,12 @@ class Processing:
         else:
             raise FileCountException
 
-    def createProfile(self):
+    # abstract method
+    def processData(self):
         pass
 
-    def createMultAlignment(self):
-        pass
+    def getProfiles(self):
+        return self.profile1, self.profile2
 
-    def processData4PCA(self):
-        pass
+    def getSettings(self):
+        return self.setting
