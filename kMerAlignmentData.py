@@ -1,7 +1,7 @@
 from processing import Processing
 
 
-class KMerAlignment(Processing):
+class KMerAlignmentData(Processing):
 
     def __init__(self, data, selected, k, peak, top):
         super().__init__(data, selected, k, peak, top)
