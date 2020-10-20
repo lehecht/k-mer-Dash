@@ -3,6 +3,7 @@ from fileCountException import *
 from kValueException import *
 from profile import Profile
 from Bio import SeqIO
+import math
 
 
 # abstract class
@@ -37,6 +38,7 @@ class Processing:
         return res
 
     def unranking(self, int_kmer):  # Decodes integer to kmer
+        k = self.getSettings().getK()
         rest = -1
         int_kmer_rest = int_kmer
         kmer = []
@@ -46,16 +48,20 @@ class Processing:
             kmer.append(list(self.alphabet.keys())[int_kmer_rest])
             int_kmer_rest = rest
 
-        return ''.join(kmer)
+        kmer = ''.join(kmer)  # joins list of single character to string
+        if len(kmer) < k:  # fills kmer with consecutive 'A's, if kmer length does not equal k
+            diff = k - len(kmer)
+            kmer = kmer + 'A' * diff
+        return kmer
 
-    def calcFrequency(self):
+    def calcFrequency(self):  # throws kValueException
         kmer_ranked = 0
         k = self.setting.getK()
         for file in self.setting.getSelected():  # selects data
-            if file == self.getProfil1().getName():
-                profile = self.getProfil1().getProfile()
+            if file == self.getProfilObj1().getName():
+                profile = self.getProfilObj1().getProfile()
             else:
-                profile = self.getProfil2().getProfile()
+                profile = self.getProfilObj2().getProfile()
             for record in SeqIO.parse(file, "fasta"):  # reads fasta-file
                 sequence = record.seq
                 if len(sequence) <= k:
@@ -65,7 +71,7 @@ class Processing:
                     if i == 0:
                         kmer_ranked = self.ranking(kmer)
                     else:  # frame-shifting
-                        kmer_ranked_tail = int(kmer_ranked / self.alpha_size)  # remove head of kmer
+                        kmer_ranked_tail = math.floor(kmer_ranked / self.alpha_size)  # remove head of kmer
                         kmer_ranked = kmer_ranked_tail + self.alphabet[
                             sequence[k + i - 1]] * self.alpha_size ** (k - 1)  # add last ranked char
                     try:
@@ -73,10 +79,10 @@ class Processing:
                     except KeyError:
                         profile[kmer_ranked] = 1
 
-    def getProfil1(self):
+    def getProfilObj1(self):
         return self.profile1
 
-    def getProfil2(self):
+    def getProfilObj2(self):
         return self.profile2
 
     def getSettings(self):
