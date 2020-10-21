@@ -11,7 +11,7 @@ import plotly.express as px
 def printData(data, k, peak, top):
     try:
         process = Processing(data, None, k, peak, top)
-        printKMerFrequency(process)
+        # printKMerFrequency(process)
         printScatterPlot(process)
     except KValueException:
         print("Invalid k: k must be smaller than sequence length")
@@ -19,11 +19,11 @@ def printData(data, k, peak, top):
 
 def printScatterPlot(process):
     result = KMerScatterPlotData.processData(process)
-    xAxis = result[0]
-    yAxix = result[1]
-    label = result[2]
-    filenNames = result[3]
-    fig = px.scatter(x=xAxis, y=yAxix, hover_name=label, labels={'x': filenNames[0], 'y': filenNames[1]})
+    df = result[0]
+    label = result[1]
+    fileNames = result[2]
+    fig = px.scatter(df, x=fileNames[0], y=fileNames[1], hover_name=label, color='highlight',
+                     labels={'highlight': 'Top k-Mer'})
     fig.show()
 
 
