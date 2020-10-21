@@ -4,6 +4,7 @@ from kValueException import *
 from profile import Profile
 from Bio import SeqIO
 import math
+import pandas as pd
 
 
 # abstract class
@@ -11,6 +12,7 @@ class Processing:
     profile1 = None
     profile2 = None
     setting = None
+    df = None
 
     alphabet = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
     alpha_size = len(alphabet)
@@ -27,6 +29,7 @@ class Processing:
         self.profile1 = Profile(dict(), selected[0])
         self.profile2 = Profile(dict(), selected[1])
         self.calcFrequency()
+        self.df = self.createDataFrame()
 
     # abstract method
     def processData(self):
@@ -80,6 +83,52 @@ class Processing:
                     except KeyError:
                         profile[kmer_ranked] = 1
 
+    def createDataFrame(self):
+        xAxis = []  # frequency count from file 1
+        yAxis = []  # frequency count from file 2
+        kmer_List = []
+
+        # create dataframe from profiles
+        df_profil1 = pd.DataFrame.from_dict(self.getProfilObj1().getProfile(), orient='index')
+        df_profil1.columns = ['Frequency']
+        df_profil2 = pd.DataFrame.from_dict(self.getProfilObj2().getProfile(), orient='index')
+        df_profil2.columns = ['Frequency']
+
+        file1_kmer = df_profil1.index.tolist()
+        file2_kmer = df_profil2.index.tolist()
+
+        file1_freq = df_profil1['Frequency'].tolist()
+        file2_freq = df_profil2['Frequency'].tolist()
+
+        # calculates coordinates
+
+        intersec = set(file1_kmer).intersection(file2_kmer)  # ascertains kmeres which appear in both files
+
+        for kmer in intersec:
+            idx1 = file1_kmer.index(kmer)
+            idx2 = file2_kmer.index(kmer)
+
+            xAxis.append(file1_freq[idx1])
+            yAxis.append(file2_freq[idx2])
+            kmer_List.append(self.unranking(kmer))
+
+            file1_kmer.remove(kmer)
+            file2_kmer.remove(kmer)
+            del file1_freq[idx1]
+            del file2_freq[idx2]
+
+        for i in range(0, len(file1_kmer)):
+            xAxis.append(file1_freq[i])
+            yAxis.append(0)
+            kmer_List.append(self.unranking(file1_kmer[i]))
+
+        for j in range(0, len(file2_kmer)):
+            xAxis.append(0)
+            yAxis.append(file2_freq[j])
+            kmer_List.append(self.unranking(file2_kmer[j]))
+
+        return [xAxis, yAxis, kmer_List]
+
     def getProfilObj1(self):
         return self.profile1
 
@@ -88,3 +137,6 @@ class Processing:
 
     def getSettings(self):
         return self.setting
+
+    def getDF(self):
+        return self.df
