@@ -88,17 +88,11 @@ class Processing:
         yAxis = []  # frequency count from file 2
         kmer_List = []
 
-        # create dataframe from profiles
-        df_profil1 = pd.DataFrame.from_dict(self.getProfilObj1().getProfile(), orient='index')
-        df_profil1.columns = ['Frequency']
-        df_profil2 = pd.DataFrame.from_dict(self.getProfilObj2().getProfile(), orient='index')
-        df_profil2.columns = ['Frequency']
+        file1_kmer = list(self.getProfilObj1().getProfile().keys())
+        file2_kmer = list(self.getProfilObj2().getProfile().keys())
 
-        file1_kmer = df_profil1.index.tolist()
-        file2_kmer = df_profil2.index.tolist()
-
-        file1_freq = df_profil1['Frequency'].tolist()
-        file2_freq = df_profil2['Frequency'].tolist()
+        file1_freq = list(self.getProfilObj1().getProfile().values())
+        file2_freq = list(self.getProfilObj2().getProfile().values())
 
         # calculates coordinates
 
