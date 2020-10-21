@@ -23,6 +23,7 @@ class Processing:
             self.setting = Setting(data, selected, k, peak, top)
         else:
             raise FileCountException
+
         self.profile1 = Profile(dict(), selected[0])
         self.profile2 = Profile(dict(), selected[1])
         self.calcFrequency()
