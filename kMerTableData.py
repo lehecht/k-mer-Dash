@@ -61,5 +61,4 @@ class KMerTableData(Processing):
         res = pd.DataFrame(p1_top_list_val, index=p1_top_list_kmer, columns=['Frequency'])
         res['File'] = p1_fileName  # append Filename column
 
-
         return res

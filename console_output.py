@@ -5,31 +5,26 @@ from kMerScatterPlotData import KMerScatterPlotData
 from kMerPCAData import KMerPCAData
 import math
 
-
-# import plotly.express as px
+import plotly.express as px
 
 
 def printData(data, k, peak, top):
     try:
         process = Processing(data, None, k, peak, top)
         printKMerFrequency(process)
+        printScatterPlot(process)
     except KValueException:
         print("Invalid k: k must be smaller than sequence length")
 
 
 def printScatterPlot(process):
-    pass
-
-
-# S = KMerScatterPlotData.processData(process)
-# x = S.processData()[0]
-# y = S.processData()[1]
-# label = S.processData()[2]
-# print(x)
-# print(y)
-# print(label)
-# fig = px.scatter(x=x, y=y, hover_name=label)
-# fig.show()
+    result = KMerScatterPlotData.processData(process)
+    xAxis = result[0]
+    yAxix = result[1]
+    label = result[2]
+    filenNames = result[3]
+    fig = px.scatter(x=xAxis, y=yAxix, hover_name=label, labels={'x': filenNames[0], 'y': filenNames[1]})
+    fig.show()
 
 
 def printKMerFrequency(process):
