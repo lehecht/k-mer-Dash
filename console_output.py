@@ -1,6 +1,5 @@
 from processing import Processing
 from kValueException import *
-from kMerTableData import KMerTableData
 from kMerScatterPlotData import KMerScatterPlotData
 from kMerPCAData import KMerPCAData
 import math
@@ -11,7 +10,7 @@ import plotly.express as px
 def printData(data, k, peak, top):
     try:
         process = Processing(data, None, k, peak, top)
-        # printKMerFrequency(process)
+        printKMerFrequency(process)
         printScatterPlot(process)
     except KValueException:
         print("Invalid k: k must be smaller than sequence length")
@@ -33,7 +32,7 @@ def printKMerFrequency(process):
     peak = process.getSettings().getPeak()
     selected = process.getSettings().getSelected()
 
-    result = KMerTableData.processData(process)
+    result = process.getTopKmer()
     freq_list = result['Frequency'].values.tolist()
     char_space = len(str(max(freq_list)))  # ascertains column space to maintain table readability
     tabs = 1

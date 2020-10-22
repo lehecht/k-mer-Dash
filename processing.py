@@ -5,6 +5,7 @@ from profile import Profile
 from Bio import SeqIO
 import math
 import pandas as pd
+import os
 
 
 # abstract class
@@ -13,6 +14,7 @@ class Processing:
     profile2 = None
     setting = None
     df = None
+    top_kmer_df = None
 
     alphabet = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
     alpha_size = len(alphabet)
@@ -30,6 +32,7 @@ class Processing:
         self.profile2 = Profile(dict(), selected[1])
         self.calcFrequency()
         self.df = self.createDataFrame()
+        self.top_kmer_df = self.calcTopKmer()
 
     # abstract method
     def processData(self):
@@ -121,7 +124,68 @@ class Processing:
             yAxis.append(file2_freq[j])
             kmer_List.append(self.unranking(file2_kmer[j]))
 
-        return [xAxis, yAxis, kmer_List]
+        fileName1 = os.path.basename(self.getSettings().getSelected()[0])
+        fileName2 = os.path.basename(self.getSettings().getSelected()[1])
+
+        res = pd.DataFrame(xAxis, index=kmer_List, columns=[fileName1])
+        res[fileName2] = yAxis
+
+        # return [xAxis, yAxis, kmer_List]
+        return res
+
+    def calcTopKmer(self):
+        top = self.getSettings().getTop()
+
+        profilObj1 = self.getProfilObj1()
+        profilObj2 = self.getProfilObj2()
+
+        profile1 = profilObj1.getProfile().copy()
+        profile2 = profilObj2.getProfile().copy()
+
+        fileName1 = os.path.basename(profilObj1.getName())
+        fileName2 = os.path.basename(profilObj2.getName())
+
+        p1List = pd.DataFrame.from_dict(profile1, orient='index')  # create Dataframe from calculated frequency-table
+        p1List.columns = ['Frequency']
+
+        p2List = pd.DataFrame.from_dict(profile2, orient='index')
+        p2List.columns = ['Frequency']
+
+        p1_top_list_val = []
+        p2_top_list_val = []
+
+        p1_top_list_kmer = []
+        p2_top_list_kmer = []
+
+        p1_fileName = []
+        p2_fileName = []
+
+        for i in range(0, top):
+            p1_fileName.append(fileName1)
+            p2_fileName.append(fileName2)
+
+            max1 = p1List.max().tolist()[0]  # get entry with max Frequency
+            max2 = p2List.max().tolist()[0]
+
+            p1_top_list_val.append(max1)
+            p2_top_list_val.append(max2)
+
+            max1_key = p1List.query('Frequency==@max1').index.tolist()[0]  # get key of max-frequency entry
+            max2_key = p2List.query('Frequency==@max2').index.tolist()[0]  # the key encodes the kmer
+
+            p1_top_list_kmer.append(self.unranking(max1_key))
+            p2_top_list_kmer.append(self.unranking(max2_key))
+
+            p1List = p1List.drop(max1_key)  # delete max entry to find next max-entry
+            p2List = p2List.drop(max2_key)
+
+        p1_top_list_val.extend(p2_top_list_val)  # connects list entries to one list
+        p1_top_list_kmer.extend(p2_top_list_kmer)
+        p1_fileName.extend(p2_fileName)
+
+        res = pd.DataFrame(p1_top_list_val, index=p1_top_list_kmer, columns=['Frequency'])
+        res['File'] = p1_fileName  # append Filename column
+        return res
 
     def getProfilObj1(self):
         return self.profile1
@@ -134,3 +198,6 @@ class Processing:
 
     def getDF(self):
         return self.df
+
+    def getTopKmer(self):
+        return self.top_kmer_df
