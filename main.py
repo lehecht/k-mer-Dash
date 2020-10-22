@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+from console_output import printData
 
 argparser = ArgumentParser()
 argparser.add_argument('-f', '--files', dest='data', action='store', required=True)
@@ -9,10 +10,14 @@ argparser.add_argument('-c', '--console', dest='console', default=False, nargs='
 
 if __name__ == '__main__':
     args = argparser.parse_args()
-    files = args.data.split(',')
+    files = args.data.split(',')  # convert string of files in a list
     for file in files:
         try:
             open(file)
         except IOError:
             print('{} does not exist'.format(file))
             break
+    if args.console:
+        printData(files, args.k, args.peak, args.top)
+    else:
+        pass  # start dash
