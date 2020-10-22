@@ -2,6 +2,7 @@ from processing import Processing
 import os
 import pandas as pd
 from sklearn.decomposition import PCA
+from sklearn import preprocessing
 
 
 class KMerPCAData(Processing):
@@ -14,8 +15,9 @@ class KMerPCAData(Processing):
         fileName2 = os.path.basename(self.getSettings().getSelected()[1])
         df = self.getDF()[[fileName1, fileName2]]
 
-        pca = PCA(n_components=2)
-        components = pca.fit_transform(df)  # preprocessing the data
-        pca_df = pd.DataFrame(data=components, columns=['PC1', 'PC2'], index=df.index.tolist())
+        pca = PCA()
+        scaled_data = preprocessing.scale(df)
+        pca_data = pca.fit_transform(scaled_data)
+        pca_df = pd.DataFrame(data=pca_data, columns=['PC1', 'PC2'], index=df.index.tolist())
 
         return pca_df

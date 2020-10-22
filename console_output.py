@@ -10,8 +10,9 @@ import plotly.express as px
 def printData(data, k, peak, top):
     try:
         process = Processing(data, None, k, peak, top)
-        printKMerFrequency(process)
-        printScatterPlot(process)
+        # printKMerFrequency(process)
+        # printScatterPlot(process)
+        printPCA(process)
     except KValueException:
         print("Invalid k: k must be smaller than sequence length")
 
@@ -55,5 +56,8 @@ def printMultAlignment():
     pass
 
 
-def printPCA():
-    pass
+def printPCA(process):
+    df = process.getDF()
+    pca_df = KMerPCAData.processData(process)
+    fig = px.scatter(pca_df, x='PC1', y='PC2', hover_name=df.index.tolist())
+    fig.show()
