@@ -1,5 +1,7 @@
 from argparse import ArgumentParser
 from console_output import printData
+import subprocess
+import os
 
 argparser = ArgumentParser()
 argparser.add_argument('-f', '--files', dest='data', action='store', required=True)
@@ -21,3 +23,5 @@ if __name__ == '__main__':
         printData(files, args.k, args.peak, args.top)
     else:
         pass  # start dash
+    if os.path.exists('./tmp/'):
+        subprocess.run(['rm', '-r', './tmp/'])
