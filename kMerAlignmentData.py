@@ -4,6 +4,7 @@ from Bio.SeqRecord import SeqRecord
 from Bio.Seq import Seq
 import glob
 import os
+import sys
 import subprocess
 from distutils.spawn import find_executable
 
@@ -16,6 +17,8 @@ class KMerAlignmentData(Processing):
     def processData(self):  # throws FileNotFoundError
         if not os.path.exists('./tmp'):  # directory, where top-kmere-fasta files and alignments will be saved
             os.mkdir('tmp')
+
+        alignment = []
 
         top_kmer_list = self.getTopKmer()
         top_kmer_index = top_kmer_list.index
@@ -44,13 +47,22 @@ class KMerAlignmentData(Processing):
             print()
 
         clustalw = find_executable('clustalw')
-        infile = "-INFILE={i}".format(i=input_file_name)
-        outfile = '-OUTFILE={f}'.format(f=output_file_name)
-        subprocess.run([clustalw, infile, outfile],
-                       stdout=subprocess.DEVNULL)  # executes clustalw multiple alignment
+        if clustalw is not None:
+            infile = "-INFILE={i}".format(i=input_file_name)
+            outfile = '-OUTFILE={f}'.format(f=output_file_name)
+            subprocess.run([clustalw, infile, outfile],
+                           stdout=subprocess.DEVNULL)  # executes clustalw multiple alignment
 
-        dnd_files = glob.glob('tmp/*.dnd')  # deletes guide tree file
-        os.remove(dnd_files[0])
-        alignment = AlignIO.read(output_file_name, "clustal")  # reads multiple alignment file
+            dnd_files = glob.glob('tmp/*.dnd')  # deletes guide tree file
+            os.remove(dnd_files[0])
+            alignment = AlignIO.read(output_file_name, "clustal")  # reads multiple alignment file
+        else:
+            if sys.platform == 'linux' or sys.platform == 'linux2':
+                raise FileNotFoundError(
+                    'Please install ClustalW with: \'sudo apt install clustalw\'' +
+                    '\nFor more information, see: http://www.clustal.org/clustal2/ ')
+            else:
+                raise FileNotFoundError(
+                    'Please install ClustalW. For more information, see: http://www.clustal.org/clustal2/')
 
         return alignment

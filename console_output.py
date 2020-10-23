@@ -59,7 +59,7 @@ def printKMerFrequency(process):
 def printMultAlignment(process):
     alignment_list = KMerAlignmentData.processData(process)
     print('Alignment of Top-kmere created with ClustalW')
-    print('(for more information see: http://www.clustal.org/clustal2/)')
+    print('(for more information, see: http://www.clustal.org/clustal2/)')
     for alg in alignment_list:
         print(alg.seq)
 
