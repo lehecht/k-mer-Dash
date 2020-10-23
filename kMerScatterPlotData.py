@@ -19,7 +19,7 @@ class KMerScatterPlotData(Processing):
 
         result_df = pd.DataFrame(xAxis, index=label, columns=[fileName1])
         result_df[fileName2] = yAxis
-        result_df['highlight'] = False
+        result_df['highlight'] = False  # highlights top kmere
 
         kmerList = top_kmer_df.index.tolist()
         for kmer in kmerList:

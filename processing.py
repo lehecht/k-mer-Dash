@@ -130,7 +130,6 @@ class Processing:
         res = pd.DataFrame(xAxis, index=kmer_List, columns=[fileName1])
         res[fileName2] = yAxis
 
-        # return [xAxis, yAxis, kmer_List]
         return res
 
     def calcTopKmer(self):
