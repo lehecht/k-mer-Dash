@@ -1,7 +1,8 @@
 from argparse import ArgumentParser
-from console_output import printData
 import subprocess
 import os
+
+from src.console_output import printData
 
 argparser = ArgumentParser()
 argparser.add_argument('-f', '--files', dest='data', action='store', required=True)

@@ -1,6 +1,5 @@
-from processing import Processing
+from src.processing import Processing
 import pandas as pd
-import os
 
 
 class KMerScatterPlotData(Processing):

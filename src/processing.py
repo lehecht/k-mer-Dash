@@ -1,6 +1,6 @@
-from setting import *
-from fileCountException import *
-from calcKmerLists import *
+from src.setting import *
+from src.fileCountException import *
+from src.calcKmerLists import *
 from profile import Profile
 
 

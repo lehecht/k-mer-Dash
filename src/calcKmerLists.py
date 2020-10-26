@@ -1,5 +1,5 @@
 from Bio import SeqIO
-from kValueException import KValueException
+from src.kValueException import KValueException
 import os
 import pandas as pd
 import math

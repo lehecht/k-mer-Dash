@@ -1,8 +1,8 @@
-from processing import Processing
-from kValueException import *
-from kMerScatterPlotData import KMerScatterPlotData
-from kMerPCAData import KMerPCAData
-from kMerAlignmentData import KMerAlignmentData
+from src.processing import Processing
+from src.kValueException import *
+from src.kMerScatterPlotData import KMerScatterPlotData
+from src.kMerPCAData import KMerPCAData
+from src.kMerAlignmentData import KMerAlignmentData
 import math
 
 import plotly.express as px

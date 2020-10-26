@@ -1,5 +1,5 @@
 from Bio import SeqIO, AlignIO
-from processing import Processing
+from src.processing import Processing
 from Bio.SeqRecord import SeqRecord
 from Bio.Seq import Seq
 import glob
