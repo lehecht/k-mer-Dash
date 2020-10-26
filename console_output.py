@@ -12,9 +12,9 @@ def printData(data, k, peak, top):
     try:
         process = Processing(data, None, k, peak, top)
         printMultAlignment(process)
-        # printKMerFrequency(process)
-        # printScatterPlot(process)
-        # printPCA(process)
+        printKMerFrequency(process)
+        printScatterPlot(process)
+        printPCA(process)
     except KValueException:
         print("Invalid k: k must be smaller than sequence length")
     except FileNotFoundError as fnf:
@@ -27,7 +27,7 @@ def printScatterPlot(process):
     label = result[1]
     fileNames = result[2]
     fig = px.scatter(df, x=fileNames[0], y=fileNames[1], hover_name=label, color='highlight',
-                     labels={'highlight': 'Top k-Mer'})
+                     labels={'highlight': 'Top k-Mer'}, title='Scatterplot')
     fig.show()
 
 
@@ -67,5 +67,5 @@ def printMultAlignment(process):
 def printPCA(process):
     df = process.getDF()
     pca_df = KMerPCAData.processData(process)
-    fig = px.scatter(pca_df, x='PC1', y='PC2', hover_name=df.index.tolist())
+    fig = px.scatter(pca_df, x='PC1', y='PC2', hover_name=df.index.tolist(), title='PCA')
     fig.show()
