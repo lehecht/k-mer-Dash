@@ -2,42 +2,14 @@ from Bio import SeqIO
 from src.kValueException import KValueException
 import os
 import pandas as pd
-import math
-
-alphabet = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
-alpha_size = len(alphabet)
 
 
-def ranking(kmer, k):  # Rising Ranking Function
-    res = 0
-    for i in range(0, k):
-        res = res + alphabet[kmer[i]] * alpha_size ** i
-    return res
-
-
-def unranking(int_kmer, k):  # Decodes integer to kmer
-    rest = -1
-    int_kmer_rest = int_kmer
-    kmer = []
-    while rest != 0:
-        rest = int(int_kmer_rest / alpha_size)  # encodes kmer-body without its head
-        int_kmer_rest = (int_kmer_rest % alpha_size)  # encodes head
-        kmer.append(list(alphabet.keys())[int_kmer_rest])
-        int_kmer_rest = rest
-
-    kmer = ''.join(kmer)  # joins list of single character to string
-    if len(kmer) < k:  # fills kmer with consecutive 'A's, if kmer length does not equal k
-        diff = k - len(kmer)
-        kmer = kmer + 'A' * diff
-    return kmer
-
-
-def calcFrequency(k, selected):  # throws kValueException
+def calcFrequency(k, selected):
     profil1 = dict()
     profil2 = dict()
-    kmer_ranked = 0
+    kmer = ''
     for file in selected:  # selects data
-        if file == selected[0]:
+        if file == selected[0]:  # Name of first File
             profile = profil1
         else:
             profile = profil2
@@ -45,22 +17,19 @@ def calcFrequency(k, selected):  # throws kValueException
             sequence = record.seq
             if len(sequence) <= k:
                 raise KValueException  # is thrown if k is greater or equal than sequence length
-            for i in range(0, (len(sequence) - k + 1)):  # calculates kmere-rankings
-                kmer = sequence[i:(k + i)]
+            for i in range(0, (len(sequence) - k + 1)):
                 if i == 0:
-                    kmer_ranked = ranking(kmer, k)
-                else:  # frame-shifting
-                    kmer_ranked_tail = math.floor(kmer_ranked / alpha_size)  # remove head of kmer
-                    kmer_ranked = kmer_ranked_tail + alphabet[
-                        sequence[k + i - 1]] * alpha_size ** (k - 1)  # add last ranked char
+                    kmer = str(sequence[0:k])  # init first kmer
+                else:
+                    kmer = ''.join([str(kmer[1:]), str(sequence[k + i - 1])])
                 try:
-                    profile[kmer_ranked] += 1
+                    profile[kmer] += 1
                 except KeyError:
-                    profile[kmer_ranked] = 1
+                    profile[kmer] = 1
     return [profil1, profil2]
 
 
-def createDataFrame(k, p1, p2, selected):
+def createDataFrame(p1, p2, selected):
     xAxis = []  # frequency count from file 1
     yAxis = []  # frequency count from file 2
     kmer_List = []
@@ -81,7 +50,7 @@ def createDataFrame(k, p1, p2, selected):
 
         xAxis.append(file1_freq[idx1])
         yAxis.append(file2_freq[idx2])
-        kmer_List.append(unranking(kmer, k))
+        kmer_List.append(kmer)
 
         file1_kmer.remove(kmer)
         file2_kmer.remove(kmer)
@@ -91,12 +60,12 @@ def createDataFrame(k, p1, p2, selected):
     for i in range(0, len(file1_kmer)):
         xAxis.append(file1_freq[i])
         yAxis.append(0)
-        kmer_List.append(unranking(file1_kmer[i], k))
+        kmer_List.append(file1_kmer[i])
 
     for j in range(0, len(file2_kmer)):
         xAxis.append(0)
         yAxis.append(file2_freq[j])
-        kmer_List.append(unranking(file2_kmer[j], k))
+        kmer_List.append(file2_kmer[j])
 
     fileName1 = os.path.basename(selected[0])
     fileName2 = os.path.basename(selected[1])
@@ -107,7 +76,7 @@ def createDataFrame(k, p1, p2, selected):
     return res
 
 
-def calcTopKmer(k, top, p1, p2):
+def calcTopKmer(top, p1, p2):
     profile1 = p1.getProfile().copy()
     profile2 = p2.getProfile().copy()
 
@@ -142,8 +111,8 @@ def calcTopKmer(k, top, p1, p2):
         max1_key = p1List.query('Frequency==@max1').index.tolist()[0]  # get key of max-frequency entry
         max2_key = p2List.query('Frequency==@max2').index.tolist()[0]  # the key encodes the kmer
 
-        p1_top_list_kmer.append(unranking(max1_key, k))
-        p2_top_list_kmer.append(unranking(max2_key, k))
+        p1_top_list_kmer.append(max1_key)
+        p2_top_list_kmer.append(max2_key)
 
         p1List = p1List.drop(max1_key)  # delete max entry to find next max-entry
         p2List = p2List.drop(max2_key)

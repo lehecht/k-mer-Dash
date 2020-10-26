@@ -1,7 +1,7 @@
 from src.setting import *
 from src.fileCountException import *
 from src.calcKmerLists import *
-from profile import Profile
+from src.profile import Profile
 
 
 # abstract class
@@ -25,8 +25,8 @@ class Processing:
         self.profile2 = Profile(dict(), selected[1])
         self.profile1.setProfile(calcFrequency(k, selected)[0])
         self.profile2.setProfile(calcFrequency(k, selected)[1])
-        self.df = createDataFrame(k, self.profile1, self.profile2, selected)
-        self.top_kmer_df = calcTopKmer(k, top, self.profile1, self.profile2)
+        self.df = createDataFrame(self.profile1, self.profile2, selected)
+        self.top_kmer_df = calcTopKmer(top, self.profile1, self.profile2)
 
     # abstract method
     def processData(self):
