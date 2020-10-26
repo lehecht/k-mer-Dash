@@ -12,9 +12,9 @@ def printData(data, k, peak, top):
     try:
         process = Processing(data, None, k, peak, top)
         printMultAlignment(process)
-        # printKMerFrequency(process)
-        # printScatterPlot(process)
-        # printPCA(process)
+        printKMerFrequency(process)
+        printScatterPlot(process)
+        printPCA(process)
     except KValueException:
         print("Invalid k: k must be smaller than sequence length")
     except FileNotFoundError as fnf:
