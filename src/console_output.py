@@ -13,8 +13,8 @@ def printData(data, k, peak, top):
         process = Processing(data, None, k, peak, top)
         printMultAlignment(process)
         printKMerFrequency(process)
-        # printScatterPlot(process)
-        # printPCA(process)
+        printScatterPlot(process)
+        printPCA(process)
     except InputValueException as ive:
         print(ive.args[0])
     except FileNotFoundError as fnf:
