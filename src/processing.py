@@ -23,8 +23,8 @@ class Processing:
 
         self.profile1 = Profile(dict(), selected[0])
         self.profile2 = Profile(dict(), selected[1])
-        self.profile1.setProfile(calcFrequency(k, selected)[0])
-        self.profile2.setProfile(calcFrequency(k, selected)[1])
+        self.profile1.setProfile(calcFrequency(k, peak, selected)[0])
+        self.profile2.setProfile(calcFrequency(k, peak, selected)[1])
         self.df = createDataFrame(self.profile1, self.profile2, selected)
         self.top_kmer_df = calcTopKmer(top, self.profile1, self.profile2)
 

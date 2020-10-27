@@ -1,10 +1,10 @@
 from Bio import SeqIO
-from src.kValueException import KValueException
+from src.inputValueException import InputValueException
 import os
 import pandas as pd
 
 
-def calcFrequency(k, selected):
+def calcFrequency(k, peak, selected):
     profil1 = dict()
     profil2 = dict()
     kmer = ''
@@ -16,7 +16,7 @@ def calcFrequency(k, selected):
         for record in SeqIO.parse(file, "fasta"):  # reads fasta-file
             sequence = record.seq
             if len(sequence) <= k:
-                raise KValueException  # is thrown if k is greater or equal than sequence length
+                raise InputValueException  # is thrown if k is greater or equal than sequence length
             for i in range(0, (len(sequence) - k + 1)):
                 if i == 0:
                     kmer = str(sequence[0:k])  # init first kmer
