@@ -1,5 +1,5 @@
 from src.processing import Processing
-from src.kValueException import *
+from src.inputValueException import *
 from src.kMerScatterPlotData import KMerScatterPlotData
 from src.kMerPCAData import KMerPCAData
 from src.kMerAlignmentData import KMerAlignmentData
@@ -13,10 +13,10 @@ def printData(data, k, peak, top):
         process = Processing(data, None, k, peak, top)
         printMultAlignment(process)
         printKMerFrequency(process)
-        printScatterPlot(process)
-        printPCA(process)
-    except KValueException:
-        print("Invalid k: k must be smaller than sequence length")
+        # printScatterPlot(process)
+        # printPCA(process)
+    except InputValueException as ive:
+        print(ive.args[0])
     except FileNotFoundError as fnf:
         print(fnf.args[0])
 
@@ -52,7 +52,7 @@ def printKMerFrequency(process):
           format(k=k, p=peak, t=top, f=selected))
     print()
     print('k-Mer\t\tFrequency' + '\t' * tabs + 'File')
-    for i in range(0, top * 2):
+    for i in range(0, min(top * 2, len(kmer_list))):
         print("{}\t\t{:<{space}}\t\t{}".format(kmer_list[i], freq_list[i], file_list[i], space=char_space))
 
 

@@ -14,19 +14,32 @@ def calcFrequency(k, peak, selected):
         else:
             profile = profil2
         for record in SeqIO.parse(file, "fasta"):  # reads fasta-file
-            sequence = record.seq
-            if len(sequence) <= k:
-                raise InputValueException  # is thrown if k is greater or equal than sequence length
-            for i in range(0, (len(sequence) - k + 1)):
+            sequence = str(record.seq)
+            seqLength = len(sequence)
+            if peak is not None:
+                if seqLength < peak:  # is thrown if peak is greater than sequence length
+                    raise InputValueException('Invalid peak: \'peak\' is greater than sequence length')
+                sequence = createPeakPosition(peak, sequence)
+            if seqLength <= k:
+                raise InputValueException(  # is thrown if k is greater or equal than sequence length
+                    "Invalid k: \'k\' must be smaller than sequence length")
+            for i in range(0, (seqLength - k + 1)):
                 if i == 0:
-                    kmer = str(sequence[0:k])  # init first kmer
+                    kmer = sequence[0:k]  # init first kmer
                 else:
-                    kmer = ''.join([str(kmer[1:]), str(sequence[k + i - 1])])
+                    kmer = ''.join([kmer[1:], sequence[k + i - 1]])
                 try:
                     profile[kmer] += 1
                 except KeyError:
                     profile[kmer] = 1
     return [profil1, profil2]
+
+
+def createPeakPosition(peak, seq):
+    sequence = seq.lower()
+    peakVal = seq[peak - 1]
+    res = ''.join([sequence[:peak - 1], peakVal, sequence[peak:]])
+    return res
 
 
 def createDataFrame(p1, p2, selected):
@@ -98,7 +111,11 @@ def calcTopKmer(top, p1, p2):
     p1_fileName = []
     p2_fileName = []
 
-    for i in range(0, top):
+    if len(profile1) < top:
+        print('INFO: Profile is shorter than top-Value')
+        print()
+
+    for i in range(0, min(top, len(profile1))):
         p1_fileName.append(fileName1)
         p2_fileName.append(fileName2)
 
