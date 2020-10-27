@@ -21,7 +21,7 @@ class KMerAlignmentData(Processing):
         alignment = []
 
         top_kmer_list = self.getTopKmer()
-        top_kmer_index = top_kmer_list.index
+        top_kmer_index = top_kmer_list.index.drop_duplicates()
 
         fileNames_list = top_kmer_list['File']
 
