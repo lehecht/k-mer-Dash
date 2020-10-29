@@ -115,7 +115,7 @@ def calcTopKmer(top, p1, p2):
         print('INFO: Profile is shorter than top-Value')
         print()
 
-    for i in range(0, min(top, len(profile1))):
+    for i in range(0, min(top, len(profile1))):  # TODO: kontrollieren, was bei mehreren Max-Einträgen passiert
         p1_fileName.append(fileName1)
         p2_fileName.append(fileName2)
 

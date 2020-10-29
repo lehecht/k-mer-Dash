@@ -2,6 +2,7 @@ from src.setting import *
 from src.fileCountException import *
 from src.calcKmerLists import *
 from src.profile import Profile
+from itertools import combinations_with_replacement, permutations
 
 
 # abstract class
@@ -11,6 +12,7 @@ class Processing:
     setting = None
     df = None
     top_kmer_df = None
+    all_tripplets = None
 
     def __init__(self, data, selected, k, peak, top):
         if selected is not None:
@@ -27,6 +29,13 @@ class Processing:
         self.profile2.setProfile(calcFrequency(k, peak, selected)[1])
         self.df = createDataFrame(self.profile1, self.profile2, selected)
         self.top_kmer_df = calcTopKmer(top, self.profile1, self.profile2)
+
+        self.all_tripplets = []
+        tripplet_comb = list(combinations_with_replacement(['A', 'C', 'G', 'T'], r=3))
+
+        for trip in tripplet_comb:
+            comb = list(set(permutations(trip)))
+            self.all_tripplets.extend([''.join(comb[i]) for i in range(0, len(comb))])
 
     # abstract method
     def processData(self):
@@ -46,3 +55,6 @@ class Processing:
 
     def getTopKmer(self):
         return self.top_kmer_df
+
+    def getAllTripplets(self):
+        return self.all_tripplets

@@ -5,16 +5,17 @@ from src.kMerPCAData import KMerPCAData
 from src.kMerAlignmentData import KMerAlignmentData
 import math
 
+
 import plotly.express as px
 
 
 def printData(data, k, peak, top):
     try:
         process = Processing(data, None, k, peak, top)
-        printMultAlignment(process)
-        printKMerFrequency(process)
+        # printMultAlignment(process)
+        # printKMerFrequency(process)
         # printScatterPlot(process)
-        # printPCA(process)
+        printPCA(process)
     except InputValueException as ive:
         print(ive.args[0])
     except FileNotFoundError as fnf:
@@ -67,5 +68,5 @@ def printMultAlignment(process):
 def printPCA(process):
     df = process.getDF()
     pca_df = KMerPCAData.processData(process)
-    fig = px.scatter(pca_df, x='PC1', y='PC2', hover_name=df.index.tolist(), title='PCA')
-    fig.show()
+    # fig = px.scatter(pca_df, x='PC1', y='PC2', hover_name=df.index.tolist(), title='PCA')
+    # fig.show()

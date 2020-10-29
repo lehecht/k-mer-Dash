@@ -11,13 +11,93 @@ class KMerPCAData(Processing):
         super().__init__(data, selected, k, peak, top)
 
     def processData(self):
+        TOP_VALUES = 100
+        alphabet = ['A', 'C', 'G', 'T']
+        all_tripplets = self.getAllTripplets()
+
         fileName1 = os.path.basename(self.getSettings().getSelected()[0])
         fileName2 = os.path.basename(self.getSettings().getSelected()[1])
-        df = self.getDF()[[fileName1, fileName2]]
 
-        pca = PCA()
-        scaled_data = preprocessing.scale(df)
-        pca_data = pca.fit_transform(scaled_data)
-        pca_df = pd.DataFrame(data=pca_data, columns=['PC1', 'PC2'], index=df.index.tolist())
+        df = self.getDF().copy()
 
-        return pca_df
+        # df_file1 = df[fileName1].tolist()
+        # df_file2 = df[fileName2].tolist()
+        #
+        # df_file1.sort(reverse=True)
+        # df_file2.sort(reverse=True)
+        #
+        # df_sorted_data_f1 = list(set(df_file1[:TOP_VALUES]))
+        # df_sorted_data_f2 = list(set(df_file2[:TOP_VALUES]))
+
+        df_file1 = df.sort_values(by=[fileName1], ascending=False)
+        df_file2 = df.sort_values(by=[fileName2], ascending=False)
+
+        df_val1 = df_file1[fileName1].values.tolist()
+        df_val2 = df_file2[fileName2].values.tolist()
+
+        df_sorted_data_f1 = list(set(df_val1[:TOP_VALUES]))
+        df_sorted_data_f2 = list(set(df_val2[:TOP_VALUES]))
+
+        top_list_file1 = dict()
+        top_list_file2 = dict()
+
+        # find max and create dict
+        for i in range(0, len(df_sorted_data_f1)):
+            max1 = df_sorted_data_f1[i]
+
+            max_kmere_f1 = df[df[fileName1] == max1].index.tolist()
+
+            for kmer in max_kmere_f1:
+                top_list_file1[kmer] = max1
+
+        for i in range(0, len(df_sorted_data_f2)):
+            max2 = df_sorted_data_f2[i]
+
+            max_kmere_f2 = df[df[fileName2] == max2].index.tolist()
+
+            for kmer in max_kmere_f2:
+                top_list_file2[kmer] = max2
+
+        # create dataframe
+        top_list_df1 = pd.DataFrame.from_dict(top_list_file1, orient='index', columns=['Frequency'])
+        top_list_df2 = pd.DataFrame.from_dict(top_list_file2, orient='index', columns=['Frequency'])
+
+        # add columns
+        for b in alphabet:
+            top_list_df1[b] = 0
+            top_list_df2[b] = 0
+
+        for tpl in all_tripplets:
+            top_list_df1[tpl] = 0
+            top_list_df2[tpl] = 0
+
+        # fill new columns
+        for i in range(0, TOP_VALUES):
+            kmer1 = top_list_df1.index.tolist()[i]
+            kmer2 = top_list_df2.index.tolist()[i]
+
+            case_insens_kmer1 = top_list_df1.index.tolist()[i].upper()
+            case_insens_kmer2 = top_list_df2.index.tolist()[i].upper()
+
+            for b in alphabet:
+                top_list_df1.loc[kmer1, b] = case_insens_kmer1.count(b)
+                top_list_df2.loc[kmer2, b] = case_insens_kmer2.count(b)
+
+            for trpl in all_tripplets:
+                if trpl in case_insens_kmer1:
+                    top_list_df1.loc[kmer1, trpl] += 1
+                if trpl in case_insens_kmer2:
+                    top_list_df2.loc[kmer2, trpl] += 1
+
+        print(len(top_list_df1))
+        print(len(top_list_df2))
+
+        print(top_list_df1.head())
+        print(top_list_df2.head())
+
+        # pca = PCA()
+        # scaled_data = preprocessing.scale(df)
+        # pca_data = pca.fit_transform(scaled_data)
+        # pca_df = pd.DataFrame(data=pca_data, columns=['PC1', 'PC2'], index=df.index.tolist())
+
+        # return pca_df
