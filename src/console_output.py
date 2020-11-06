@@ -68,5 +68,6 @@ def printMultAlignment(process):
 def printPCA(process):
     df = process.getDF()
     pca_df = KMerPCAData.processData(process)
-    # fig = px.scatter(pca_df, x='PC1', y='PC2', hover_name=df.index.tolist(), title='PCA')
-    # fig.show()
+    fig = px.scatter(pca_df, x='PC1', y='PC2', hover_name=pca_df.index.tolist(), title='PCA')
+    # fig = px.scatter(pca_df, hover_name=pca_df.index.tolist(), title='PCA')
+    fig.show()

@@ -11,7 +11,7 @@ class KMerPCAData(Processing):
         super().__init__(data, selected, k, peak, top)
 
     def processData(self):
-        TOP_VALUES = 100
+        TOP_VALUES = self.getSettings().getTop()
         alphabet = ['A', 'C', 'G', 'T']
         all_tripplets = self.getAllTripplets()
 
@@ -19,15 +19,6 @@ class KMerPCAData(Processing):
         fileName2 = os.path.basename(self.getSettings().getSelected()[1])
 
         df = self.getDF().copy()
-
-        # df_file1 = df[fileName1].tolist()
-        # df_file2 = df[fileName2].tolist()
-        #
-        # df_file1.sort(reverse=True)
-        # df_file2.sort(reverse=True)
-        #
-        # df_sorted_data_f1 = list(set(df_file1[:TOP_VALUES]))
-        # df_sorted_data_f2 = list(set(df_file2[:TOP_VALUES]))
 
         df_file1 = df.sort_values(by=[fileName1], ascending=False)
         df_file2 = df.sort_values(by=[fileName2], ascending=False)
@@ -88,16 +79,26 @@ class KMerPCAData(Processing):
                     top_list_df1.loc[kmer1, trpl] += 1
                 if trpl in case_insens_kmer2:
                     top_list_df2.loc[kmer2, trpl] += 1
+        #
+        # print(top_list_df2.head().max())
+        # print(top_list_df2.query('Frequency == 2067'))
 
-        print(len(top_list_df1))
-        print(len(top_list_df2))
+        # print(len(top_list_df2))
+        #
+        # print(top_list_df1.head())
+        # print(top_list_df2.head())
 
-        print(top_list_df1.head())
-        print(top_list_df2.head())
+        pca = PCA(n_components=2)
+        # scaled_data1 = preprocessing.scale(top_list_df1)
+        scaled_data2 = preprocessing.scale(top_list_df2)
+        # pca_data1 = pca.fit_transform(scaled_data1)
+        # pca_data2 = pca.fit_transform(scaled_data2)
 
-        # pca = PCA()
-        # scaled_data = preprocessing.scale(df)
-        # pca_data = pca.fit_transform(scaled_data)
-        # pca_df = pd.DataFrame(data=pca_data, columns=['PC1', 'PC2'], index=df.index.tolist())
+        # pca_data2 = pca.fit_transform(top_list_df2)
 
-        # return pca_df
+        pca_data2 = pca.fit_transform(scaled_data2)
+        # pca_df = pd.DataFrame(data=pca_data1, columns=test.columns.tolist(),index=top_list_df1.index)
+        # pca_df = pd.DataFrame(data=pca_data1, columns=['PC2','PC1'], index=top_list_df1.index)
+        pca_df = pd.DataFrame(data=pca_data2, columns=['PC1', 'PC2'], index=top_list_df2.index)
+
+        return pca_df
