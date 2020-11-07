@@ -5,13 +5,21 @@ from sklearn.decomposition import PCA
 from sklearn import preprocessing
 
 
+def sortTripleList(kmer):
+    list = []
+    for i in range(0, len(kmer) - 3 + 1):
+        list.append(kmer[i:i + 3])
+    return list
+
 class KMerPCAData(Processing):
 
     def __init__(self, data, selected, k, peak, top):
         super().__init__(data, selected, k, peak, top)
 
+
     def processData(self):
         TOP_VALUES = self.getSettings().getTop()
+        K = self.getSettings().getK()
         alphabet = ['A', 'C', 'G', 'T']
         all_tripplets = self.getAllTripplets()
 
@@ -63,7 +71,7 @@ class KMerPCAData(Processing):
             top_list_df2[tpl] = 0
 
         # fill new columns
-        for i in range(0, TOP_VALUES):
+        for i in range(0, len(top_list_df2)):
             kmer1 = top_list_df1.index.tolist()[i]
             kmer2 = top_list_df2.index.tolist()[i]
 
@@ -79,18 +87,82 @@ class KMerPCAData(Processing):
                     top_list_df1.loc[kmer1, trpl] += 1
                 if trpl in case_insens_kmer2:
                     top_list_df2.loc[kmer2, trpl] += 1
-        #
-        # print(top_list_df2.head().max())
-        # print(top_list_df2.query('Frequency == 2067'))
 
+        # print(top_list_df2[top_list_df2.index == 'TGTTT'])
+        # print(top_list_df2[top_list_df2.index == 'TTTAA'])
+        # print(top_list_df2[top_list_df2.index == 'GGTGT'])
+
+        test_df = top_list_df2.loc[:,'AAA':'TTT']
+        # print(test)
+        sum = test_df.sum(axis=0)
+        # cols = sum[sum > 5].index.tolist()
+        cols = sum[sum > 5]
+        cols = cols.sort_values(ascending=True)
+        cols = cols.index.tolist()[0:10]
+        # print(cols)
+
+
+
+        # newDf = top_list_df2.loc[:,'Frequency':'T']
+        # # print(newDf)
+        # cut = top_list_df2[cols]
+        # newDf = newDf.join(cut)
         # print(len(top_list_df2))
-        #
-        # print(top_list_df1.head())
-        # print(top_list_df2.head())
+
+
+        a = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
+
+        homogeneity = []
+        t_dict = {}
+
+        for i in range(1, len(all_tripplets) + 1):
+            t_dict[all_tripplets[i - 1]] = i
+
+        best_t = []
+        order = []
+        for kmer in top_list_df2.index.tolist():
+            row = top_list_df2.loc[kmer, 'A':]
+            data = row[row != 0]
+            max = data.max()
+            b = data[data == max].index.tolist()[0]
+            homo = max/K
+            # tripplets_list = [elem for elem in data.index.tolist() if len(elem) == 3]
+            # tripplets_list.sort()
+            i = 0
+            tripplets_list = sortTripleList(kmer)
+            trp = ''
+            for t in tripplets_list:
+                if t in cols:
+                    i+=1
+                trp = trp + str(t_dict[t])
+            best_t.append(i)
+            order.append(trp)
+            homogeneity.append(homo)
+        # print(order)
+        # print(somelist)
+
+        newDf = pd.DataFrame(homogeneity, columns=['Homogeneity'], index=top_list_df2.index)
+        newDf2 = pd.DataFrame(order, columns=['Order'], index=top_list_df2.index)
+        newDf3 = pd.DataFrame(best_t, columns=['best'], index=top_list_df2.index)
+        # newDf = pd.DataFrame(order, columns=['Order'], index=top_list_df2.index)
+
+        test = top_list_df2.loc[:, 'Frequency':'T']
+        # test = top_list_df2.loc[:, ['Frequency','T']]
+        # test = top_list_df2.loc[:, 'Frequency']
+        # test = top_list_df2.loc[:, ['Frequency','C','T']]
+        # test = pd.DataFrame(test)
+
+        newDf = test.join(newDf)
+        newDf = newDf.join(newDf2)
+        newDf = newDf.join(newDf3)
+
+
+        print(newDf.head())
 
         pca = PCA(n_components=2)
         # scaled_data1 = preprocessing.scale(top_list_df1)
-        scaled_data2 = preprocessing.scale(top_list_df2)
+        # scaled_data2 = preprocessing.scale(top_list_df2)
+        scaled_data2 = preprocessing.scale(newDf)
         # pca_data1 = pca.fit_transform(scaled_data1)
         # pca_data2 = pca.fit_transform(scaled_data2)
 
