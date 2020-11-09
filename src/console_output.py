@@ -5,7 +5,6 @@ from src.kMerPCAData import KMerPCAData
 from src.kMerAlignmentData import KMerAlignmentData
 import math
 
-
 import plotly.express as px
 
 
@@ -66,8 +65,10 @@ def printMultAlignment(process):
 
 
 def printPCA(process):
-    df = process.getDF()
-    pca_df = KMerPCAData.processData(process)
-    fig = px.scatter(pca_df, x='PC1', y='PC2', hover_name=pca_df.index.tolist(), title='PCA')
-    # fig = px.scatter(pca_df, hover_name=pca_df.index.tolist(), title='PCA')
-    fig.show()
+    pca_dfs = KMerPCAData.processData(process)
+    df1 = pca_dfs[0]
+    df2 = pca_dfs[1]
+    fig1 = px.scatter(df1, x='PC1', y='PC2', hover_name=df1.index.tolist(), title='PCA')
+    fig2 = px.scatter(df2, x='PC1', y='PC2', hover_name=df2.index.tolist(), title='PCA')
+    fig1.show()
+    fig2.show()
