@@ -49,6 +49,7 @@ class KMerPCAData(Processing):
             for kmer in max_kmere_f2:
                 top_list_file2[kmer] = max2
 
+
         # create dataframe
         top_list_df1 = pd.DataFrame.from_dict(top_list_file1, orient='index', columns=['Frequency'])
         top_list_df2 = pd.DataFrame.from_dict(top_list_file2, orient='index', columns=['Frequency'])
@@ -82,15 +83,9 @@ class KMerPCAData(Processing):
 
         pca = PCA(n_components=2)
 
-        #TODO: Fix bug with diffrent top values and diffrent top-output at beginning in sec file
-
-        print(top_list_df1)
-        print()
-        print(top_list_df2)
-
         pca_data1 = pca.fit_transform(top_list_df1)
         pca_data2 = pca.fit_transform(top_list_df2)
         pca_df1 = pd.DataFrame(data=pca_data1, columns=['PC1', 'PC2'], index=top_list_df1.index)
         pca_df2 = pd.DataFrame(data=pca_data2, columns=['PC1', 'PC2'], index=top_list_df2.index)
 
-        return [pca_df1, pca_df2]
+        return [pca_df1, pca_df2, fileName1, fileName2, top_list_df1['T'], top_list_df2['T']]
