@@ -137,6 +137,7 @@ venv/*
 
 #Test-Fasta-Files
 *.fa
+!Tests/Unit/testdata/*
 
 #Compiled Python-Files
 *.pyc

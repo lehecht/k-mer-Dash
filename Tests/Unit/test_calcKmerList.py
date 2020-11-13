@@ -2,7 +2,7 @@ from src.calcKmerLists import *
 from src.profile import *
 import pytest
 
-testData = ["Tests/Unit/testdata/file1.fa", "Tests/Unit/testdata/file2.fa"]
+testData = ["Tests/Unit/testdata/testFile1.fa", "Tests/Unit/testdata/testFile2.fa"]
 
 
 # ACCCCGA
