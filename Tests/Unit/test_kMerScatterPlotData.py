@@ -1,4 +1,3 @@
-import pytest
 from src.kMerScatterPlotData import KMerScatterPlotData as sctPlt
 from src.processing import Processing
 

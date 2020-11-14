@@ -5,8 +5,6 @@ import pytest
 testData = ["Tests/Unit/testdata/testFile1.fa", "Tests/Unit/testdata/testFile2.fa"]
 
 
-# ACCCCGA
-
 def test_calcFrequency():
     # Test1: without peak-position
     # Preparation
