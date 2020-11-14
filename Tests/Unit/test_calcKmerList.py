@@ -34,9 +34,6 @@ def test_calcFrequency():
     p1 = profiles[0]
     p2 = profiles[1]
 
-    print("exp", expected_result_p1_peak)
-    print("res", p1)
-
     # Testing
     assert len(p1) == 7
     assert len(p2) == 7

@@ -130,7 +130,6 @@ def calcTopKmer(top, p1, p2):
         p1_top_list_kmer.append(max1_key)
 
         p1List = p1List.drop(allMax_keys)  # delete max entry to find next max-entry
-        print(p1List)
 
         if p1List.empty:
             break
