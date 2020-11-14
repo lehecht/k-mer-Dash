@@ -4,6 +4,33 @@ import pandas as pd
 from sklearn.decomposition import PCA
 
 
+# counts tripplets and number of nucleic acids
+def fillDataFrame(df, all_tripplets):
+    alphabet = ['A', 'C', 'G', 'T']
+    top_list_df = pd.DataFrame.from_dict(df, orient='index', columns=['Frequency'])
+
+    # add columns
+    for b in alphabet:
+        top_list_df[b] = 0
+
+    for tpl in all_tripplets:
+        top_list_df[tpl] = 0
+
+    for i in range(0, len(top_list_df)):
+        kmer1 = top_list_df.index.tolist()[i]
+
+        case_insens_kmer1 = top_list_df.index.tolist()[i].upper()
+
+        for b in alphabet:
+            top_list_df.loc[kmer1, b] = case_insens_kmer1.count(b)
+
+        for trpl in all_tripplets:
+            if trpl in case_insens_kmer1:
+                top_list_df.loc[kmer1, trpl] += 1
+
+    return top_list_df
+
+
 class KMerPCAData(Processing):
 
     def __init__(self, data, selected, k, peak, top):
@@ -49,37 +76,9 @@ class KMerPCAData(Processing):
             for kmer in max_kmere_f2:
                 top_list_file2[kmer] = max2
 
-
         # create dataframe
-        top_list_df1 = pd.DataFrame.from_dict(top_list_file1, orient='index', columns=['Frequency'])
-        top_list_df2 = pd.DataFrame.from_dict(top_list_file2, orient='index', columns=['Frequency'])
-
-        # add columns
-        for b in alphabet:
-            top_list_df1[b] = 0
-            top_list_df2[b] = 0
-
-        for tpl in all_tripplets:
-            top_list_df1[tpl] = 0
-            top_list_df2[tpl] = 0
-
-        # fill new columns
-        for i in range(0, len(top_list_df2)):
-            kmer1 = top_list_df1.index.tolist()[i]
-            kmer2 = top_list_df2.index.tolist()[i]
-
-            case_insens_kmer1 = top_list_df1.index.tolist()[i].upper()
-            case_insens_kmer2 = top_list_df2.index.tolist()[i].upper()
-
-            for b in alphabet:
-                top_list_df1.loc[kmer1, b] = case_insens_kmer1.count(b)
-                top_list_df2.loc[kmer2, b] = case_insens_kmer2.count(b)
-
-            for trpl in all_tripplets:
-                if trpl in case_insens_kmer1:
-                    top_list_df1.loc[kmer1, trpl] += 1
-                if trpl in case_insens_kmer2:
-                    top_list_df2.loc[kmer2, trpl] += 1
+        top_list_df1 = fillDataFrame(top_list_file1, all_tripplets)
+        top_list_df2 = fillDataFrame(top_list_file2, all_tripplets)
 
         pca = PCA(n_components=2)
 
