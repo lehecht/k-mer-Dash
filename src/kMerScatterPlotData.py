@@ -9,7 +9,7 @@ class KMerScatterPlotData(Processing):
 
     def processData(self):
         top_kmer_df = self.getTopKmer()  # get top kmeres
-        fileName1 = top_kmer_df['File'].drop_duplicates().tolist()[0]  # get colum names
+        fileName1 = top_kmer_df['File'].drop_duplicates().tolist()[0]  # get column names
         fileName2 = top_kmer_df['File'].drop_duplicates().tolist()[1]
 
         xAxis = self.getDF()[fileName1].tolist()

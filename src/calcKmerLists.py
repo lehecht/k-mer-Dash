@@ -115,18 +115,25 @@ def calcTopKmer(top, p1, p2):
         print('INFO: Set of top-entries is smaller than top-Value')
         print()
 
-    for i in range(0, min(top, len(profile1))):  # TODO: kontrollieren, was bei mehreren Max-Einträgen passiert
+    # Set of top-kmeres is not complete, only one kmere with max value will be saved.
+    # Other kmeres with max value are ignored.
+    for i in range(0, min(top, len(profile1))):
         p1_fileName.append(fileName1)
 
         max1 = p1List.max().tolist()[0]  # get entry with max Frequency
 
         p1_top_list_val.append(max1)
 
-        max1_key = p1List.query('Frequency==@max1').index.tolist()[0]  # get key of max-frequency entry
+        allMax_keys = p1List.query('Frequency==@max1').index.tolist()
+        max1_key = allMax_keys[0]  # get key of max-frequency entry
 
         p1_top_list_kmer.append(max1_key)
 
-        p1List = p1List.drop(max1_key)  # delete max entry to find next max-entry
+        p1List = p1List.drop(allMax_keys)  # delete max entry to find next max-entry
+        print(p1List)
+
+        if p1List.empty:
+            break
 
     for i in range(0, min(top, len(profile2))):
         p2_fileName.append(fileName2)
@@ -135,11 +142,15 @@ def calcTopKmer(top, p1, p2):
 
         p2_top_list_val.append(max2)
 
-        max2_key = p2List.query('Frequency==@max2').index.tolist()[0]
+        allMax_keys = p2List.query('Frequency==@max2').index.tolist()
+        max2_key = allMax_keys[0]
 
         p2_top_list_kmer.append(max2_key)
 
-        p2List = p2List.drop(max2_key)
+        p2List = p2List.drop(allMax_keys)
+
+        if p2List.empty:
+            break
 
     p1_top_list_val.extend(p2_top_list_val)  # connects list entries to one list
     p1_top_list_kmer.extend(p2_top_list_kmer)
