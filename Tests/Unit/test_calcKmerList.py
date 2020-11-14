@@ -122,7 +122,23 @@ def test_calcTopKmer():
     assert maxFreq == [22, 15, 7, 23, 11, 8]
     assert fileNameList == ["file1", "file1", "file1", "file2", "file2", "file2"]
 
-    # TODO: Test2 with several equal max values
+    # Test2: several equal max-values
+    # Preparation
+    profil1_nuq = Profile({"AAT": 3, "TAT": 5, "GCC": 5, "CCC": 15, "TAA": 22},
+                          "dir/file1")  # no unique (nuq) max values
+    profil2_nuq = Profile({"AAT": 2, "TCC": 2, "GAC": 11, "CCC": 23, "GGG": 1}, "dir/file2")
+
+    # Execution
+    top_kmer_df = calcTopKmer(top, profil1_nuq, profil2_nuq)
+    topKmerList = top_kmer_df.index.tolist()
+    maxFreq = top_kmer_df["Frequency"].values.tolist()
+    fileNameList = top_kmer_df["File"].values.tolist()
+
+    # Testing
+    assert len(topKmerList) == 6
+    assert topKmerList == ["TAA", "CCC", "TAT", "CCC", "GAC", "AAT"]
+    assert maxFreq == [22, 15, 5, 23, 11, 2]
+    assert fileNameList == ["file1", "file1", "file1", "file2", "file2", "file2"]
 
 
 def test_createPeakPosition():
