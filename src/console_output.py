@@ -11,10 +11,10 @@ import plotly.express as px
 def printData(data, k, peak, top, highlight):
     try:
         process = Processing(data, None, k, peak, top, highlight)
-        # printMultAlignment(process)
-        # printKMerFrequency(process)
+        printMultAlignment(process)
+        printKMerFrequency(process)
         printScatterPlot(process)
-        # printPCA(process)
+        printPCA(process)
     except InputValueException as ive:
         print(ive.args[0])
     except FileNotFoundError as fnf:
