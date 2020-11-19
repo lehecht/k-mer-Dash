@@ -14,12 +14,12 @@ class Processing:
     top_kmer_df = None
     all_tripplets = None
 
-    def __init__(self, data, selected, k, peak, top):
+    def __init__(self, data, selected, k, peak, top, highlight):
         if selected is not None:
-            self.setting = Setting(data, selected, k, peak, top)
+            self.setting = Setting(data, selected, k, peak, top, highlight)
         elif len(data) >= 2:
             selected = data[:2]
-            self.setting = Setting(data, selected, k, peak, top)
+            self.setting = Setting(data, selected, k, peak, top, highlight)
         else:
             raise FileCountException
 

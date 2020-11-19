@@ -11,8 +11,8 @@ from distutils.spawn import find_executable
 
 class KMerAlignmentData(Processing):
 
-    def __init__(self, data, selected, k, peak, top):
-        super().__init__(data, selected, k, peak, top)
+    def __init__(self, data, selected, k, peak, top, highlight):
+        super().__init__(data, selected, k, peak, top, highlight)
 
     def processData(self):  # throws FileNotFoundError
         if not os.path.exists('./tmp'):  # directory, where top-kmere-fasta files and alignments will be saved

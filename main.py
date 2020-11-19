@@ -9,6 +9,7 @@ argparser.add_argument('-f', '--files', dest='data', action='store', required=Tr
 argparser.add_argument('-k', dest='k', action='store', type=int, required=True)
 argparser.add_argument('-p', '--peak', dest='peak', nargs='?', action='store', type=int)
 argparser.add_argument('-t', '--top', dest='top', default=10, nargs='?', action='store', type=int)
+argparser.add_argument('-hl', '--highlights', dest='highlight', default=10, nargs='?', action='store', type=int)
 argparser.add_argument('-c', '--console', dest='console', default=False, nargs='?', action='store', type=bool)
 
 if __name__ == '__main__':
@@ -21,7 +22,7 @@ if __name__ == '__main__':
             print('{} does not exist'.format(file))
             break
     if args.console:
-        printData(files, args.k, args.peak, args.top)
+        printData(files, args.k, args.peak, args.top, args.highlight)
     else:
         pass  # start dash
     if os.path.exists('./tmp/'):
