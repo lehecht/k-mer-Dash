@@ -11,7 +11,7 @@ import plotly.express as px
 def printData(data, k, peak, top):
     try:
         process = Processing(data, None, k, peak, top)
-        printMultAlignment(process)
+        # printMultAlignment(process)
         printKMerFrequency(process)
         printScatterPlot(process)
         printPCA(process)

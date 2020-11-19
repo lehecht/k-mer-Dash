@@ -102,59 +102,11 @@ def calcTopKmer(top, p1, p2):
     p2List = pd.DataFrame.from_dict(profile2, orient='index')
     p2List.columns = ['Frequency']
 
-    p1_top_list_val = []
-    p2_top_list_val = []
+    topKmer = p1List.iloc[:top]
+    topKmer = topKmer.append(p2List.iloc[:top])
 
-    p1_top_list_kmer = []
-    p2_top_list_kmer = []
+    files = [fileName1 if i < top else fileName2 for i in range(0, 2 * top)]
 
-    p1_fileName = []
-    p2_fileName = []
+    topKmer['File'] = files
 
-    if len(profile1) < top or len(profile2) < 2:
-        print('INFO: Set of top-entries is smaller than top-Value')
-        print()
-
-    # Set of top-kmeres is not complete, only one kmere with max value will be saved.
-    # Other kmeres with max value are ignored.
-    for i in range(0, min(top, len(profile1))):
-        p1_fileName.append(fileName1)
-
-        max1 = p1List.max().tolist()[0]  # get entry with max Frequency
-
-        p1_top_list_val.append(max1)
-
-        allMax_keys = p1List.query('Frequency==@max1').index.tolist()
-        max1_key = allMax_keys[0]  # get key of max-frequency entry
-
-        p1_top_list_kmer.append(max1_key)
-
-        p1List = p1List.drop(allMax_keys)  # delete max entry to find next max-entry
-
-        if p1List.empty:
-            break
-
-    for i in range(0, min(top, len(profile2))):
-        p2_fileName.append(fileName2)
-
-        max2 = p2List.max().tolist()[0]
-
-        p2_top_list_val.append(max2)
-
-        allMax_keys = p2List.query('Frequency==@max2').index.tolist()
-        max2_key = allMax_keys[0]
-
-        p2_top_list_kmer.append(max2_key)
-
-        p2List = p2List.drop(allMax_keys)
-
-        if p2List.empty:
-            break
-
-    p1_top_list_val.extend(p2_top_list_val)  # connects list entries to one list
-    p1_top_list_kmer.extend(p2_top_list_kmer)
-    p1_fileName.extend(p2_fileName)
-
-    res = pd.DataFrame(p1_top_list_val, index=p1_top_list_kmer, columns=['Frequency'])
-    res['File'] = p1_fileName  # append Filename column
-    return res
+    return topKmer
