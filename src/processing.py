@@ -25,8 +25,16 @@ class Processing:
 
         self.profile1 = Profile(dict(), selected[0])
         self.profile2 = Profile(dict(), selected[1])
+
         self.profile1.setProfile(calcFrequency(k, peak, selected)[0])
         self.profile2.setProfile(calcFrequency(k, peak, selected)[1])
+
+        if top > len(self.profile1.getProfile()) or top > len(self.profile2.getProfile()):
+            print("WARNING: top-value is greater than amount of entries.")
+            print("All entries will be displayed.")
+            self.setting.setTop(None)
+            top = None
+
         self.df = createDataFrame(self.profile1, self.profile2, selected)
         self.top_kmer_df = calcTopKmer(top, self.profile1, self.profile2)
 

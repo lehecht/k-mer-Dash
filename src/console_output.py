@@ -11,7 +11,7 @@ import plotly.express as px
 def printData(data, k, peak, top, highlight):
     try:
         process = Processing(data, None, k, peak, top, highlight)
-        printMultAlignment(process)
+        # printMultAlignment(process)
         printKMerFrequency(process)
         printScatterPlot(process)
         printPCA(process)
@@ -46,13 +46,20 @@ def printKMerFrequency(process):
 
     file_list = result['File'].values.tolist()
     kmer_list = result.index.tolist()
+
+    if top is None:
+        top = len(process.getTopKmer())
+        entryCount = top
+    else:
+        entryCount = min(top * 2, len(kmer_list))
     print()
     print('Options:')
     print('k: {k}, peak: {p}, top: {t}, files: {f}'.
           format(k=k, p=peak, t=top, f=selected))
     print()
     print('k-Mer\t\tFrequency' + '\t' * tabs + 'File')
-    for i in range(0, min(top * 2, len(kmer_list))):
+    # for i in range(0, min(top * 2, len(kmer_list))):
+    for i in range(0, entryCount):
         print("{}\t\t{:<{space}}\t\t{}".format(kmer_list[i], freq_list[i], file_list[i], space=char_space))
 
 

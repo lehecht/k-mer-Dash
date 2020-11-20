@@ -43,8 +43,12 @@ class KMerPCAData(Processing):
         fileName1 = topKmer['File'].drop_duplicates().values.tolist()[0]  # get filenames
         fileName2 = topKmer['File'].drop_duplicates().values.tolist()[1]
 
-        top_list_file1 = (topKmer['Frequency'].iloc[:top]).to_dict()  # get top kmeres
-        top_list_file2 = (topKmer['Frequency'].iloc[top:]).to_dict()
+        if top is not None:
+            top_list_file1 = (topKmer['Frequency'].iloc[:top]).to_dict()  # get top kmeres
+            top_list_file2 = (topKmer['Frequency'].iloc[top:]).to_dict()
+        else:
+            top_list_file1 = topKmer['Frequency'].to_dict()  # get top kmeres
+            top_list_file2 = topKmer['Frequency'].to_dict()
 
         # create dataframe
         top_list_df1 = fillDataFrame(top_list_file1, all_tripplets)  # fill remaining data

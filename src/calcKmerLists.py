@@ -102,10 +102,14 @@ def calcTopKmer(top, p1, p2):
     p2List = pd.DataFrame.from_dict(profile2, orient='index')
     p2List.columns = ['Frequency']
 
-    topKmer = p1List.iloc[:top]
-    topKmer = topKmer.append(p2List.iloc[:top])
-
-    files = [fileName1 if i < top else fileName2 for i in range(0, 2 * top)]
+    if top is not None:
+        topKmer = p1List.iloc[:top]
+        topKmer = topKmer.append(p2List.iloc[:top])
+        files = [fileName1 if i < top else fileName2 for i in range(0, 2 * top)]
+    else:
+        topKmer = p1List
+        topKmer = topKmer.append(p2List)
+        files = [fileName1 if i < len(p1List) else fileName2 for i in range(0, len(topKmer))]
 
     topKmer['File'] = files
 
