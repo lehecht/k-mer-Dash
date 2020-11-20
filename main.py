@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 import subprocess
 import os
+import sys
 
 from src.console_output import printData
 
@@ -20,10 +21,8 @@ if __name__ == '__main__':
             open(file)
         except IOError:
             print('{} does not exist'.format(file))
-            break
+            sys.exit(101)
     if args.console:
         printData(files, args.k, args.peak, args.top, args.highlight)
     else:
         pass  # start dash
-    if os.path.exists('./tmp/'):
-        subprocess.run(['rm', '-r', './tmp/'])

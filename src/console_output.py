@@ -11,7 +11,7 @@ import plotly.express as px
 def printData(data, k, peak, top, highlight):
     try:
         process = Processing(data, None, k, peak, top, highlight)
-        # printMultAlignment(process)
+        printPairwAlignment(process)
         printKMerFrequency(process)
         printScatterPlot(process)
         printPCA(process)
@@ -58,17 +58,14 @@ def printKMerFrequency(process):
           format(k=k, p=peak, t=top, f=selected))
     print()
     print('k-Mer\t\tFrequency' + '\t' * tabs + 'File')
-    # for i in range(0, min(top * 2, len(kmer_list))):
     for i in range(0, entryCount):
         print("{}\t\t{:<{space}}\t\t{}".format(kmer_list[i], freq_list[i], file_list[i], space=char_space))
 
 
-def printMultAlignment(process):
+def printPairwAlignment(process):
     alignment_list = KMerAlignmentData.processData(process)
-    print('Alignment of Top-kmere created with ClustalW')
-    print('(for more information, see: http://www.clustal.org/clustal2/)')
     for alg in alignment_list:
-        print(alg.seq)
+        print(alg)
 
 
 def printPCA(process):
