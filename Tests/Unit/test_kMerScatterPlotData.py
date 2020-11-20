@@ -8,8 +8,9 @@ def test_processData():
     testData = ["Tests/Unit/testdata/testFile1.fa", "Tests/Unit/testdata/testFile2.fa"]
     k = 5
     top = 3
+    highlight = 2
     peak = None
-    process = Processing(testData, None, k, peak, top)
+    process = Processing(testData, None, k, peak, top, highlight)
 
     # Execution
     results = sctPlt.processData(process)
@@ -29,4 +30,4 @@ def test_processData():
     assert fileName1 == "testFile1.fa"
     assert fileName2 == "testFile2.fa"
     assert True in highlight
-    assert highlight == [True, True, False, False, True, True, True, True, False, False, False]
+    assert highlight == [False, True, True, False, True, False, True, True, False, False, False]
