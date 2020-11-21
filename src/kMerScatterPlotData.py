@@ -25,7 +25,7 @@ class KMerScatterPlotData(Processing):
 
         if len(result_df) < highlights:  # checks if highlight value is valid
             print("Amount of highlights is greater than the amount of entries!")
-            highlights = int(len(result_df) * 0.01)
+            highlights = max(int(len(result_df) * 0.01), 1)
             print("Amount of highlights was set on {}".format(highlights))
 
         allFreqs = data[fileName1].values.tolist()

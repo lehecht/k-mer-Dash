@@ -18,11 +18,11 @@ def calcFrequency(k, peak, selected):
             seqLength = len(sequence)
             if peak is not None:
                 if k < peak:  # is thrown if peak is greater than sequence length
-                    raise InputValueException('Invalid peak: \'peak\' is greater than k-Mmer length')
+                    raise InputValueException('Invalid peak: must be smaller than k-Mer length or equal')
                 sequence = createPeakPosition(peak, sequence)
             if seqLength <= k:
                 raise InputValueException(  # is thrown if k is greater or equal than sequence length
-                    "Invalid k: \'k\' must be smaller than sequence length")
+                    "Invalid k: must be smaller than sequence length")
             for i in range(0, (seqLength - k + 1)):
                 if i == 0:
                     kmer = sequence[0:k]  # init first kmer
