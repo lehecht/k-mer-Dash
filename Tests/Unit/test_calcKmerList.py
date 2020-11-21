@@ -42,7 +42,7 @@ def test_calcFrequency():
 
 
 @pytest.mark.xfail(raises=InputValueException)
-def test_calcFrequency_peak():  # tests if InputValueException is thrown if peak > sequence length
+def test_calcFrequency_peak():  # tests if InputValueException is thrown if peak > k-Mer length
     # Test1: peak-value > sequence length
     # Preparation
     k = 5
@@ -99,7 +99,7 @@ def test_createDataFrame():
 
 
 def test_calcTopKmer():
-    # Test1: unique max-values
+    # Test1: t is smaller than amount of entries
     # Preparation
     top = 3
     profil1 = Profile({"AAT": 3, "TAT": 5, "GCC": 7, "CCC": 15, "TAA": 22}, "dir/file1")
@@ -116,6 +116,22 @@ def test_calcTopKmer():
     assert topKmerList == ["AAT", "TAT", "GCC", "AAT", "TCC", "GAC"]
     assert maxFreq == [3, 5, 7, 8, 2, 11]
     assert fileNameList == ["file1", "file1", "file1", "file2", "file2", "file2"]
+
+    # Test1: t is greater than amount of entries
+    # Preparation
+    top = None  # is set on None in processing file
+
+    # Execution
+    top_kmer_df2 = calcTopKmer(top, profil1, profil2)
+    topKmerList2 = top_kmer_df2.index.tolist()
+    maxFreq2 = top_kmer_df2["Frequency"].values.tolist()
+    fileNameList2 = top_kmer_df2["File"].values.tolist()
+
+    # Testing
+    assert len(topKmerList2) == len(profil1.getProfile()) + len(profil2.getProfile())
+    assert topKmerList2 == ["AAT", "TAT", "GCC", "CCC", "TAA", "AAT", "TCC", "GAC", "CCC", "GGG"]
+    assert maxFreq2 == [3, 5, 7, 15, 22, 8, 2, 11, 23, 1]
+    assert fileNameList2 == ["file1", "file1", "file1", "file1", "file1", "file2", "file2", "file2", "file2", "file2"]
 
 
 def test_createPeakPosition():

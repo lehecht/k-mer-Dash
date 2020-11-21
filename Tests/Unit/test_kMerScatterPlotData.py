@@ -31,3 +31,36 @@ def test_processData():
     assert fileName2 == "testFile2.fa"
     assert True in highlight
     assert highlight == [False, True, True, False, True, False, True, True, False, False, False]
+
+    # Test2: with peak position
+    # Preparation
+    testData = ["Tests/Unit/testdata/testFile1.fa", "Tests/Unit/testdata/testFile2.fa"]
+    k = 5
+    top = 3
+    highlight = 1
+    peak = 2
+    process2 = Processing(testData, None, k, peak, top, highlight)
+
+    # Execution
+    results2 = sctPlt.processData(process2)
+    df = results2[0]
+    label = results2[1]
+    fileName1 = results2[2][0]
+    fileName2 = results2[2][1]
+    xAxis = df[fileName1].values.tolist()
+    yAxis = df[fileName2].values.tolist()
+    highlight = df['highlight'].values.tolist()
+
+    print(label)
+    # Testing
+    assert len(xAxis) == len(yAxis)
+    assert xAxis == [1, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0]
+    assert yAxis == [0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 1, 1, 1, 1]
+    assert label == ['aAacc', 'Aaccc', 'acccc', 'cAacc', 'aAaaa', 'Aaaaa', 'aaaaa', 'tTtgg', 'Ttggg', 'tgggg', 'gTtgg',
+                     'tGggg', 'Ggggc', 'gggca']
+
+    assert fileName1 == "testFile1.fa"
+    assert fileName2 == "testFile2.fa"
+    assert True in highlight
+    assert highlight == [False, True, True, False, False, False, False, False, True, True, False, False, False,
+                         False]
