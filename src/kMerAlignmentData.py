@@ -1,13 +1,5 @@
-from Bio import SeqIO, AlignIO
 from src.processing import Processing
-from Bio.SeqRecord import SeqRecord
-import glob
-import os
-import sys
-import subprocess
-from distutils.spawn import find_executable
 from Bio import pairwise2
-from Bio.Seq import Seq
 import re
 
 
