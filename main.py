@@ -2,6 +2,7 @@ import argparse
 import sys
 
 from src.console_output import printData
+from src.dashView import dashLayout
 
 
 def checkValue(value):
@@ -37,4 +38,4 @@ if __name__ == '__main__':
     if args.console:
         printData(files, args.k, args.peak, args.top, args.highlight)
     else:
-        pass  # start dash
+        dashLayout.startDash()
