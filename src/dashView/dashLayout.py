@@ -33,26 +33,71 @@ app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 app.layout = dbc.Container([
     dbc.Card([
-        dbc.CardBody([
-            html.H3('Menü')
-        ], style={"width": "20rem",
-                                     'height': '100vh',
-                                     'left': '0px',
-                                     'background': 'lightgrey'}),
+        dbc.Row([
+            dbc.Col(
+                dbc.CardBody([
+                    html.H3('Menü')
+                ], style={
+                    'height': '50vh',
+                    'left': '0px',
+                    'background': 'lightgrey'}),
+                width=2,
+                style={"padding-right": '0px',
+                       "padding-left": '0px',
+                       'margin-right': '0px'}),
 
-        # dbc.CardBody(["BBB"], style={"width": "20rem",
-        #                              'position': 'relative',
-        #                              'margin-top': '50px',
-        #                              'left': '0px',
-        #                              'background': 'grey'})
+            dbc.Col(dbc.Card(["TEST1"], style={
+                'background': '#f2f2f2', 'height': '50vh'}, outline=True),
+                    width=5,
+                    style={"padding-right": '5px',
+                           "padding-left": '10px'}),
+
+            dbc.Col(dbc.Card(["TEST2"], style={
+                'background': '#f2f2f2', 'height': '50vh'}, outline=True),
+                    width=5,
+                    style={"padding-right": '0px',
+                           "padding-left": '0px'}
+                    )
+        ], style={'padding-top': '0px', 'padding-bottom': '0px', 'margin-top': '0px', 'margin-bottom': '0px',
+                  'margin-left': '0px', 'padding-left': '0px'},
+            className="mw-100 mh-100"
+        ),
+
+        dbc.Row([
+            dbc.Col(
+                dbc.CardBody([
+                    html.H3()
+                ], style={
+                    'height': '50vh',
+                    'left': '0px',
+                    'background': 'lightgrey'}),
+                width=2,
+                style={"padding-right": '0px',
+                       "padding-left": '0px',
+                       'margin-right': '0px'}),
+            dbc.Col(dbc.Card(["TEST3"], style={
+                'background': '#f2f2f2', 'height': '49vh'}, outline=True),
+                    width=5,
+                    style={"padding-right": '5px',
+                           "padding-top": '5px',
+                           "padding-left": '10px'}),
+
+            dbc.Col(dbc.Card(["TEST4"], style={
+                'background': '#f2f2f2', 'height': '49vh'}, outline=True),
+                    width=5,
+                    style={"padding-right": '0px',
+                           "padding-top": '5px',
+                           "padding-left": '0px'}
+                    )
+        ], style={'padding-top': '0px', 'padding-bottom': '0px', 'margin-top': '0px', 'margin-bottom': '0px',
+                  'margin-left': '0px', 'padding-left': '0px'},
+            className="mw-100 mh-100"
+        )
 
     ],
-
         className="mw-100 mh-100"),
 ], className="mw-100 mh-100", style={'left': '0px', 'margin-left': '0px', 'padding': '0px'})
 
 
 def startDash():
     app.run_server(debug=True)
-
-# , style={'height': '100vh','width':'5000px'}
