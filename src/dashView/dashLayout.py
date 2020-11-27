@@ -3,30 +3,12 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 
-# external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-#
-# app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-#
-# app.layout = html.Div(children=[
-#     html.H1(id='header', children='Hello Dash'),
-#
-#     html.Div(children='''
-#         Dash: A web application framework for Python!!!!
-#     '''),
-#
-#     dcc.Graph(
-#         id='example-graph',
-#         figure={
-#             'data': [
-#                 {'x': [1, 2, 3], 'y': [4, 1, 2], 'type': 'bar', 'name': 'SF'},
-#                 {'x': [1, 2, 3], 'y': [2, 4, 5], 'type': 'bar', 'name': u'Montréal'},
-#             ],
-#             'layout': {
-#                 'title': 'Dash Data Visualization'
-#             }
-#         }
-#     )
-# ])
+
+def markSliderRange(min, max):
+    mark = {}
+    for i in range(min, max + 1):
+        mark[i] = str(i)
+    return mark
 
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -36,7 +18,41 @@ app.layout = dbc.Container([
         dbc.Row([
             dbc.Col(
                 dbc.CardBody([
-                    html.H3('Menü')
+                    html.H3("Menu"),
+                    html.Br(),
+                    html.Br(),
+                    dbc.Button("Choose Files", color="primary", className="mr-1"),
+                    html.Br(),
+                    html.Br(),
+                    html.H6("Selected Files:"),
+                    dbc.Select(
+                        id="Selected File 1",
+                        options=[
+                            {"label": "File 1", "value": "1"},
+                            {"label": "File 2", "value": "2"},
+                        ],
+                        value="1"
+                    ),
+                    dbc.Select(
+                        id="Selected File 2",
+                        options=[
+                            {"label": "File 1", "value": "1"},
+                            {"label": "File 2", "value": "2"},
+                        ],
+                        value="2"
+                    ),
+                    html.Br(),
+                    html.Br(),
+                    html.H6("K-mer length:"),
+                    dcc.Slider(
+                        id='k',
+                        min=1,
+                        max=10,
+                        step=1,
+                        value=1,
+                        marks=markSliderRange(0, 10)
+                    ),
+
                 ], style={
                     'height': '50vh',
                     'left': '0px',
@@ -66,7 +82,46 @@ app.layout = dbc.Container([
         dbc.Row([
             dbc.Col(
                 dbc.CardBody([
-                    html.H3()
+                    html.H6("Top-values:"),
+                    dcc.Slider(
+                        id='top',
+                        min=1,
+                        max=10,
+                        step=1,
+                        value=1,
+                        marks=markSliderRange(0, 10)
+                    ),
+                    html.Br(),
+                    html.H6("Peak-position:"),
+                    dcc.Slider(
+                        id='peak',
+                        min=1,
+                        max=10,
+                        step=1,
+                        value=1,
+                        marks=markSliderRange(0, 10)
+                    ),
+                    html.Br(),
+                    html.H6("Number of highlights:"),
+                    dcc.Slider(
+                        id='highlight',
+                        min=1,
+                        max=10,
+                        step=1,
+                        value=1,
+                        marks=markSliderRange(0, 10),
+                    ),
+                    html.Br(),
+                    html.H6("Highlighted Feature:"),
+                    dbc.Select(
+                        id="Feature",
+                        options=[
+                            {"label": "Frequency", "value": "1"},
+                            {"label": "T Occurences", "value": "2"},
+                        ],
+                        value="1"
+                    ),
+
                 ], style={
                     'height': '50vh',
                     'left': '0px',
