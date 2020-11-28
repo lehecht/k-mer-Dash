@@ -33,9 +33,11 @@ app.layout = dbc.Container([
                     html.H3("Menu"),
                     html.Br(),
                     html.Br(),
+                    # ------------------------- Choose Fasta-Files -----------------------------------------------------
                     dbc.Button("Choose Files", color="primary", className="mr-1"),
                     html.Br(),
                     html.Br(),
+                    # ------------------------------------- Select File1 And File 2 ------------------------------------
                     html.H6("Selected Files:"),
                     dbc.Select(
                         id="file1",
@@ -55,6 +57,7 @@ app.layout = dbc.Container([
                     ),
                     html.Br(),
                     html.Br(),
+                    # ------------------------------------------- K ----------------------------------------------------
                     html.H6("K-mer length:"),
                     dcc.Slider(
                         id='k',
@@ -74,6 +77,7 @@ app.layout = dbc.Container([
                        "padding-left": '0px',
                        'margin-right': '0px'}),
 
+            # --------------------------------------- ScatterPlot ------------------------------------------------------
             dbc.Col(dbc.Card([
                 dcc.Graph(figure={}, id="scatter")
 
@@ -83,8 +87,8 @@ app.layout = dbc.Container([
                 style={"padding-right": '5px',
                        "padding-left": '10px'}),
 
+            # ------------------------------------------------- PCAs ---------------------------------------------------
             dbc.Col(dbc.Card([
-
                 dcc.Tabs(id='tabs-example', value='Tab1', children=[
                     dcc.Tab(label='PCA 1', value='Tab1', id="Tab1", children=[
                         dcc.Graph(figure={}, id="PCA1", style={'height': '43vh'})
@@ -108,6 +112,7 @@ app.layout = dbc.Container([
         dbc.Row([
             dbc.Col(
                 dbc.CardBody([
+                    # ---------------------------------------- Top -----------------------------------------------------
                     html.H6("Top-values:"),
                     dcc.Slider(
                         id='top',
@@ -118,6 +123,7 @@ app.layout = dbc.Container([
                         marks=markSliderRange(0, 10)
                     ),
                     html.Br(),
+                    # ----------------------------------------- Peak ---------------------------------------------------
                     html.H6("Peak-position:"),
                     dcc.Slider(
                         id='peak',
@@ -128,6 +134,7 @@ app.layout = dbc.Container([
                         marks=markSliderRange(0, 10)
                     ),
                     html.Br(),
+                    # -------------------------------------- Number of highlights --------------------------------------
                     html.H6("Number of highlights:"),
                     dcc.Slider(
                         id='highlight',
@@ -138,6 +145,7 @@ app.layout = dbc.Container([
                         marks=markSliderRange(0, 10),
                     ),
                     html.Br(),
+                    # -------------------------------- Highlighted Feature ---------------------------------------------
                     html.H6("Highlighted Feature:"),
                     dbc.Select(
                         id="Feature",
@@ -156,15 +164,17 @@ app.layout = dbc.Container([
                 style={"padding-right": '0px',
                        "padding-left": '0px',
                        'margin-right': '0px'}),
+            # -------------------------------------------- TopK --------------------------------------------------------
             dbc.Col(dbc.Card(id="topK", children=[], style={
-                'background': '#f2f2f2', 'height': '49vh','overflow-y': 'scroll'}, outline=True),
+                'background': '#f2f2f2', 'height': '49vh', 'overflow-y': 'scroll'}, outline=True),
                     width=5,
                     style={"padding-right": '5px',
                            "padding-top": '5px',
                            "padding-left": '10px'}),
 
-            dbc.Col(dbc.Card(id="msa",children=[], style={
-                'background': '#f2f2f2', 'height': '49vh','overflow-y': 'scroll'}, outline=True),
+            # ------------------------------------------- MSA ----------------------------------------------------------
+            dbc.Col(dbc.Card(id="msa", children=[], style={
+                'background': '#f2f2f2', 'height': '49vh', 'overflow-y': 'scroll'}, outline=True),
                     width=5,
                     style={"padding-right": '0px',
                            "padding-top": '5px',
@@ -240,7 +250,9 @@ def update(file1, file2, k_d, top_d, peak_d, highlight_d):
         topK["K-Mer"] = kmer
         topK = topK[["K-Mer", "Frequency", "File"]]
         topK = topK.sort_values(by="Frequency", ascending=False)
-    return [dbc.Table.from_dataframe(topK, striped=True, bordered=True, hover=True, size='sm')]
+    return [dbc.Table.from_dataframe(topK, striped=True, bordered=True, hover=True, size='sm',
+                                     style={'text-align': 'center'})]
+
 
 @app.callback(
     [dash.dependencies.Output('msa', 'children')],
@@ -260,4 +272,4 @@ def update(file1, file2, k_d, top_d, peak_d, highlight_d):
         algn = initializeData.getAlignmentData(process)
         algn = pd.DataFrame(algn)
         algn.columns = ["Alignment"]
-    return [dbc.Table.from_dataframe(algn, striped=True, bordered=True, hover=True, size='sm')]
+    return [dbc.Table.from_dataframe(algn, borderless=True, hover=True, size='sm', style={'text-align': 'center'})]
