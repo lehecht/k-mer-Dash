@@ -25,6 +25,8 @@ def markSliderRange(min, max):
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
+app.title="k-Mer Dash"
+
 app.layout = dbc.Container([
     dbc.Card([
         dbc.Row([
@@ -57,6 +59,8 @@ app.layout = dbc.Container([
                     ),
                     html.Br(),
                     html.Br(),
+                    html.Br(),
+                    html.Br(),
                     # ------------------------------------------- K ----------------------------------------------------
                     html.H6("K-mer length:"),
                     dcc.Slider(
@@ -79,7 +83,7 @@ app.layout = dbc.Container([
 
             # --------------------------------------- ScatterPlot ------------------------------------------------------
             dbc.Col(dbc.Card([
-                dcc.Graph(figure={}, id="scatter")
+                dcc.Graph(figure={}, id="scatter",style={'height': '50vh'})
 
             ], style={
                 'background': '#f2f2f2', 'height': '50vh'}, outline=True),
@@ -91,12 +95,17 @@ app.layout = dbc.Container([
             dbc.Col(dbc.Card([
                 dcc.Tabs(id='tabs-example', value='Tab1', children=[
                     dcc.Tab(label='PCA 1', value='Tab1', id="Tab1", children=[
-                        dcc.Graph(figure={}, id="PCA1", style={'height': '43vh'})
+                        dcc.Graph(figure={}, id="PCA1",
+                                  style={'height': '42vh'}
+                                  )
                     ]),
                     dcc.Tab(label='PCA 2', value='Tab2', id="Tab2", children=[
-                        dcc.Graph(figure={}, id="PCA2", style={'height': '45vh'})
+                        dcc.Graph(figure={}, id="PCA2",
+                                  style={'height': '42vh'}
+                                  )
                     ]),
-                ]),
+                ],
+                         ),
 
             ], style={
                 'background': '#f2f2f2', 'height': '50vh'}, outline=True),
