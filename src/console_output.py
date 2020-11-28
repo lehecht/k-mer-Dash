@@ -12,9 +12,9 @@ def printData(data, k, peak, top, highlight):
     try:
         process = Processing(data, None, k, peak, top, highlight)
         printPairwAlignment(process)
-        # printKMerFrequency(process)
-        # printScatterPlot(process)
-        # printPCA(process)
+        printKMerFrequency(process)
+        printScatterPlot(process)
+        printPCA(process)
     except InputValueException as ive:
         print(ive.args[0])
     except FileNotFoundError as fnf:
