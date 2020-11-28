@@ -4,7 +4,8 @@ import subprocess
 import sys
 
 from src.console_output import printData
-from src.dashView import dashLayout
+from src.dashView import dashLayout, initializeData
+from src.processing import Processing
 
 
 def checkValue(value):
@@ -40,6 +41,6 @@ if __name__ == '__main__':
     if args.console:
         printData(files, args.k, args.peak, args.top, args.highlight)
     else:
-        dashLayout.startDash()
+        dashLayout.startDash(files, args.k, args.peak, args.top, args.highlight)
     if os.path.exists('./tmp/'):
         subprocess.run(['rm', '-r', './tmp/'])

@@ -2,6 +2,18 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
+import pandas as pd
+
+from src.dashView import initializeData
+
+process = None
+
+
+def startDash(slc, k_len, p, t, hgl):
+    if slc is not None:
+        global process
+        process = initializeData.initData(slc, slc, k_len, p, t, hgl)
+    app.run_server(debug=True)
 
 
 def markSliderRange(min, max):
@@ -26,20 +38,20 @@ app.layout = dbc.Container([
                     html.Br(),
                     html.H6("Selected Files:"),
                     dbc.Select(
-                        id="Selected File 1",
+                        id="file1",
                         options=[
                             {"label": "File 1", "value": "1"},
                             {"label": "File 2", "value": "2"},
                         ],
-                        value="1"
+                        # value="1"
                     ),
                     dbc.Select(
-                        id="Selected File 2",
+                        id="file2",
                         options=[
                             {"label": "File 1", "value": "1"},
                             {"label": "File 2", "value": "2"},
                         ],
-                        value="2"
+                        # value="2"
                     ),
                     html.Br(),
                     html.Br(),
@@ -62,18 +74,32 @@ app.layout = dbc.Container([
                        "padding-left": '0px',
                        'margin-right': '0px'}),
 
-            dbc.Col(dbc.Card(["TEST1"], style={
-                'background': '#f2f2f2', 'height': '50vh'}, outline=True),
-                    width=5,
-                    style={"padding-right": '5px',
-                           "padding-left": '10px'}),
+            dbc.Col(dbc.Card([
+                dcc.Graph(figure={}, id="scatter")
 
-            dbc.Col(dbc.Card(["TEST2"], style={
+            ], style={
                 'background': '#f2f2f2', 'height': '50vh'}, outline=True),
-                    width=5,
-                    style={"padding-right": '0px',
-                           "padding-left": '0px'}
-                    )
+                width=5,
+                style={"padding-right": '5px',
+                       "padding-left": '10px'}),
+
+            dbc.Col(dbc.Card([
+
+                dcc.Tabs(id='tabs-example', value='Tab1', children=[
+                    dcc.Tab(label='PCA 1', value='Tab1', id="Tab1", children=[
+                        dcc.Graph(figure={}, id="PCA1", style={'height': '43vh'})
+                    ]),
+                    dcc.Tab(label='PCA 2', value='Tab2', id="Tab2", children=[
+                        dcc.Graph(figure={}, id="PCA2", style={'height': '45vh'})
+                    ]),
+                ]),
+
+            ], style={
+                'background': '#f2f2f2', 'height': '50vh'}, outline=True),
+                width=5,
+                style={"padding-right": '0px',
+                       "padding-left": '0px'}
+            )
         ], style={'padding-top': '0px', 'padding-bottom': '0px', 'margin-top': '0px', 'margin-bottom': '0px',
                   'margin-left': '0px', 'padding-left': '0px'},
             className="mw-100 mh-100"
@@ -130,15 +156,15 @@ app.layout = dbc.Container([
                 style={"padding-right": '0px',
                        "padding-left": '0px',
                        'margin-right': '0px'}),
-            dbc.Col(dbc.Card(["TEST3"], style={
-                'background': '#f2f2f2', 'height': '49vh'}, outline=True),
+            dbc.Col(dbc.Card(id="topK", children=[], style={
+                'background': '#f2f2f2', 'height': '49vh','overflow-y': 'scroll'}, outline=True),
                     width=5,
                     style={"padding-right": '5px',
                            "padding-top": '5px',
                            "padding-left": '10px'}),
 
-            dbc.Col(dbc.Card(["TEST4"], style={
-                'background': '#f2f2f2', 'height': '49vh'}, outline=True),
+            dbc.Col(dbc.Card(id="msa",children=[], style={
+                'background': '#f2f2f2', 'height': '49vh','overflow-y': 'scroll'}, outline=True),
                     width=5,
                     style={"padding-right": '0px',
                            "padding-top": '5px',
@@ -154,5 +180,84 @@ app.layout = dbc.Container([
 ], className="mw-100 mh-100", style={'left': '0px', 'margin-left': '0px', 'padding': '0px'})
 
 
-def startDash():
-    app.run_server(debug=True)
+@app.callback(
+    [dash.dependencies.Output('scatter', 'figure'), ],
+    [
+        dash.dependencies.Input('file1', 'value'),
+        dash.dependencies.Input('file2', 'value'),
+        dash.dependencies.Input('k', 'value'),
+        dash.dependencies.Input('top', 'value'),
+        dash.dependencies.Input('peak', 'value'),
+        dash.dependencies.Input('highlight', 'value'),
+    ]
+
+)
+def update(file1, file2, k_d, top_d, peak_d, highlight_d):
+    scatter = None
+    if file1 is None and file2 is None:
+        scatter = initializeData.getScatterPlot(process)
+    return [scatter]
+
+
+@app.callback(
+    [dash.dependencies.Output('PCA1', 'figure'),
+     dash.dependencies.Output('PCA2', 'figure')],
+    [
+        dash.dependencies.Input('file1', 'value'),
+        dash.dependencies.Input('file2', 'value'),
+        dash.dependencies.Input('k', 'value'),
+        dash.dependencies.Input('top', 'value'),
+        dash.dependencies.Input('peak', 'value'),
+        dash.dependencies.Input('highlight', 'value'),
+    ]
+
+)
+def update(file1, file2, k_d, top_d, peak_d, highlight_d):
+    pca1 = None
+    pca2 = None
+    if file1 is None and file2 is None:
+        pca1, pca2 = initializeData.getPCA(process)
+    return [pca1, pca2]
+
+
+@app.callback(
+    [dash.dependencies.Output('topK', 'children')],
+    [
+        dash.dependencies.Input('file1', 'value'),
+        dash.dependencies.Input('file2', 'value'),
+        dash.dependencies.Input('k', 'value'),
+        dash.dependencies.Input('top', 'value'),
+        dash.dependencies.Input('peak', 'value'),
+        dash.dependencies.Input('highlight', 'value'),
+    ]
+
+)
+def update(file1, file2, k_d, top_d, peak_d, highlight_d):
+    topK = None
+    if file1 is None and file2 is None:
+        topK = process.getTopKmer().copy()
+        kmer = topK.index
+        topK["K-Mer"] = kmer
+        topK = topK[["K-Mer", "Frequency", "File"]]
+        topK = topK.sort_values(by="Frequency", ascending=False)
+    return [dbc.Table.from_dataframe(topK, striped=True, bordered=True, hover=True, size='sm')]
+
+@app.callback(
+    [dash.dependencies.Output('msa', 'children')],
+    [
+        dash.dependencies.Input('file1', 'value'),
+        dash.dependencies.Input('file2', 'value'),
+        dash.dependencies.Input('k', 'value'),
+        dash.dependencies.Input('top', 'value'),
+        dash.dependencies.Input('peak', 'value'),
+        dash.dependencies.Input('highlight', 'value'),
+    ]
+
+)
+def update(file1, file2, k_d, top_d, peak_d, highlight_d):
+    algn = None
+    if file1 is None and file2 is None:
+        algn = initializeData.getAlignmentData(process)
+        algn = pd.DataFrame(algn)
+        algn.columns = ["Alignment"]
+    return [dbc.Table.from_dataframe(algn, striped=True, bordered=True, hover=True, size='sm')]

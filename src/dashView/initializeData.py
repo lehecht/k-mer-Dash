@@ -8,10 +8,16 @@ import plotly.express as px
 
 def initData(data, selected, k, peak, top, highlight):
     try:
-        process = Processing(data, selected, k, peak, top, highlight)
-        return KMerAlignmentData.processData(process), process.getTopKmer(), getScatterPlot(process), getPCA(process)
+        return Processing(data, selected, k, peak, top, highlight)
     except InputValueException as ive:
         print(ive.args[0])
+    except FileNotFoundError as fnf:
+        print(fnf.args[0])
+
+
+def getAlignmentData(process):
+    try:
+        return KMerAlignmentData.processData(process)
     except FileNotFoundError as fnf:
         print(fnf.args[0])
 
