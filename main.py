@@ -1,4 +1,6 @@
 import argparse
+import os
+import subprocess
 import sys
 
 from src.console_output import printData
@@ -39,3 +41,5 @@ if __name__ == '__main__':
         printData(files, args.k, args.peak, args.top, args.highlight)
     else:
         dashLayout.startDash()
+    if os.path.exists('./tmp/'):
+        subprocess.run(['rm', '-r', './tmp/'])

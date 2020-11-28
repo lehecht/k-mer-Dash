@@ -12,9 +12,9 @@ def printData(data, k, peak, top, highlight):
     try:
         process = Processing(data, None, k, peak, top, highlight)
         printPairwAlignment(process)
-        printKMerFrequency(process)
-        printScatterPlot(process)
-        printPCA(process)
+        # printKMerFrequency(process)
+        # printScatterPlot(process)
+        # printPCA(process)
     except InputValueException as ive:
         print(ive.args[0])
     except FileNotFoundError as fnf:
@@ -64,8 +64,15 @@ def printKMerFrequency(process):
 
 def printPairwAlignment(process):
     alignment_list = KMerAlignmentData.processData(process)
-    for alg in alignment_list:
-        print(alg)
+    if process.getSettings().getPeak() is None:
+        print('Alignment of Top-kmere created with ClustalW')
+        print('(for more information, see: http://www.clustal.org/clustal2/)')
+        print("")
+        for alg in alignment_list:
+            print(alg.seq)
+    else:
+        for alg in alignment_list:
+            print(alg)
 
 
 def printPCA(process):

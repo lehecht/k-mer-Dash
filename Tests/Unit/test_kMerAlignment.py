@@ -26,7 +26,7 @@ def test_processData():
     top = 3
     highlight = 0
     peak = 2
-    pattern = '[A-Z]+[a-z]+$'
+    pattern = '[A-Za-z]+$'
     process = Processing(testData, None, k, peak, top, highlight)
 
     # execution
@@ -35,4 +35,7 @@ def test_processData():
     # testing
     assert len(algnm2) == 4
     for kmer in algnm2:
+        assert len(kmer) == 2 * k - 1
+        assert "-" in kmer
+        kmer = kmer.replace("-", "")
         assert re.search(pattern, kmer) is not None  # checks if there are only kmere containg the peak position
