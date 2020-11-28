@@ -260,7 +260,7 @@ def update(file1, file2, k_d, top_d, peak_d, highlight_d):
         topK = topK[["K-Mer", "Frequency", "File"]]
         topK = topK.sort_values(by="Frequency", ascending=False)
     return [dbc.Table.from_dataframe(topK, striped=True, bordered=True, hover=True, size='sm',
-                                     style={'text-align': 'center'})]
+                                     style={'text-align': 'center'}, loading_state={'is_loading':True})]
 
 
 @app.callback(
@@ -277,8 +277,15 @@ def update(file1, file2, k_d, top_d, peak_d, highlight_d):
 )
 def update(file1, file2, k_d, top_d, peak_d, highlight_d):
     algn = None
+    peak = process.getSettings().getPeak()
     if file1 is None and file2 is None:
         algn = initializeData.getAlignmentData(process)
-        algn = pd.DataFrame(algn)
-        algn.columns = ["Alignment"]
+        if peak is not None:
+            algn = pd.DataFrame(algn)
+            algn.columns = ["Alignment at peak position"]
+        else:
+            algn = [str(entry.seq) for entry in algn]
+            algn = pd.DataFrame(algn)
+            algn.columns = ["Alignment with ClustalW"]
+
     return [dbc.Table.from_dataframe(algn, borderless=True, hover=True, size='sm', style={'text-align': 'center'})]
