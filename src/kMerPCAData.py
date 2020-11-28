@@ -39,6 +39,7 @@ class KMerPCAData(Processing):
         top = self.getSettings().getTop()
         topKmer = self.getTopKmer()
         all_tripplets = self.getAllTripplets()
+        p1_len = len(self.getProfilObj1().getProfile())
 
         fileName1 = topKmer['File'].drop_duplicates().values.tolist()[0]  # get filenames
         fileName2 = topKmer['File'].drop_duplicates().values.tolist()[1]
@@ -47,8 +48,8 @@ class KMerPCAData(Processing):
             top_list_file1 = (topKmer['Frequency'].iloc[:top]).to_dict()  # get top kmeres
             top_list_file2 = (topKmer['Frequency'].iloc[top:]).to_dict()
         else:
-            top_list_file1 = topKmer['Frequency'].to_dict()  # get top kmeres
-            top_list_file2 = topKmer['Frequency'].to_dict()
+            top_list_file1 = topKmer['Frequency'].iloc[:p1_len].to_dict()  # get top kmeres
+            top_list_file2 = topKmer['Frequency'].iloc[p1_len:].to_dict()
 
         # create dataframe
         top_list_df1 = fillDataFrame(top_list_file1, all_tripplets)  # fill remaining data
