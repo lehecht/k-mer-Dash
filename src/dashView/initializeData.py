@@ -43,9 +43,9 @@ def getPCA(process):
     propName = pca_dfs[4].Frequency.name
 
     fig1 = px.scatter(pca_df1, x='PC1', y='PC2', hover_name=pca_df1.index.tolist(), title='PCA of {}'.format(filename1),
-                      color=prop1, color_continuous_scale='burg')
+                      color=prop1, color_continuous_scale='plasma')
     fig2 = px.scatter(pca_df2, x='PC1', y='PC2', hover_name=pca_df2.index.tolist(), title='PCA of {}'.format(filename2),
-                      color=prop2, color_continuous_scale='burg')
+                      color=prop2, color_continuous_scale='plasma')
     fig1.update_layout(coloraxis_colorbar=dict(
         title=propName,
     ))
