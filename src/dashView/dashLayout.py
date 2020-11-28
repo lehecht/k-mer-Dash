@@ -25,7 +25,7 @@ def markSliderRange(min, max):
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
-app.title="k-Mer Dash"
+app.title = "k-Mer Dash"
 
 app.layout = dbc.Container([
     dbc.Card([
@@ -83,7 +83,12 @@ app.layout = dbc.Container([
 
             # --------------------------------------- ScatterPlot ------------------------------------------------------
             dbc.Col(dbc.Card([
-                dcc.Graph(figure={}, id="scatter",style={'height': '50vh'})
+                dbc.Spinner(children=[
+                    dcc.Graph(figure={}, id="scatter", style={'height': '50vh'})], color="primary",
+                    spinner_style={'position': 'absolute',
+                                   'top': '50%',
+                                   'left': '50%'
+                                   })
 
             ], style={
                 'background': '#f2f2f2', 'height': '50vh'}, outline=True),
@@ -93,7 +98,7 @@ app.layout = dbc.Container([
 
             # ------------------------------------------------- PCAs ---------------------------------------------------
             dbc.Col(dbc.Card([
-                dcc.Tabs(id='tabs-example', value='Tab1', children=[
+                dbc.Spinner(children=[dcc.Tabs(id='tabs-example', value='Tab1', children=[
                     dcc.Tab(label='PCA 1', value='Tab1', id="Tab1", children=[
                         dcc.Graph(figure={}, id="PCA1",
                                   style={'height': '42vh'}
@@ -105,7 +110,10 @@ app.layout = dbc.Container([
                                   )
                     ]),
                 ],
-                         ),
+                                               )], color="primary", spinner_style={'position': 'absolute',
+                                                                                   'top': '50%',
+                                                                                   'left': '50%'
+                                                                                   }),
 
             ], style={
                 'background': '#f2f2f2', 'height': '50vh'}, outline=True),
@@ -174,21 +182,31 @@ app.layout = dbc.Container([
                        "padding-left": '0px',
                        'margin-right': '0px'}),
             # -------------------------------------------- TopK --------------------------------------------------------
-            dbc.Col(dbc.Card(id="topK", children=[], style={
-                'background': '#f2f2f2', 'height': '49vh', 'overflow-y': 'scroll'}, outline=True),
-                    width=5,
-                    style={"padding-right": '5px',
-                           "padding-top": '5px',
-                           "padding-left": '10px'}),
+            dbc.Col(
+                dbc.Spinner(children=[dbc.Card(id="topK", children=[], style={
+                    'background': '#f2f2f2', 'height': '49vh', 'overflow-y': 'scroll'}, outline=True)],
+                            color="primary", spinner_style={'position': 'absolute',
+                                                            'top': '50%',
+                                                            'left': '50%'
+                                                            }),
+                width=5,
+                style={"padding-right": '5px',
+                       "padding-top": '5px',
+                       "padding-left": '10px'}),
 
             # ------------------------------------------- MSA ----------------------------------------------------------
-            dbc.Col(dbc.Card(id="msa", children=[], style={
-                'background': '#f2f2f2', 'height': '49vh', 'overflow-y': 'scroll'}, outline=True),
-                    width=5,
-                    style={"padding-right": '0px',
-                           "padding-top": '5px',
-                           "padding-left": '0px'}
-                    )
+            dbc.Col(
+                dbc.Spinner(children=[dbc.Card(id="msa", children=[], style={
+                    'background': '#f2f2f2', 'height': '49vh', 'overflow-y': 'scroll'}, outline=True)],
+                            color="primary", spinner_style={'position': 'absolute',
+                                                            'top': '50%',
+                                                            'left': '50%'
+                                                            }),
+                width=5,
+                style={"padding-right": '0px',
+                       "padding-top": '5px',
+                       "padding-left": '0px'}
+            )
         ], style={'padding-top': '0px', 'padding-bottom': '0px', 'margin-top': '0px', 'margin-bottom': '0px',
                   'margin-left': '0px', 'padding-left': '0px'},
             className="mw-100 mh-100"
@@ -211,7 +229,7 @@ app.layout = dbc.Container([
     ]
 
 )
-def update(file1, file2, k_d, top_d, peak_d, highlight_d):
+def updateScatterPlot(file1, file2, k_d, top_d, peak_d, highlight_d):
     scatter = None
     if file1 is None and file2 is None:
         scatter = initializeData.getScatterPlot(process)
@@ -231,7 +249,7 @@ def update(file1, file2, k_d, top_d, peak_d, highlight_d):
     ]
 
 )
-def update(file1, file2, k_d, top_d, peak_d, highlight_d):
+def updatePCA(file1, file2, k_d, top_d, peak_d, highlight_d):
     pca1 = None
     pca2 = None
     if file1 is None and file2 is None:
@@ -251,7 +269,7 @@ def update(file1, file2, k_d, top_d, peak_d, highlight_d):
     ]
 
 )
-def update(file1, file2, k_d, top_d, peak_d, highlight_d):
+def updateTopTable(file1, file2, k_d, top_d, peak_d, highlight_d):
     topK = None
     if file1 is None and file2 is None:
         topK = process.getTopKmer().copy()
@@ -260,7 +278,7 @@ def update(file1, file2, k_d, top_d, peak_d, highlight_d):
         topK = topK[["K-Mer", "Frequency", "File"]]
         topK = topK.sort_values(by="Frequency", ascending=False)
     return [dbc.Table.from_dataframe(topK, striped=True, bordered=True, hover=True, size='sm',
-                                     style={'text-align': 'center'}, loading_state={'is_loading':True})]
+                                     style={'text-align': 'center'}, loading_state={'is_loading': True})]
 
 
 @app.callback(
@@ -275,7 +293,7 @@ def update(file1, file2, k_d, top_d, peak_d, highlight_d):
     ]
 
 )
-def update(file1, file2, k_d, top_d, peak_d, highlight_d):
+def updateMSA(file1, file2, k_d, top_d, peak_d, highlight_d):
     algn = None
     peak = process.getSettings().getPeak()
     if file1 is None and file2 is None:
