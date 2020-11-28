@@ -71,6 +71,7 @@ def printPairwAlignment(process):
         for alg in alignment_list:
             print(alg.seq)
     else:
+        print('Alignment of Top-kmere created with Peak-Position: {}'.format(process.getSettings().getPeak()))
         for alg in alignment_list:
             print(alg)
 

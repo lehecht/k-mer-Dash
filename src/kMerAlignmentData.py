@@ -81,6 +81,5 @@ class KMerAlignmentData(Processing):
                 endGaps = int(2 * k - 1) - len(algn)  # add end gaps
                 algn = algn + "-" * endGaps
                 alignment.append(algn)
-            print('Alignment of Top-kmere created with Peak-Position: {}'.format(peak))
 
         return alignment
