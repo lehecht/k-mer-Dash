@@ -3,7 +3,6 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 import pandas as pd
-
 from src.dashView import initializeData
 
 process = None
@@ -13,7 +12,7 @@ def startDash(slc, k_len, p, t, hgl):
     if slc is not None:
         global process
         process = initializeData.initData(slc, slc, k_len, p, t, hgl)
-    app.run_server(debug=True)
+        app.run_server(debug=True)
 
 
 def markSliderRange(min, max):

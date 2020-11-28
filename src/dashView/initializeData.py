@@ -1,4 +1,3 @@
-from src.inputValueException import InputValueException
 from src.kMerAlignmentData import KMerAlignmentData
 from src.kMerPCAData import KMerPCAData
 from src.kMerScatterPlotData import KMerScatterPlotData
@@ -7,19 +6,12 @@ import plotly.express as px
 
 
 def initData(data, selected, k, peak, top, highlight):
-    try:
-        return Processing(data, selected, k, peak, top, highlight)
-    except InputValueException as ive:
-        print(ive.args[0])
-    except FileNotFoundError as fnf:
-        print(fnf.args[0])
+    process = Processing(data, selected, k, peak, top, highlight)
+    return process
 
 
 def getAlignmentData(process):
-    try:
-        return KMerAlignmentData.processData(process)
-    except FileNotFoundError as fnf:
-        print(fnf.args[0])
+    return KMerAlignmentData.processData(process)
 
 
 def getScatterPlot(process):

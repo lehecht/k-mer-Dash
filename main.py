@@ -5,6 +5,7 @@ import sys
 
 from src.console_output import printData
 from src.dashView import dashLayout, initializeData
+from src.inputValueException import InputValueException
 from src.processing import Processing
 
 
@@ -41,6 +42,13 @@ if __name__ == '__main__':
     if args.console:
         printData(files, args.k, args.peak, args.top, args.highlight)
     else:
-        dashLayout.startDash(files, args.k, args.peak, args.top, args.highlight)
+        try:
+            dashLayout.startDash(files, args.k, args.peak, args.top, args.highlight)
+        except InputValueException as ive:
+            print(ive.args[0])
+            sys.exit(101)
+        except FileNotFoundError as fnf:
+            print(fnf.args[0])
+            sys.exit(101)
     if os.path.exists('./tmp/'):
         subprocess.run(['rm', '-r', './tmp/'])
