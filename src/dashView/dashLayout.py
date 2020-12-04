@@ -8,10 +8,10 @@ from src.dashView import initializeData
 process = None
 
 
-def startDash(slc, k_len, p, t, hgl):
+def startDash(slc, k_len, p, t):
     if slc is not None:
         global process
-        process = initializeData.initData(slc, slc, k_len, p, t, hgl)
+        process = initializeData.initData(slc, slc, k_len, p, t)
         app.run_server(debug=True)
 
 

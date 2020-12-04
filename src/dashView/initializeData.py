@@ -5,8 +5,8 @@ from src.processing import Processing
 import plotly.express as px
 
 
-def initData(data, selected, k, peak, top, highlight):
-    process = Processing(data, selected, k, peak, top, highlight)
+def initData(data, selected, k, peak, top):
+    process = Processing(data, selected, k, peak, top)
     return process
 
 

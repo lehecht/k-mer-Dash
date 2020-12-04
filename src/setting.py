@@ -4,15 +4,13 @@ class Setting:
     k = 0
     peak = 0
     top = 0
-    highlight = 0
 
-    def __init__(self, data, selected, k, peak, top, highlight):
+    def __init__(self, data, selected, k, peak, top):
         self.data = data
         self.selected = selected
         self.k = k
         self.peak = peak
         self.top = top
-        self.highlight = highlight
 
     def setData(self, data):
         self.data = data
@@ -29,9 +27,6 @@ class Setting:
     def setTop(self, top):
         self.top = top
 
-    def setHighlight(self, highlight):
-        self.highlight = highlight
-
     def getData(self):
         return self.data
 
@@ -47,5 +42,3 @@ class Setting:
     def getTop(self):
         return self.top
 
-    def getHighlight(self):
-        return self.highlight

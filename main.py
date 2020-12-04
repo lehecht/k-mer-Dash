@@ -25,8 +25,6 @@ argparser.add_argument('-p', '--peak', dest='peak', nargs='?', action='store', t
                        help="peak position in sequence. Must be smaller than 'k' or equal.")
 argparser.add_argument('-t', '--top', dest='top', default=10, nargs='?', action='store', type=checkValue,
                        help="shows first 't' entries (Default: 10).")
-argparser.add_argument('-hl', '--highlights', dest='highlight', default=10, nargs='?', action='store', type=checkValue,
-                       help="number of max-value highlights in scatter-plot (Default: 10).")
 argparser.add_argument('-c', '--console', dest='console', default=False, nargs='?', action='store', type=bool,
                        help="starts program in dash mode (= Default) or on commandline (= True).")
 
@@ -42,7 +40,7 @@ if __name__ == '__main__':
             sys.exit(0)
     if args.console:
         try:
-            printData(files, args.k, args.peak, args.top, args.highlight)
+            printData(files, args.k, args.peak, args.top)
         except FileCountException as fce:
             print(fce.args[0])
         except InputValueException as ive:
@@ -51,7 +49,7 @@ if __name__ == '__main__':
             print(fnf.args[0])
     else:
         try:
-            dashLayout.startDash(files, args.k, args.peak, args.top, args.highlight)
+            dashLayout.startDash(files, args.k, args.peak, args.top)
         except InputValueException as ive:
             print(ive.args[0])
         except FileNotFoundError as fnf:
