@@ -6,7 +6,7 @@ import sys
 from src.console_output import printData
 from src.dashView import dashLayout, initializeData
 from src.inputValueException import InputValueException
-from src.processing import Processing
+from src.fileCountException import FileCountException
 
 
 def checkValue(value):
@@ -31,6 +31,7 @@ argparser.add_argument('-c', '--console', dest='console', default=False, nargs='
                        help="starts program in dash mode (= Default) or on commandline (= True).")
 
 if __name__ == '__main__':
+    exit = False
     args = argparser.parse_args()
     files = [args.f1, args.f2]
     for file in files:
@@ -38,17 +39,22 @@ if __name__ == '__main__':
             open(file)
         except IOError:
             print('\'{}\' does not exist'.format(file))
-            sys.exit(101)
+            sys.exit(0)
     if args.console:
-        printData(files, args.k, args.peak, args.top, args.highlight)
+        try:
+            printData(files, args.k, args.peak, args.top, args.highlight)
+        except FileCountException as fce:
+            print(fce.args[0])
+        except InputValueException as ive:
+            print(ive.args[0])
+        except FileNotFoundError as fnf:
+            print(fnf.args[0])
     else:
         try:
             dashLayout.startDash(files, args.k, args.peak, args.top, args.highlight)
         except InputValueException as ive:
             print(ive.args[0])
-            sys.exit(101)
         except FileNotFoundError as fnf:
             print(fnf.args[0])
-            sys.exit(101)
     if os.path.exists('./tmp/'):
         subprocess.run(['rm', '-r', './tmp/'])

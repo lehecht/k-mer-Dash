@@ -3,6 +3,7 @@ from src.fileCountException import *
 from src.calcKmerLists import *
 from src.profile import Profile
 from itertools import combinations_with_replacement, permutations
+import os
 
 
 # abstract class
@@ -20,8 +21,9 @@ class Processing:
         elif len(data) >= 2:
             selected = data[:2]
             self.setting = Setting(data, selected, k, peak, top, highlight)
-        else:
-            raise FileCountException
+
+        if os.stat(selected[0]).st_size is 0 or os.stat(selected[1]).st_size is 0:
+            raise FileCountException('One of the files is empty!')
 
         self.profile1 = Profile(dict(), selected[0])
         self.profile2 = Profile(dict(), selected[1])
@@ -48,6 +50,9 @@ class Processing:
         for trip in tripplet_comb:
             comb = list(set(permutations(trip)))
         self.all_tripplets.extend([''.join(comb[i]) for i in range(0, len(comb))])
+
+
+
 
         # abstract method
 
