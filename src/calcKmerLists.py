@@ -100,24 +100,34 @@ def calcTopKmer(top, p1, p2):
                         list(profile1.items())))  # creates list of triples (kmer, frequency, filename)
     profile2 = list(map((lambda e: (e[0], e[1], fileName2)), list(profile2.items())))
 
-    allKmer = profile1
-    allKmer.extend(profile2)
-    allKmer.sort(key=(lambda item: item[1]),
-                 reverse=True)  # gets list of triples, and sorts triples among their frequency
+    profile1.sort(key=(lambda item: item[1]), reverse=True)
+    profile2.sort(key=(lambda item: item[1]), reverse=True)
 
     if top is not None:
-        dup_kmer_freq = []
-        for i in range(top, len(allKmer)):
-            next_kmer_freq = allKmer[i][1]
-            if allKmer[i - 1][1] == next_kmer_freq:
-                dup_kmer_freq.append(allKmer[i])
+        profile1_top = profile1[:top]
+        profile2_top = profile2[:top]
+
+        for p in [profile1, profile2]:
+            dup_kmer_freq = []
+            for i in range(top, len(p)):
+                next_kmer_freq = p[i][1]
+                if p[i - 1][1] == next_kmer_freq:
+                    dup_kmer_freq.append(p[i])
+                else:
+                    break
+            if p == profile1:
+                profile1_top.extend(dup_kmer_freq)
             else:
-                break
+                profile2_top.extend(dup_kmer_freq)
 
-        allKmer = allKmer[:top]
-        allKmer.extend(dup_kmer_freq)
+    else:
+        profile1_top = profile1.copy()
+        profile2_top = profile2.copy()
 
-    topKmer = pd.DataFrame(allKmer, columns=['','Frequency', 'File'])
+    allKmer = profile1_top
+    allKmer.extend(profile2_top)
+
+    topKmer = pd.DataFrame(allKmer, columns=['', 'Frequency', 'File'])
     topKmer = topKmer.set_index('')
 
     return topKmer
