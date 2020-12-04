@@ -1,6 +1,5 @@
 from src.kMerAlignmentData import KMerAlignmentData
 from src.processing import Processing
-import re
 
 
 def test_processData():
@@ -16,9 +15,19 @@ def test_processData():
 
     # execution
     algnm1 = KMerAlignmentData.processData(process)
-
+    algnm1_list = list(map(lambda e: e.seq, algnm1))
+    print(algnm1)
     # testing
-    assert len(algnm1) >= top
+    assert len(algnm1) == 9
+    assert algnm1_list == ["TTTGG----",
+                           "GTTGG----",
+                           "-TTGGG---",
+                           "--TGGGG--",
+                           "---GGGGC-",
+                           "---GGGCA-",
+                           "---AACCC-",
+                           "----ACCCC",
+                           "---AAAAA-"]
 
     # # Test2 with peak-position
     # Preparation
@@ -26,15 +35,11 @@ def test_processData():
     top = 3
     highlight = 0
     peak = 2
-    pattern = '[A-Za-z]+$'
     process = Processing(testData, None, k, peak, top, highlight)
 
     # execution
     algnm2 = KMerAlignmentData.processData(process)
     # testing
     assert len(algnm2) >= top
-    for kmer in algnm2:
-        assert len(kmer) == 2 * k - 1
-        assert "-" in kmer
-        kmer = kmer.replace("-", "")
-        assert re.search(pattern, kmer) is not None  # checks if there are only kmere containg the peak position
+    assert algnm2 == ['----Aaccc', '----Ttggg', '---aAacc-', '---cAacc-', '---aAaaa-', '----Aaaaa', '---tTtgg-',
+                      '---gTtgg-', '---tGggg-', '----Ggggc']
