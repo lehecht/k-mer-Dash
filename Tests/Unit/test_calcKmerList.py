@@ -113,11 +113,11 @@ def test_calcTopKmer():
 
     # Testing
     assert len(topKmerList) == int(2 * top)
-    assert topKmerList == ["AAT", "TAT", "GCC", "AAT", "TCC", "GAC"]
-    assert maxFreq == [3, 5, 7, 8, 2, 11]
+    assert topKmerList == ['TAA', 'CCC', 'GCC', 'CCC', 'GAC', 'AAT']
+    assert maxFreq == [22, 15, 7, 23, 11, 8]
     assert fileNameList == ["file1", "file1", "file1", "file2", "file2", "file2"]
 
-    # Test1: t is greater than amount of entries
+    # Test2: t is greater than amount of entries
     # Preparation
     top = None  # is set on None in processing file
 
@@ -129,8 +129,8 @@ def test_calcTopKmer():
 
     # Testing
     assert len(topKmerList2) == len(profil1.getProfile()) + len(profil2.getProfile())
-    assert topKmerList2 == ["AAT", "TAT", "GCC", "CCC", "TAA", "AAT", "TCC", "GAC", "CCC", "GGG"]
-    assert maxFreq2 == [3, 5, 7, 15, 22, 8, 2, 11, 23, 1]
+    assert topKmerList2 == ['TAA', 'CCC', 'GCC', 'TAT', 'AAT', 'CCC', 'GAC', 'AAT', 'TCC', 'GGG']
+    assert maxFreq2 == [22, 15, 7, 5, 3, 23, 11, 8, 2, 1]
     assert fileNameList2 == ["file1", "file1", "file1", "file1", "file1", "file2", "file2", "file2", "file2", "file2"]
 
 

@@ -23,12 +23,12 @@ def test_processData():
     fileName2 = results[3]
 
     # Testing
-    assert kmer_list1 == ['AAACC', 'AACCC', 'ACCCC']
-    assert kmer_list2 == ['TTTGG', 'TTGGG', 'TGGGG']
+    assert kmer_list1 == ['AAAAA', 'AACCC', 'ACCCC']
+    assert kmer_list2 == ['TGGGG', 'TTGGG', 'TTTGG', 'GTTGG', 'GGGGC', 'GGGCA']
     assert fileName1 == "testFile1.fa"
     assert fileName2 == "testFile2.fa"
-    assert freq1 == [1, 2, 2]
-    assert freq2 == [1, 2, 3]
+    assert freq1 == [3, 2, 2]
+    assert freq2 == [3, 2, 1, 1, 1, 1]
 
     # Test2 with peak-position
     # Preparation
@@ -48,11 +48,12 @@ def test_processData():
     fileName1 = results2[2]
     fileName2 = results2[3]
 
+    print(kmer_list2)
+    print(freq2)
     # Testing
-    print(process2.getTopKmer())
-    assert kmer_list1 == ['aAacc', 'Aaccc', 'acccc']
-    assert kmer_list2 == ['tTtgg', 'Ttggg', 'tgggg']
+    assert kmer_list1 == ['Aaccc', 'acccc', 'aAacc', 'cAacc', 'aAaaa', 'Aaaaa', 'aaaaa']
+    assert kmer_list2 == ['Ttggg', 'tgggg', 'tTtgg', 'gTtgg', 'tGggg', 'Ggggc', 'gggca']
     assert fileName1 == "testFile1.fa"
     assert fileName2 == "testFile2.fa"
-    assert freq1 == [1, 2, 2]
-    assert freq2 == [1, 2, 2]
+    assert freq1 == [2, 2, 1, 1, 1, 1, 1]
+    assert freq2 == [2, 2, 1, 1, 1, 1, 1]

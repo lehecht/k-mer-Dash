@@ -18,7 +18,7 @@ def test_processData():
     algnm1 = KMerAlignmentData.processData(process)
 
     # testing
-    assert len(algnm1) == 2 * top
+    assert len(algnm1) >= top
 
     # # Test2 with peak-position
     # Preparation
@@ -31,9 +31,8 @@ def test_processData():
 
     # execution
     algnm2 = KMerAlignmentData.processData(process)
-
     # testing
-    assert len(algnm2) == 4
+    assert len(algnm2) >= top
     for kmer in algnm2:
         assert len(kmer) == 2 * k - 1
         assert "-" in kmer
