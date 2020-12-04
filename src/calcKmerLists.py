@@ -96,21 +96,30 @@ def calcTopKmer(top, p1, p2):
     fileName1 = os.path.basename(p1.getName())
     fileName2 = os.path.basename(p2.getName())
 
-    p1List = pd.DataFrame.from_dict(profile1, orient='index')  # create Dataframe from calculated frequency-table
-    p1List.columns = ['Frequency']
+    profile1 = list(map((lambda e: (e[0], e[1], fileName1)),
+                        list(profile1.items())))  # creates list of triples (kmer, frequency, filename)
+    profile2 = list(map((lambda e: (e[0], e[1], fileName2)), list(profile2.items())))
 
-    p2List = pd.DataFrame.from_dict(profile2, orient='index')
-    p2List.columns = ['Frequency']
+    allKmer = profile1
+    allKmer.extend(profile2)
+    allKmer.sort(key=(lambda item: item[1]),
+                 reverse=True)  # gets list of triples, and sorts triples among their frequency
 
     if top is not None:
-        topKmer = p1List.iloc[:top]
-        topKmer = topKmer.append(p2List.iloc[:top])
-        files = [fileName1 if i < top else fileName2 for i in range(0, 2 * top)]
-    else:
-        topKmer = p1List
-        topKmer = topKmer.append(p2List)
-        files = [fileName1 if i < len(p1List) else fileName2 for i in range(0, len(topKmer))]
+        dup_kmer_freq = []
+        for i in range(top, len(allKmer)):
+            next_kmer_freq = allKmer[i][1]
+            if allKmer[i - 1][1] == next_kmer_freq:
+                dup_kmer_freq.append(allKmer[i])
+            else:
+                break
 
-    topKmer['File'] = files
+        allKmer = allKmer[:top]
+        allKmer.extend(dup_kmer_freq)
+
+    topKmer = pd.DataFrame(allKmer, columns=['','Frequency', 'File'])
+    topKmer = topKmer.set_index('')
+
+    print(topKmer)
 
     return topKmer
