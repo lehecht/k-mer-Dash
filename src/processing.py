@@ -44,6 +44,7 @@ class Processing:
         self.all_tripplets = []
         tripplet_comb = list(combinations_with_replacement(['A', 'C', 'G', 'T'], r=3))
 
+        comb = []
         for trip in tripplet_comb:
             comb = list(set(permutations(trip)))
         self.all_tripplets.extend([''.join(comb[i]) for i in range(0, len(comb))])
