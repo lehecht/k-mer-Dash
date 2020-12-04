@@ -120,6 +120,4 @@ def calcTopKmer(top, p1, p2):
     topKmer = pd.DataFrame(allKmer, columns=['','Frequency', 'File'])
     topKmer = topKmer.set_index('')
 
-    print(topKmer)
-
     return topKmer

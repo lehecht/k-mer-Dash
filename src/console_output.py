@@ -82,19 +82,28 @@ def printPCA(process):
     pca_df2 = pca_dfs[1]
     filename1 = pca_dfs[2]
     filename2 = pca_dfs[3]
-    prop1 = pca_dfs[4].Frequency  # highlighting property Frequency
-    prop2 = pca_dfs[5].Frequency
-    propName = pca_dfs[4].Frequency.name
+    propName = 'Frequency'
 
-    fig1 = px.scatter(pca_df1, x='PC1', y='PC2', hover_name=pca_df1.index.tolist(), title='PCA of {}'.format(filename1),
+    if pca_df1 is not None:
+        prop1 = pca_dfs[4].Frequency  # highlighting property Frequency
+        fig1 = px.scatter(pca_df1, x='PC1', y='PC2', hover_name=pca_df1.index.tolist(), title='PCA of {}'.format(filename1),
                       color=prop1, color_continuous_scale='burg')
-    fig2 = px.scatter(pca_df2, x='PC1', y='PC2', hover_name=pca_df2.index.tolist(), title='PCA of {}'.format(filename2),
+        fig1.update_layout(coloraxis_colorbar=dict(
+            title=propName,
+        ))
+        fig1.show()
+    else:
+        print()
+        print("INFO: PCA for {} is empty".format(filename1))
+    if pca_df2 is not None:
+        prop2 = pca_dfs[5].Frequency
+        fig2 = px.scatter(pca_df2, x='PC1', y='PC2', hover_name=pca_df2.index.tolist(), title='PCA of {}'.format(filename2),
                       color=prop2, color_continuous_scale='burg')
-    fig1.update_layout(coloraxis_colorbar=dict(
-        title=propName,
-    ))
-    fig2.update_layout(coloraxis_colorbar=dict(
-        title=propName
-    ))
-    fig1.show()
-    fig2.show()
+
+        fig2.update_layout(coloraxis_colorbar=dict(
+            title=propName
+        ))
+        fig2.show()
+    else:
+        print()
+        print("INFO: PCA for {} is empty".format(filename2))

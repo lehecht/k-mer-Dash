@@ -29,8 +29,8 @@ class KMerAlignmentData(Processing):
 
             fileNames_list = top_kmer_list['File']
 
-            fileName1_wExt = fileNames_list.drop_duplicates().tolist()[0]  # Filename #1 with extension
-            fileName2_wExt = fileNames_list.drop_duplicates().tolist()[1]  # Filename #2 with extension
+            fileName1_wExt = os.path.basename(self.getProfilObj1().getName())  # Filename #1 with extension
+            fileName2_wExt = os.path.basename(self.getProfilObj2().getName())  # Filename #1 with extension
 
             newFileName = "{f1}_{f2}".format(f1=os.path.splitext(fileName1_wExt)[0],
                                              f2=os.path.splitext(fileName2_wExt)[0])  # new Filename without extension

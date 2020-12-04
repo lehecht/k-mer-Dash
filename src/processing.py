@@ -29,7 +29,10 @@ class Processing:
         self.profile1.setProfile(calcFrequency(k, peak, selected)[0])
         self.profile2.setProfile(calcFrequency(k, peak, selected)[1])
 
-        if top > len(self.profile1.getProfile()) or top > len(self.profile2.getProfile()):
+        len_p1 = len(self.profile1.getProfile())
+        len_p2 = len(self.profile2.getProfile())
+
+        if (top > len_p1 or top > len_p2) and ((len_p1 is not 0) and (len_p2 is not 0)):
             print("WARNING: top-value is greater than amount of entries.")
             print("All entries will be displayed.")
             self.setting.setTop(None)
@@ -43,9 +46,10 @@ class Processing:
 
         for trip in tripplet_comb:
             comb = list(set(permutations(trip)))
-            self.all_tripplets.extend([''.join(comb[i]) for i in range(0, len(comb))])
+        self.all_tripplets.extend([''.join(comb[i]) for i in range(0, len(comb))])
 
-    # abstract method
+        # abstract method
+
     def processData(self):
         pass
 

@@ -1,3 +1,5 @@
+import os
+
 from src.processing import Processing
 import pandas as pd
 from sklearn.decomposition import PCA
@@ -6,7 +8,8 @@ from sklearn.decomposition import PCA
 # counts tripplets and number of nucleic acids
 def fillDataFrame(df, all_tripplets):
     alphabet = ['A', 'C', 'G', 'T']
-    top_list_df = pd.DataFrame.from_dict(df, orient='index', columns=['Frequency'])
+    top_list_df = df.copy()
+    del top_list_df['File']
 
     # add columns
     for b in alphabet:
@@ -36,30 +39,31 @@ class KMerPCAData(Processing):
         super().__init__(data, selected, k, peak, top, highlight)
 
     def processData(self):
-        top = self.getSettings().getTop()
         topKmer = self.getTopKmer()
         all_tripplets = self.getAllTripplets()
-        p1_len = len(self.getProfilObj1().getProfile())
 
-        fileName1 = topKmer['File'].drop_duplicates().values.tolist()[0]  # get filenames
-        fileName2 = topKmer['File'].drop_duplicates().values.tolist()[1]
+        fileName1 = os.path.basename(self.getProfilObj1().getName())  # get filenames
+        fileName2 = os.path.basename(self.getProfilObj2().getName())
 
-        if top is not None:
-            top_list_file1 = (topKmer['Frequency'].iloc[:top]).to_dict()  # get top kmeres
-            top_list_file2 = (topKmer['Frequency'].iloc[top:]).to_dict()
-        else:
-            top_list_file1 = topKmer['Frequency'].iloc[:p1_len].to_dict()  # get top kmeres
-            top_list_file2 = topKmer['Frequency'].iloc[p1_len:].to_dict()
-
-        # create dataframe
-        top_list_df1 = fillDataFrame(top_list_file1, all_tripplets)  # fill remaining data
-        top_list_df2 = fillDataFrame(top_list_file2, all_tripplets)
+        top_list_file1 = topKmer.query('File==@fileName1')  # get top kmeres
+        top_list_file2 = topKmer.query('File==@fileName2')  # get top kmeres
 
         pca = PCA(n_components=2)
 
-        pca_data1 = pca.fit_transform(top_list_df1)
-        pca_data2 = pca.fit_transform(top_list_df2)
-        pca_df1 = pd.DataFrame(data=pca_data1, columns=['PC1', 'PC2'], index=top_list_df1.index)
-        pca_df2 = pd.DataFrame(data=pca_data2, columns=['PC1', 'PC2'], index=top_list_df2.index)
+        pca_df1 = None
+        pca_df2 = None
+        top_list_df1 = None
+        top_list_df2 = None
+
+        # create dataframe
+        if len(top_list_file1) is not 0:
+            top_list_df1 = fillDataFrame(top_list_file1, all_tripplets)  # fill remaining data
+            pca_data1 = pca.fit_transform(top_list_df1)
+            pca_df1 = pd.DataFrame(data=pca_data1, columns=['PC1', 'PC2'], index=top_list_df1.index)
+
+        if len(top_list_file2) is not 0:
+            top_list_df2 = fillDataFrame(top_list_file2, all_tripplets)
+            pca_data2 = pca.fit_transform(top_list_df2)
+            pca_df2 = pd.DataFrame(data=pca_data2, columns=['PC1', 'PC2'], index=top_list_df2.index)
 
         return [pca_df1, pca_df2, fileName1, fileName2, top_list_df1, top_list_df2]
