@@ -3,16 +3,17 @@ from src.kMerScatterPlotData import KMerScatterPlotData
 from src.kMerPCAData import KMerPCAData
 from src.kMerAlignmentData import KMerAlignmentData
 import math
+import src.layout.plot_theme_templates as ptt
 
 import plotly.express as px
 
 
 def printData(data, k, peak, top):
     process = Processing(data, data, k, peak, top)
-    # printPairwAlignment(process)
-    # printKMerFrequency(process)
+    printPairwAlignment(process)
+    printKMerFrequency(process)
     printScatterPlot(process)
-    # printPCA(process)
+    printPCA(process)
 
 
 def printScatterPlot(process):
@@ -20,7 +21,6 @@ def printScatterPlot(process):
     df = result[0]
     label = result[1]
     fileNames = result[2]
-    # size_score = result[3]
 
     fig = px.scatter(df, x=fileNames[0], y=fileNames[1], hover_name=label,
                      color='highlight',
@@ -31,15 +31,10 @@ def printScatterPlot(process):
                      size="size_score",
                      hover_data={'highlight': False, fileNames[0]: True, fileNames[1]: True, 'size_score': False},
                      )
-    fig.update_layout(
-        dict(font_color='black', legend_traceorder="reversed", legend=dict(title=None, bordercolor="Black",
-                                                                           borderwidth=1, font_size=18),
-             plot_bgcolor="white"),
-        title=dict(font_size=25, xanchor='center', yanchor='top', y=0.95, x=0.5))
-    fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='#e6e6e6', linecolor="black",
-                     title="#k-Mer of " + fileNames[0],title_font=dict(size=18))
-    fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='#e6e6e6', linecolor="black",
-                     title="#k-Mer of " + fileNames[1],title_font=dict(size=18))
+    fig.update_layout(dict(template=ptt.custom_plot_template, legend=dict(title=None)),
+                      title=dict(font_size=25))
+    fig.update_xaxes(title="#k-Mer of " + fileNames[0], title_font=dict(size=18))
+    fig.update_yaxes(title="#k-Mer of " + fileNames[1], title_font=dict(size=18))
     fig.show()
 
 
@@ -94,25 +89,22 @@ def printPCA(process):
     pca_df2 = pca_dfs[1]
     filename1 = pca_dfs[2]
     filename2 = pca_dfs[3]
-    propName = 'Frequency'
 
-    if pca_df1 is not None:
-        prop1 = pca_dfs[4].Frequency  # highlighting property Frequency
-        fig1 = px.scatter(pca_df1, x='PC1', y='PC2', hover_name=pca_df1.index.tolist(),
-                          title='PCA of {}'.format(filename1),
-                          color=prop1, color_continuous_scale='plasma')
-        fig1.update_layout(coloraxis_colorbar=dict(
+    file = filename1
+    prop = pca_dfs[4].Frequency  # highlighting property Frequency
+    propName = prop.name
+    print(propName)
+    for p in [pca_df1,pca_df2]:
+        fig = px.scatter(p, x='PC1', y='PC2', hover_name=p.index.tolist(),
+                          title='PCA of {}'.format(file),
+                          color=prop, color_continuous_scale='plasma',
+                          hover_data={"PC1":True,"PC2":True})
+        fig.update_layout(coloraxis_colorbar=dict(
             title=propName,
-        ))
-        fig1.show()
-
-    if pca_df2 is not None:
-        prop2 = pca_dfs[5].Frequency
-        fig2 = px.scatter(pca_df2, x='PC1', y='PC2', hover_name=pca_df2.index.tolist(),
-                          title='PCA of {}'.format(filename2),
-                          color=prop2, color_continuous_scale='plasma')
-
-        fig2.update_layout(coloraxis_colorbar=dict(
-            title=propName
-        ))
-        fig2.show()
+        ), template=ptt.custom_plot_template, xaxis=dict(zeroline=False, showline=True),
+            yaxis=dict(zeroline=False, showline=True),title=dict(font_size=25))
+        fig.update_xaxes(title_font=dict(size=18))
+        fig.update_yaxes(title_font=dict(size=18))
+        fig.show()
+        file = filename2
+        prop = pca_dfs[5].Frequency
