@@ -66,8 +66,4 @@ class KMerPCAData(Processing):
             pca_data2 = pca.fit_transform(top_list_df2)
             pca_df2 = pd.DataFrame(data=pca_data2, columns=['PC1', 'PC2'], index=top_list_df2.index)
 
-            # pca_df1["Frequency"] = top_list_df1['Frequency']
-            # pca_df2["Frequency"] = top_list_df2['Frequency']
-
         return [pca_df1, pca_df2, fileName1, fileName2, top_list_df1, top_list_df2]
-        # return [pca_df1, pca_df2, fileName1, fileName2]
