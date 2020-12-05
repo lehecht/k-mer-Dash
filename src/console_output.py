@@ -10,9 +10,9 @@ import plotly.express as px
 
 def printData(data, k, peak, top):
     process = Processing(data, data, k, peak, top)
-    printPairwAlignment(process)
-    printKMerFrequency(process)
-    printScatterPlot(process)
+    # printPairwAlignment(process)
+    # printKMerFrequency(process)
+    # printScatterPlot(process)
     printPCA(process)
 
 
@@ -93,16 +93,16 @@ def printPCA(process):
     file = filename1
     prop = pca_dfs[4].Frequency  # highlighting property Frequency
     propName = prop.name
-    print(propName)
-    for p in [pca_df1,pca_df2]:
+    for p in [pca_df1, pca_df2]:
         fig = px.scatter(p, x='PC1', y='PC2', hover_name=p.index.tolist(),
-                          title='PCA of {}'.format(file),
-                          color=prop, color_continuous_scale='plasma',
-                          hover_data={"PC1":True,"PC2":True})
+                         title='PCA of {}'.format(file),
+                         color=prop,
+                         color_continuous_scale='plasma',
+                         hover_data={"PC1": True, "PC2": True})
         fig.update_layout(coloraxis_colorbar=dict(
             title=propName,
         ), template=ptt.custom_plot_template, xaxis=dict(zeroline=False, showline=True),
-            yaxis=dict(zeroline=False, showline=True),title=dict(font_size=25))
+            yaxis=dict(zeroline=False, showline=True), title=dict(font_size=25))
         fig.update_xaxes(title_font=dict(size=18))
         fig.update_yaxes(title_font=dict(size=18))
         fig.show()
