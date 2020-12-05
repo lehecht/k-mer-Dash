@@ -41,6 +41,8 @@ def getPCA(process):
     pca_dfs = KMerPCAData.processData(process)
     pca_df1 = pca_dfs[0]
     pca_df2 = pca_dfs[1]
+    file_name1 = pca_dfs[2]
+    file_name2 = pca_dfs[3]
 
     prop = pca_dfs[4].Frequency  # highlighting property Frequency
     propName = prop.name
@@ -59,4 +61,4 @@ def getPCA(process):
         figures.append(fig)
         prop = pca_dfs[5].Frequency
 
-    return figures
+    return figures,file_name1,file_name2

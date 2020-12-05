@@ -98,12 +98,12 @@ app.layout = dbc.Container([
             # ------------------------------------------------- PCAs ---------------------------------------------------
             dbc.Col(dbc.Card([
                 dbc.Spinner(children=[dcc.Tabs(id='tabs-example', value='Tab1', children=[
-                    dcc.Tab(label='PCA 1', value='Tab1', id="Tab1", children=[
+                    dcc.Tab(label="", value='Tab1', id="Tab1", children=[
                         dcc.Graph(figure={}, id="PCA1",
                                   style={'height': '42vh'}
                                   )
                     ]),
-                    dcc.Tab(label='PCA 2', value='Tab2', id="Tab2", children=[
+                    dcc.Tab(label="", value='Tab2', id="Tab2", children=[
                         dcc.Graph(figure={}, id="PCA2",
                                   style={'height': '42vh'}
                                   )
@@ -148,17 +148,6 @@ app.layout = dbc.Container([
                         step=1,
                         value=1,
                         marks=markSliderRange(0, 10)
-                    ),
-                    html.Br(),
-                    # -------------------------------------- Number of highlights --------------------------------------
-                    html.H6("Number of highlights:"),
-                    dcc.Slider(
-                        id='highlight',
-                        min=1,
-                        max=10,
-                        step=1,
-                        value=1,
-                        marks=markSliderRange(0, 10),
                     ),
                     html.Br(),
                     # -------------------------------- Highlighted Feature ---------------------------------------------
@@ -224,11 +213,10 @@ app.layout = dbc.Container([
         dash.dependencies.Input('k', 'value'),
         dash.dependencies.Input('top', 'value'),
         dash.dependencies.Input('peak', 'value'),
-        dash.dependencies.Input('highlight', 'value'),
     ]
 
 )
-def updateScatterPlot(file1, file2, k_d, top_d, peak_d, highlight_d):
+def updateScatterPlot(file1, file2, k_d, top_d, peak_d):
     scatter = None
     if file1 is None and file2 is None:
         scatter = initializeData.getScatterPlot(process)
@@ -237,23 +225,29 @@ def updateScatterPlot(file1, file2, k_d, top_d, peak_d, highlight_d):
 
 @app.callback(
     [dash.dependencies.Output('PCA1', 'figure'),
-     dash.dependencies.Output('PCA2', 'figure')],
+     dash.dependencies.Output('PCA2', 'figure'),
+     dash.dependencies.Output('Tab1', 'label'),
+     dash.dependencies.Output('Tab2', 'label')
+     ],
     [
         dash.dependencies.Input('file1', 'value'),
         dash.dependencies.Input('file2', 'value'),
         dash.dependencies.Input('k', 'value'),
         dash.dependencies.Input('top', 'value'),
         dash.dependencies.Input('peak', 'value'),
-        dash.dependencies.Input('highlight', 'value'),
     ]
 
 )
-def updatePCA(file1, file2, k_d, top_d, peak_d, highlight_d):
+def updatePCA(file1, file2, k_d, top_d, peak_d):
     pca1 = None
     pca2 = None
+    file1 = None
+    file2 = None
     if file1 is None and file2 is None:
-        pca1, pca2 = initializeData.getPCA(process)
-    return [pca1, pca2]
+        pcas, file1, file2 = initializeData.getPCA(process)
+        pca1 = pcas[0]
+        pca2 = pcas[1]
+    return [pca1, pca2, file1, file2]
 
 
 @app.callback(
@@ -264,11 +258,10 @@ def updatePCA(file1, file2, k_d, top_d, peak_d, highlight_d):
         dash.dependencies.Input('k', 'value'),
         dash.dependencies.Input('top', 'value'),
         dash.dependencies.Input('peak', 'value'),
-        dash.dependencies.Input('highlight', 'value'),
     ]
 
 )
-def updateTopTable(file1, file2, k_d, top_d, peak_d, highlight_d):
+def updateTopTable(file1, file2, k_d, top_d, peak_d):
     topK = None
     if file1 is None and file2 is None:
         topK = process.getTopKmer().copy()
@@ -288,11 +281,10 @@ def updateTopTable(file1, file2, k_d, top_d, peak_d, highlight_d):
         dash.dependencies.Input('k', 'value'),
         dash.dependencies.Input('top', 'value'),
         dash.dependencies.Input('peak', 'value'),
-        dash.dependencies.Input('highlight', 'value'),
     ]
 
 )
-def updateMSA(file1, file2, k_d, top_d, peak_d, highlight_d):
+def updateMSA(file1, file2, k_d, top_d, peak_d):
     algn = None
     peak = process.getSettings().getPeak()
     if file1 is None and file2 is None:
