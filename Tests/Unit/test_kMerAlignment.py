@@ -11,7 +11,7 @@ def test_processData():
     top = 3
     highlight = 0
     peak = None
-    process = Processing(testData, None, k, peak, top, highlight)
+    process = Processing(testData, None, k, peak, top)
 
     # execution
     algnm1 = KMerAlignmentData.processData(process)
@@ -35,7 +35,7 @@ def test_processData():
     top = 3
     highlight = 0
     peak = 2
-    process = Processing(testData, None, k, peak, top, highlight)
+    process = Processing(testData, None, k, peak, top)
 
     # execution
     algnm2 = KMerAlignmentData.processData(process)

@@ -10,7 +10,7 @@ def test_processData():
     top = 3
     highlight = 2
     peak = None
-    process = Processing(testData, None, k, peak, top, highlight)
+    process = Processing(testData, None, k, peak, top)
 
     # Execution
     results = sctPlt.processData(process)
@@ -29,8 +29,6 @@ def test_processData():
     assert label == ["AAACC", "AACCC", "ACCCC", "CAACC", "AAAAA", "TTTGG", "TTGGG", "TGGGG", "GTTGG", "GGGGC", "GGGCA"]
     assert fileName1 == "testFile1.fa"
     assert fileName2 == "testFile2.fa"
-    assert True in highlight
-    assert highlight == [False, True, True, False, True, False, True, True, False, False, False]
 
     # Test2: with peak position
     # Preparation
@@ -39,7 +37,7 @@ def test_processData():
     top = 3
     highlight = 1
     peak = 2
-    process2 = Processing(testData, None, k, peak, top, highlight)
+    process2 = Processing(testData, None, k, peak, top)
 
     # Execution
     results2 = sctPlt.processData(process2)
@@ -61,6 +59,3 @@ def test_processData():
 
     assert fileName1 == "testFile1.fa"
     assert fileName2 == "testFile2.fa"
-    assert True in highlight
-    assert highlight == [False, True, True, False, False, False, False, False, True, True, False, False, False,
-                         False]
