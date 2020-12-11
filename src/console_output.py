@@ -11,9 +11,9 @@ import plotly.express as px
 def printData(data, k, peak, top):
     process = Processing(data, data, k, peak, top)
     printPairwAlignment(process)
-    printKMerFrequency(process)
-    printScatterPlot(process)
-    printPCA(process)
+    # printKMerFrequency(process)
+    # printScatterPlot(process)
+    # printPCA(process)
 
 
 def printScatterPlot(process):
@@ -70,18 +70,28 @@ def printKMerFrequency(process):
 
 
 def printPairwAlignment(process):
-    alignment_list = KMerAlignmentData.processData(process)
+    alignment_lists, f1_name, f2_name = KMerAlignmentData.processData(process)
+
     if process.getSettings().getPeak() is None:
         print('Alignment of Top-kmere created with ClustalW')
         print('(for more information, see: http://www.clustal.org/clustal2/)')
         print("")
-        for alg in alignment_list:
-            print(alg.seq)
+        name = f1_name
+        for file in alignment_lists:
+            print("File: " + name)
+            for alg in file:
+                print(alg.seq)
+            name = f2_name
+            print()
     else:
         print('Alignment of Top-kmere created with Peak-Position: {}'.format(process.getSettings().getPeak()))
-        for alg in alignment_list:
-            print(alg)
-
+        name = f1_name
+        for file in alignment_lists:
+            print("File: " + name)
+            for alg in file:
+                print(alg)
+            name = f2_name
+            print()
 
 def printPCA(process):
     pca_dfs = KMerPCAData.processData(process)
@@ -99,9 +109,9 @@ def printPCA(process):
                          color_continuous_scale='plasma',
                          hover_data={"PC1": False, "PC2": False})
         fig.update_layout(template=ptt.custom_plot_template, xaxis=dict(zeroline=False, showline=True),
-            yaxis=dict(zeroline=False, showline=True), title=dict(font_size=25))
+                          yaxis=dict(zeroline=False, showline=True), title=dict(font_size=25))
         fig.update_xaxes(title_font=dict(size=18))
         fig.update_yaxes(title_font=dict(size=18))
         fig.update_traces(marker=dict(size=18, line=dict(width=2,
-                                        color='DarkSlateGrey')))
+                                                         color='DarkSlateGrey')))
         fig.show()
