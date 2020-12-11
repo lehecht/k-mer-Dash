@@ -184,12 +184,14 @@ app.layout = dbc.Container([
 
             # ------------------------------------------- MSA ----------------------------------------------------------
             dbc.Col(
-                dbc.Spinner(children=[dbc.Card(id="msa", children=[], style={
-                    'background': '#f2f2f2', 'height': '49vh', 'overflow-y': 'scroll'}, outline=True)],
-                            color="primary", spinner_style={'position': 'absolute',
-                                                            'top': '50%',
-                                                            'left': '50%'
-                                                            }),
+                dbc.Spinner(children=[
+
+                    dbc.Card(id="msa", children=[], style={
+                        'background': '#f2f2f2', 'height': '49vh', 'overflow-y': 'scroll'}, outline=True)],
+                    color="primary", spinner_style={'position': 'absolute',
+                                                    'top': '50%',
+                                                    'left': '50%'
+                                                    }),
                 width=5,
                 style={"padding-right": '0px',
                        "padding-top": '5px',
@@ -286,15 +288,20 @@ def updateTopTable(file1, file2, k_d, top_d, peak_d):
 )
 def updateMSA(file1, file2, k_d, top_d, peak_d):
     algn = None
-    peak = process.getSettings().getPeak()
+    # peak = process.getSettings().getPeak()
     if file1 is None and file2 is None:
-        algn = initializeData.getAlignmentData(process)
-        if peak is not None:
-            algn = pd.DataFrame(algn)
-            algn.columns = ["Alignment at peak position"]
-        else:
-            algn = [str(entry.seq) for entry in algn]
-            algn = pd.DataFrame(algn)
-            algn.columns = ["Alignment with ClustalW"]
+        algn1,algn2, f1_name, f2_name = initializeData.getAlignmentData(process)
+        # if peak is None:
+        #     algn1 = [str(e.seq) for e in algn[0]]
+        #     print(algn1)
+        #     algn2 = [str(e.seq) for e in algn[1]]
 
-    return [dbc.Table.from_dataframe(algn, borderless=True, hover=True, size='sm', style={'text-align': 'center'})]
+        # else:
+        algn1 = pd.DataFrame(algn1)
+        algn2 = pd.DataFrame(algn2)
+        algn1.columns = [f1_name]
+        algn1[f2_name] = algn2
+
+    # return [dbc.Table.from_dataframe(algn, borderless=True, hover=True, size='sm', style={'text-align': 'center'})]
+        return [dbc.Table.from_dataframe(algn1, bordered=True, hover=True, size='sm',
+                                     style={'text-align': 'center'})]

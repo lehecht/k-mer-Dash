@@ -12,7 +12,14 @@ def initData(data, selected, k, peak, top):
 
 
 def getAlignmentData(process):
-    return KMerAlignmentData.processData(process)
+    alignment_lists, f1_name, f2_name = KMerAlignmentData.processData(process)
+    algn1 = alignment_lists[0]
+    algn2 = alignment_lists[1]
+    if process.getSettings().getPeak() is None:
+        algn1 = [str(e.seq) for e in algn1]
+        algn2 = [str(e.seq) for e in algn2]
+
+    return algn1,algn2, f1_name, f2_name
 
 
 def getScatterPlot(process):
@@ -56,11 +63,11 @@ def getPCA(process):
                          color_continuous_scale='plasma',
                          hover_data={"PC1": False, "PC2": False})
         fig.update_layout(template=ptt.custom_plot_template, xaxis=dict(zeroline=False, showline=True),
-            yaxis=dict(zeroline=False, showline=True))
+                          yaxis=dict(zeroline=False, showline=True))
         fig.update_xaxes(title_font=dict(size=15))
         fig.update_yaxes(title_font=dict(size=15))
         fig.update_traces(marker=dict(size=12, line=dict(width=2,
-                                        color='DarkSlateGrey')))
+                                                         color='DarkSlateGrey')))
         figures.append(fig)
 
     return figures, file_name1, file_name2

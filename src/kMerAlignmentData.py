@@ -66,6 +66,25 @@ class KMerAlignmentData(Processing):
                         raise FileNotFoundError(
                             'Please install ClustalW. For more information, see: http://www.clustal.org/clustal2/')
 
+        else:  # if peak position is given, then alignment takes place at position 'peak'
+            k = self.getSettings().getK()
+            pattern = '[A-Z]+[a-z]+$'
+            for file in [topKmer_f1,topKmer_f2]:
+
+                top_kmer_index = file.index.values.tolist()
+                peak_kmeres = list(filter(lambda s: re.search(pattern, s),
+                                          top_kmer_index))  # filters only kmeres, which include the peak position
+                algnmList = []
+                for kmer in peak_kmeres:
+                    idx = re.search('[A-T]', kmer).span()[0]  # index of peak position within kmer
+                    shift = (k - 1) - idx  # for alignment, add '-' several times (=shift)
+                    algn = "-" * shift + kmer
+                    endGaps = int(2 * k - 1) - len(algn)  # add end gaps
+                    algn = algn + "-" * endGaps
+                    algnmList.append(algn)
+
+                alignments.append(algnmList)
+
         return alignments, fileName1, fileName2
 
 #
