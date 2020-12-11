@@ -10,9 +10,9 @@ import plotly.express as px
 
 def printData(data, k, peak, top):
     process = Processing(data, data, k, peak, top)
-    # printPairwAlignment(process)
-    # printKMerFrequency(process)
-    # printScatterPlot(process)
+    printPairwAlignment(process)
+    printKMerFrequency(process)
+    printScatterPlot(process)
     printPCA(process)
 
 
@@ -87,24 +87,21 @@ def printPCA(process):
     pca_dfs = KMerPCAData.processData(process)
     pca_df1 = pca_dfs[0]
     pca_df2 = pca_dfs[1]
-    filename1 = pca_dfs[2]
-    filename2 = pca_dfs[3]
+    top_list1 = pca_dfs[4]
+    top_list2 = pca_dfs[5]
 
-    file = filename1
-    prop = pca_dfs[4].Frequency  # highlighting property Frequency
-    propName = prop.name
+    pca_df1 = pca_df1.join(top_list1.Frequency)
+    pca_df2 = pca_df2.join(top_list2.Frequency)
+
     for p in [pca_df1, pca_df2]:
         fig = px.scatter(p, x='PC1', y='PC2', hover_name=p.index.tolist(),
-                         title='PCA of {}'.format(file),
-                         color=prop,
+                         color='Frequency',
                          color_continuous_scale='plasma',
-                         hover_data={"PC1": True, "PC2": True})
-        fig.update_layout(coloraxis_colorbar=dict(
-            title=propName,
-        ), template=ptt.custom_plot_template, xaxis=dict(zeroline=False, showline=True),
+                         hover_data={"PC1": False, "PC2": False})
+        fig.update_layout(template=ptt.custom_plot_template, xaxis=dict(zeroline=False, showline=True),
             yaxis=dict(zeroline=False, showline=True), title=dict(font_size=25))
         fig.update_xaxes(title_font=dict(size=18))
         fig.update_yaxes(title_font=dict(size=18))
+        fig.update_traces(marker=dict(size=18, line=dict(width=2,
+                                        color='DarkSlateGrey')))
         fig.show()
-        file = filename2
-        prop = pca_dfs[5].Frequency
