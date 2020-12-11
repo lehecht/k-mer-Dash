@@ -86,21 +86,3 @@ class KMerAlignmentData(Processing):
                 alignments.append(algnmList)
 
         return alignments, fileName1, fileName2
-
-#
-#
-# else:  # if peak position is given, then alignment takes place at position 'peak'
-# k = self.getSettings().getK()
-# pattern = '[A-Z]+[a-z]+$'
-# top_kmer_index = top_kmer_list.index.values.tolist()
-# peak_kmeres = list(filter(lambda s: re.search(pattern, s),
-#                           top_kmer_index))  # filters only kmeres, which include the peak position
-# for kmer in peak_kmeres:
-#     idx = re.search('[A-T]', kmer).span()[0]  # index of peak position within kmer
-#     shift = (k - 1) - idx  # for alignment, add '-' several times (=shift)
-#     algn = "-" * shift + kmer
-#     endGaps = int(2 * k - 1) - len(algn)  # add end gaps
-#     algn = algn + "-" * endGaps
-#     alignment.append(algn)
-#
-# return alignment

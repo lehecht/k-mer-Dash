@@ -287,14 +287,8 @@ def updateTopTable(file1, file2, k_d, top_d, peak_d):
 
 )
 def updateMSA(file1, file2, k_d, top_d, peak_d):
-    algn = None
-    # peak = process.getSettings().getPeak()
     if file1 is None and file2 is None:
         algn1,algn2, f1_name, f2_name = initializeData.getAlignmentData(process)
-        # if peak is None:
-        #     algn1 = [str(e.seq) for e in algn[0]]
-        #     print(algn1)
-        #     algn2 = [str(e.seq) for e in algn[1]]
 
         # else:
         algn1 = pd.DataFrame(algn1)
@@ -302,6 +296,5 @@ def updateMSA(file1, file2, k_d, top_d, peak_d):
         algn1.columns = [f1_name]
         algn1[f2_name] = algn2
 
-    # return [dbc.Table.from_dataframe(algn, borderless=True, hover=True, size='sm', style={'text-align': 'center'})]
         return [dbc.Table.from_dataframe(algn1, bordered=True, hover=True, size='sm',
                                      style={'text-align': 'center'})]
