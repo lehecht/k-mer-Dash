@@ -28,6 +28,14 @@ argparser.add_argument('-t', '--top', dest='top', default=10, nargs='?', action=
 argparser.add_argument('-c', '--console', dest='console', default=False, nargs='?', action='store', type=bool,
                        help="starts program in dash mode (= Default) or on commandline (= True).")
 
+
+def checkFileFormat(file):
+    ext = os.path.splitext(file)[1]
+    if ext not in [".fa", ".fasta", ".fna", ".fsa", ".ffn"]:
+        raise InputValueException(
+            "Only Fasta-files with file-extension: \'.fa\', \'.fasta\', \'.fna\', \'.fsa\', \'.ffn\' allowed!")
+
+
 if __name__ == '__main__':
     exit = False
     args = argparser.parse_args()
@@ -35,8 +43,12 @@ if __name__ == '__main__':
     for file in files:
         try:
             open(file)
+            checkFileFormat(file)
         except IOError:
             print('\'{}\' does not exist'.format(file))
+            sys.exit(0)
+        except InputValueException as ive:
+            print(ive.args[0])
             sys.exit(0)
     if args.console:
         try:
