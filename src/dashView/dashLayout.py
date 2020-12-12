@@ -1,5 +1,6 @@
 import dash
 import dash_core_components as dcc
+import dash_table
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 import pandas as pd
@@ -269,10 +270,16 @@ def updateTopTable(file1, file2, k_d, top_d, peak_d):
         topK = process.getTopKmer().copy()
         kmer = topK.index
         topK["K-Mer"] = kmer
-        topK = topK[["K-Mer", "Frequency", "File"]]
+        topK[""] = ["" for i in range(0, len(topK))]
+        topK = topK[["", "K-Mer", "Frequency", "File"]]
         topK = topK.sort_values(by="Frequency", ascending=False)
-    return [dbc.Table.from_dataframe(topK, striped=True, bordered=True, hover=True, size='sm',
-                                     style={'text-align': 'center'}, loading_state={'is_loading': True})]
+    return [dash_table.DataTable(columns=[{"name": i, "id": i} for i in topK.columns], data=topK.to_dict('records'),
+                                 style_table={'overflow-x': 'hidden'},
+                                 style_cell={'textAlign': 'center'},
+                                 sort_action='native',
+                                 # filter_action="native",
+                                 )
+            ]
 
 
 @app.callback(
@@ -288,13 +295,17 @@ def updateTopTable(file1, file2, k_d, top_d, peak_d):
 )
 def updateMSA(file1, file2, k_d, top_d, peak_d):
     if file1 is None and file2 is None:
-        algn1,algn2, f1_name, f2_name = initializeData.getAlignmentData(process)
+        algn1, algn2, f1_name, f2_name = initializeData.getAlignmentData(process)
 
         # else:
         algn1 = pd.DataFrame(algn1)
         algn2 = pd.DataFrame(algn2)
         algn1.columns = [f1_name]
         algn1[f2_name] = algn2
+        return [
+            dash_table.DataTable(columns=[{"name": i, "id": i} for i in algn1.columns], data=algn1.to_dict('records'),
+                                 style_table={'overflow-x': 'hidden'},
+                                 style_cell={'textAlign': 'center'},
 
-        return [dbc.Table.from_dataframe(algn1, bordered=True, hover=True, size='sm',
-                                     style={'text-align': 'center'})]
+                                 )
+        ]

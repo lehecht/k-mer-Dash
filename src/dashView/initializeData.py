@@ -60,6 +60,7 @@ def getPCA(process):
     for p in [pca_df1, pca_df2]:
         fig = px.scatter(p, x='PC1', y='PC2', hover_name=p.index.tolist(),
                          color='Frequency',
+                         opacity=0.6,
                          color_continuous_scale='plasma',
                          hover_data={"PC1": False, "PC2": False})
         fig.update_layout(template=ptt.custom_plot_template, xaxis=dict(zeroline=False, showline=True),
