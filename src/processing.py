@@ -14,6 +14,7 @@ class Processing:
     df = None
     top_kmer_df = None
     all_tripplets = None
+    seq_len = None
 
     def __init__(self, data, selected, k, peak, top):
         if selected is not None:
@@ -25,13 +26,23 @@ class Processing:
         if os.stat(selected[0]).st_size is 0 or os.stat(selected[1]).st_size is 0:
             raise FileCountException('One of the files is empty!')
 
-        self.profile1 = Profile(dict(), selected[0])
-        self.profile2 = Profile(dict(), selected[1])
+        # self.profile1 = Profile(dict(), selected[0])
+        # self.profile2 = Profile(dict(), selected[1])
+        self.profile1 = Profile(calcFrequency(k, peak, selected)[0], selected[0])
+        self.profile2 = Profile(calcFrequency(k, peak, selected)[1], selected[1])
 
-        self.profile1.setProfile(calcFrequency(k, peak, selected)[0])
-        self.profile2.setProfile(calcFrequency(k, peak, selected)[1])
+        seq1_len =getSeqLength(selected[0])
+        seq2_len =getSeqLength(selected[1])
 
-        len_p1 = len(self.profile1.getProfile())
+        if seq1_len < seq2_len:
+            self.seq_len = seq1_len
+        else:
+            self.seq_len = seq2_len
+
+        # self.profile1.setProfile(calcFrequency(k, peak, selected)[0])
+        # self.profile2.setProfile(calcFrequency(k, peak, selected)[1])
+
+        len_p1 = len(self.profile1.getProfile())  # dict length
         len_p2 = len(self.profile2.getProfile())
 
         if (top > len_p1 or top > len_p2) and ((len_p1 is not 0) and (len_p2 is not 0)):
@@ -50,9 +61,6 @@ class Processing:
         for trip in tripplet_comb:
             comb = list(set(permutations(trip)))
         self.all_tripplets.extend([''.join(comb[i]) for i in range(0, len(comb))])
-
-
-
 
         # abstract method
 
@@ -76,3 +84,6 @@ class Processing:
 
     def getAllTripplets(self):
         return self.all_tripplets
+
+    def getSeqLen(self):
+        return self.seq_len

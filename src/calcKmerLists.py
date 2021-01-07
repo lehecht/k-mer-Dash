@@ -35,6 +35,12 @@ def calcFrequency(k, peak, selected):
     return [profil1, profil2]
 
 
+def getSeqLength(file):
+    records = list(SeqIO.parse(file, "fasta").records)
+    seq_len = len(records[0].seq)
+    return seq_len
+
+
 def createPeakPosition(peak, seq):
     sequence = seq.lower()
     peakVal = seq[peak - 1]
