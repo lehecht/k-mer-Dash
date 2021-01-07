@@ -4,22 +4,54 @@ import dash_table
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 import pandas as pd
+
+from src.processing import Processing
 from src.dashView import initializeData
 
 process = None
+k_p_slider_max = None
+k_p_slider_min = 2
+
+t_slider_max = None
+t_slider_min = 5
 
 
 def startDash(slc, k_len, p, t):
     if slc is not None:
         global process
+        global k_p_slider_max
+        global t_slider_max
         process = initializeData.initData(slc, slc, k_len, p, t)
-        app.run_server(debug=True)
+        k_p_slider_max = Processing.getSeqLen(process)
+        # t_slider_max: size of both sets added
+        t_slider_max = len(Processing.getProfilObj1(process).getProfile()) + \
+                       len(Processing.getProfilObj2(process).getProfile())
+    app.run_server(debug=True)
 
 
 def markSliderRange(min, max):
     mark = {}
     for i in range(min, max + 1):
         mark[i] = str(i)
+    return mark
+
+
+def specialSliderRange(max):
+    j = t_slider_min
+    mark = {}
+    i = 0
+    while i < 9:
+        if "5" in str(j):
+            j = j * 2
+        else:
+            j = j * 5
+
+        if j <= max:
+            mark[i] = str(j)
+        else:
+            break
+        i += 1
+    mark[i] = 'all'
     return mark
 
 
@@ -36,7 +68,7 @@ app.layout = dbc.Container([
                     html.Br(),
                     html.Br(),
                     # ------------------------- Choose Fasta-Files -----------------------------------------------------
-                    dbc.Button("Choose Files", color="primary", className="mr-1"),
+                    dbc.Button("Choose Files", color="primary", className="mr-1", disabled=True),
                     html.Br(),
                     html.Br(),
                     # ------------------------------------- Select File1 And File 2 ------------------------------------
@@ -48,7 +80,7 @@ app.layout = dbc.Container([
                             {"label": "File 2", "value": "2"},
                         ],
                         # value="1"
-                    ),
+                        disabled=True),
                     dbc.Select(
                         id="file2",
                         options=[
@@ -56,7 +88,7 @@ app.layout = dbc.Container([
                             {"label": "File 2", "value": "2"},
                         ],
                         # value="2"
-                    ),
+                        disabled=True),
                     html.Br(),
                     html.Br(),
                     html.Br(),
@@ -65,7 +97,7 @@ app.layout = dbc.Container([
                     html.H6("K-mer length:"),
                     dcc.Slider(
                         id='k',
-                        min=1,
+                        min=0,
                         max=10,
                         step=1,
                         value=1,
@@ -136,7 +168,7 @@ app.layout = dbc.Container([
                         min=1,
                         max=10,
                         step=1,
-                        value=1,
+                        value=0,
                         marks=markSliderRange(0, 10)
                     ),
                     html.Br(),
@@ -161,6 +193,13 @@ app.layout = dbc.Container([
                         ],
                         value="1"
                     ),
+                    html.Br(),
+                    html.Br(),
+                    html.Br(),
+
+                    # ---------------------------------------- Copy Table ------------------------------------------
+                    dbc.Button("Copy K-Mer Table", color="primary", className="mr-1", id="copy"),
+                    html.Div(id="output")
 
                 ], style={
                     'height': '50vh',
@@ -170,6 +209,7 @@ app.layout = dbc.Container([
                 style={"padding-right": '0px',
                        "padding-left": '0px',
                        'margin-right': '0px'}),
+
             # -------------------------------------------- TopK --------------------------------------------------------
             dbc.Col(
                 dbc.Spinner(children=[dbc.Card(id="topK", children=[], style={
@@ -206,6 +246,46 @@ app.layout = dbc.Container([
     ],
         className="mw-100 mh-100"),
 ], className="mw-100 mh-100", style={'left': '0px', 'margin-left': '0px', 'padding': '0px'})
+
+
+@app.callback(
+    [dash.dependencies.Output("output", "children")],
+    [dash.dependencies.Input("copy", "n_clicks")],
+    prevent_initial_call=True
+)
+def downloadTable(clicked):
+    topK_table = Processing.getTopKmer(process)
+    # topK_table.to_clipboard(excel=True)
+    return [""]
+
+
+@app.callback(
+    [
+        dash.dependencies.Output("k", "min"),
+        dash.dependencies.Output("k", "max"),
+        dash.dependencies.Output("k", "marks"),
+        dash.dependencies.Output("peak", "min"),
+        dash.dependencies.Output("peak", "max"),
+        dash.dependencies.Output("peak", "marks"),
+        dash.dependencies.Output("top", "min"),
+        dash.dependencies.Output("top", "max"),
+        dash.dependencies.Output("top", "marks")
+    ],
+    [dash.dependencies.Input("file1", "value"),
+     dash.dependencies.Input("file2", "value")],
+)
+def updateSliderRange(file1, file2):
+    k_slider_max = k_p_slider_max - 1
+    peak_min = 1
+    k_range = markSliderRange(k_p_slider_min, k_slider_max)
+    peak_range = markSliderRange(peak_min, k_p_slider_max)
+    top_range = specialSliderRange(t_slider_max)
+    t_max = len(top_range) - 1
+    t_min = 0
+
+    return k_p_slider_min, k_slider_max, k_range, \
+           peak_min, k_p_slider_max, peak_range, \
+           t_min, t_max, top_range
 
 
 @app.callback(
