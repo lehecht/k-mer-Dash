@@ -4,6 +4,7 @@ import dash_table
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 import pandas as pd
+from dash.exceptions import PreventUpdate
 
 from src.processing import Processing
 from src.dashView import initializeData
@@ -60,6 +61,10 @@ app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.title = "k-Mer Dash"
 
 app.layout = dbc.Container([
+    # ------------------------------------------ Store ------------------------------------------------------------------
+    dcc.Store(id='session', storage_type='session'),
+
+    # -------------------------------------------------------------------------------------------------------------------
     dbc.Card([
         dbc.Row([
             dbc.Col(
@@ -174,14 +179,24 @@ app.layout = dbc.Container([
                     html.Br(),
                     # ----------------------------------------- Peak ---------------------------------------------------
                     html.H6("Peak-position:"),
-                    dcc.Slider(
-                        id='peak',
-                        min=1,
-                        max=10,
-                        step=1,
-                        value=1,
-                        marks=markSliderRange(0, 10)
+                    dcc.RadioItems(
+                        id='peak-rb',
+                        options=[
+                            {'label': 'Yes', 'value': '1'},
+                            {'label': 'No', 'value': '0'},
+                        ],
+                        value='0',
+                        labelStyle={'display': 'inline-block','padding-right':'10px'}
                     ),
+                    html.Div(id='peak-slider'),
+                    # dcc.Slider(
+                    #     id='peak',
+                    #     min=1,
+                    #     max=10,
+                    #     step=1,
+                    #     value=1,
+                    #     marks=markSliderRange(0, 10)
+                    # ),
                     html.Br(),
                     # -------------------------------- Highlighted Feature ---------------------------------------------
                     html.H6("Highlighted Feature:"),
@@ -248,44 +263,76 @@ app.layout = dbc.Container([
 ], className="mw-100 mh-100", style={'left': '0px', 'margin-left': '0px', 'padding': '0px'})
 
 
-@app.callback(
-    [dash.dependencies.Output("output", "children")],
-    [dash.dependencies.Input("copy", "n_clicks")],
-    prevent_initial_call=True
-)
-def downloadTable(clicked):
-    topK_table = Processing.getTopKmer(process)
-    # topK_table.to_clipboard(excel=True)
-    return [""]
+# ------------------------------------ Store Callback ------------------------------------------------------------------
+
+# @app.callback(dash.dependencies.Output('session', 'data'),
+#               dash.dependencies.Input('k', 'value'),
+#               dash.dependencies.Input('peak', 'value'),
+#               dash.dependencies.Input('top', 'value'),
+#               dash.dependencies.State('session', 'data'))
+# def on_click(k, data):
+#     if k is None:
+#         raise PreventUpdate
+#
+#     data = data or {'process':None,}
+#
+#     # data['clicks'] = data['clicks'] + 1
+#     return data
 
 
 @app.callback(
-    [
-        dash.dependencies.Output("k", "min"),
-        dash.dependencies.Output("k", "max"),
-        dash.dependencies.Output("k", "marks"),
-        dash.dependencies.Output("peak", "min"),
-        dash.dependencies.Output("peak", "max"),
-        dash.dependencies.Output("peak", "marks"),
-        dash.dependencies.Output("top", "min"),
-        dash.dependencies.Output("top", "max"),
-        dash.dependencies.Output("top", "marks")
-    ],
-    [dash.dependencies.Input("file1", "value"),
-     dash.dependencies.Input("file2", "value")],
+    [dash.dependencies.Output('peak-slider', 'children')],
+    [dash.dependencies.Input('peak-rb', 'value')]
 )
-def updateSliderRange(file1, file2):
-    k_slider_max = k_p_slider_max - 1
-    peak_min = 1
-    k_range = markSliderRange(k_p_slider_min, k_slider_max)
-    peak_range = markSliderRange(peak_min, k_p_slider_max)
-    top_range = specialSliderRange(t_slider_max)
-    t_max = len(top_range) - 1
-    t_min = 0
+def showPeakSlider(value):
+    if value is "1":
+        return [dcc.Slider(
+            id='peak',
+            min=1,
+            max=10,
+            step=1,
+            value=1,
+            marks=markSliderRange(0, 10)
+        )]
+    else:
+        return [dcc.Slider(
+            id='peak',
+            min=1,
+            max=10,
+            step=1,
+            value=1,
+            marks=markSliderRange(0, 10),
+            disabled=True
+        )]
 
-    return k_p_slider_min, k_slider_max, k_range, \
-           peak_min, k_p_slider_max, peak_range, \
-           t_min, t_max, top_range
+
+# @app.callback(
+#     [
+#         dash.dependencies.Output("k", "min"),
+#         dash.dependencies.Output("k", "max"),
+#         dash.dependencies.Output("k", "marks"),
+#         dash.dependencies.Output("peak", "min"),
+#         dash.dependencies.Output("peak", "max"),
+#         dash.dependencies.Output("peak", "marks"),
+#         dash.dependencies.Output("top", "min"),
+#         dash.dependencies.Output("top", "max"),
+#         dash.dependencies.Output("top", "marks")
+#     ],
+#     [dash.dependencies.Input("file1", "value"),
+#      dash.dependencies.Input("file2", "value")],
+# )
+# def updateSliderRange(file1, file2):
+#     k_slider_max = k_p_slider_max - 1
+#     peak_min = 1
+#     k_range = markSliderRange(k_p_slider_min, k_slider_max)
+#     peak_range = markSliderRange(peak_min, k_p_slider_max)
+#     top_range = specialSliderRange(t_slider_max)
+#     t_max = len(top_range) - 1
+#     t_min = 0
+#
+#     return k_p_slider_min, k_slider_max, k_range, \
+#            peak_min, k_p_slider_max, peak_range, \
+#            t_min, t_max, top_range
 
 
 @app.callback(
@@ -295,11 +342,11 @@ def updateSliderRange(file1, file2):
         dash.dependencies.Input('file2', 'value'),
         dash.dependencies.Input('k', 'value'),
         dash.dependencies.Input('top', 'value'),
-        dash.dependencies.Input('peak', 'value'),
+        # dash.dependencies.Input('peak', 'value'),
     ]
 
 )
-def updateScatterPlot(file1, file2, k_d, top_d, peak_d):
+def updateScatterPlot(file1, file2, k_d, top_d):
     scatter = None
     if file1 is None and file2 is None:
         scatter = initializeData.getScatterPlot(process)
@@ -317,11 +364,11 @@ def updateScatterPlot(file1, file2, k_d, top_d, peak_d):
         dash.dependencies.Input('file2', 'value'),
         dash.dependencies.Input('k', 'value'),
         dash.dependencies.Input('top', 'value'),
-        dash.dependencies.Input('peak', 'value'),
+        # dash.dependencies.Input('peak', 'value'),
     ]
 
 )
-def updatePCA(file1, file2, k_d, top_d, peak_d):
+def updatePCA(file1, file2, k_d, top_d):
     pca1 = None
     pca2 = None
     file1 = None
@@ -340,11 +387,11 @@ def updatePCA(file1, file2, k_d, top_d, peak_d):
         dash.dependencies.Input('file2', 'value'),
         dash.dependencies.Input('k', 'value'),
         dash.dependencies.Input('top', 'value'),
-        dash.dependencies.Input('peak', 'value'),
+        # dash.dependencies.Input('peak', 'value'),
     ]
 
 )
-def updateTopTable(file1, file2, k_d, top_d, peak_d):
+def updateTopTable(file1, file2, k_d, top_d):
     topK = None
     if file1 is None and file2 is None:
         topK = process.getTopKmer().copy()
@@ -369,11 +416,11 @@ def updateTopTable(file1, file2, k_d, top_d, peak_d):
         dash.dependencies.Input('file2', 'value'),
         dash.dependencies.Input('k', 'value'),
         dash.dependencies.Input('top', 'value'),
-        dash.dependencies.Input('peak', 'value'),
+        # dash.dependencies.Input('peak', 'value'),
     ]
 
 )
-def updateMSA(file1, file2, k_d, top_d, peak_d):
+def updateMSA(file1, file2, k_d, top_d):
     if file1 is None and file2 is None:
         algn1, algn2, f1_name, f2_name = initializeData.getAlignmentData(process)
 
