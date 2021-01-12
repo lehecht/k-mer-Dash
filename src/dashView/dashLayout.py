@@ -22,9 +22,7 @@ def startDash(slc, k_len, p, t):
         global process
         global k_p_slider_max
         global t_slider_max
-        print("test1")
         process = initializeData.initData(slc, slc, k_len, p, t)
-        print("test2")
         k_p_slider_max = Processing.getSeqLen(process)
         # t_slider_max: size of both sets added
         t_slider_max = len(Processing.getProfilObj1(process).getProfile()) + \
@@ -32,12 +30,9 @@ def startDash(slc, k_len, p, t):
     app.run_server(debug=False)
 
 
-def markSliderRange(min, max, peak):
+def markSliderRange(min, max):
     mark = {}
     for i in range(min, max + 1):
-        if peak and i is 0:
-            mark[i] = "none"
-            continue
         mark[i] = str(i)
     return mark
 
@@ -111,7 +106,7 @@ app.layout = dbc.Container([
                         max=10,
                         step=1,
                         value=5,
-                        marks=markSliderRange(0, 10, False)
+                        marks=markSliderRange(0, 10)
                     ),
 
                 ], style={
@@ -177,30 +172,20 @@ app.layout = dbc.Container([
                         id='top',
                         min=0,
                         max=10,
-                        step=10,
-                        value=50,
-                        marks=specialSliderRange(50)
+                        step=1,
+                        value=10,
+                        marks=markSliderRange(0, 10)
                     ),
                     html.Br(),
                     # ----------------------------------------- Peak ---------------------------------------------------
                     html.H6("Peak-position:"),
-                    dcc.RadioItems(
-                        id='peak-rb',
-                        options=[
-                            {'label': 'Yes', 'value': '1'},
-                            {'label': 'No', 'value': '0'},
-                        ],
-                        value='1',
-                        labelStyle={'display': 'inline-block', 'padding-right': '10px'}
-                    ),
-                    # html.Div(id='peak-slider'),
                     dcc.Slider(
                         id='peak',
                         min=1,
                         max=10,
                         step=1,
                         value=1,
-                        marks=markSliderRange(0, 10, True)
+                        marks=markSliderRange(0, 10)
                     ),
                     html.Br(),
                     # -------------------------------- Highlighted Feature ---------------------------------------------
@@ -268,6 +253,43 @@ app.layout = dbc.Container([
 ], className="mw-100 mh-100", style={'left': '0px', 'margin-left': '0px', 'padding': '0px'})
 
 
+@app.callback(
+    [
+        dash.dependencies.Output("k", "min"),
+        dash.dependencies.Output("k", "max"),
+        dash.dependencies.Output("k", "marks"),
+        dash.dependencies.Output("k", "value"),
+        dash.dependencies.Output("peak", "min"),
+        dash.dependencies.Output("peak", "max"),
+        dash.dependencies.Output("peak", "marks"),
+        dash.dependencies.Output("peak", "value"),
+        dash.dependencies.Output("top", "min"),
+        dash.dependencies.Output("top", "max"),
+        dash.dependencies.Output("top", "marks"),
+        dash.dependencies.Output("top", "value"),
+    ],
+    [dash.dependencies.Input("file1", "value"),
+     dash.dependencies.Input("file2", "value"),
+     ],
+)
+def updateSliderRange(file1, file2):
+    k_val = Processing.getSettings(process).getK()
+    p_val = Processing.getSettings(process).getPeak()
+    t_val = Processing.getSettings(process).getTop()
+    k_slider_max = k_p_slider_max - 1
+    peak_min = 1
+    k_range = markSliderRange(k_p_slider_min, k_slider_max)
+    peak_range = markSliderRange(peak_min, k_p_slider_max)
+    top_range = specialSliderRange(t_slider_max)
+
+    t_max = len(top_range) - 1
+    t_min = 0
+
+    return k_p_slider_min, k_slider_max, k_range, k_val, \
+           peak_min, k_p_slider_max, peak_range, p_val, \
+           t_min, t_max, top_range, t_val
+
+
 # ------------------------------------ Store Callback ------------------------------------------------------------------
 
 @app.callback(dash.dependencies.Output('memory', 'data'),
@@ -277,6 +299,17 @@ app.layout = dbc.Container([
               dash.dependencies.State('memory', 'data'),
               prevent_inital_call=True)
 def updateData(k, peak, top, data):
+
+    # translate top_val from slider to real top value
+    top_range = specialSliderRange(t_slider_max)
+    if top in list(top_range.keys()):
+        top = top_range[top]
+
+        if top is 'all':
+            top = t_slider_max
+        else:
+            top = int(top)
+
     selected = Processing.getSettings(process).getSelected()
     newProcess = initializeData.initData(selected, selected, k, peak, top)
 
@@ -303,7 +336,9 @@ def updateData(k, peak, top, data):
                                  style_table={'overflow-x': 'hidden'},
                                  style_cell={'textAlign': 'center'})]
     else:
-        msas = [pd.DataFrame()]
+        msas = [dash_table.DataTable(columns=["", ""], data=[],
+                                     style_table={'overflow-x': 'hidden'},
+                                     style_cell={'textAlign': 'center'})]
 
     scatter = initializeData.getScatterPlot(newProcess)
 
@@ -312,36 +347,8 @@ def updateData(k, peak, top, data):
 
     data = {'topK': topK_table, 'msas': msas, 'scatter': scatter, 'pcas': pcas}
 
+
     return data
-
-
-@app.callback(
-    [
-        dash.dependencies.Output("k", "min"),
-        dash.dependencies.Output("k", "max"),
-        dash.dependencies.Output("k", "marks"),
-        dash.dependencies.Output("peak", "min"),
-        dash.dependencies.Output("peak", "max"),
-        dash.dependencies.Output("peak", "marks"),
-        dash.dependencies.Output("top", "min"),
-        dash.dependencies.Output("top", "max"),
-        dash.dependencies.Output("top", "marks")
-    ],
-    [dash.dependencies.Input("file1", "value"),
-     dash.dependencies.Input("file2", "value")],
-)
-def updateSliderRange(file1, file2):
-    k_slider_max = k_p_slider_max - 1
-    peak_min = 1
-    k_range = markSliderRange(k_p_slider_min, k_slider_max, False)
-    peak_range = markSliderRange(peak_min, k_p_slider_max, True)
-    top_range = specialSliderRange(t_slider_max)
-    t_max = len(top_range) - 1
-    t_min = 0
-
-    return k_p_slider_min, k_slider_max, k_range, \
-           peak_min, k_p_slider_max, peak_range, \
-           t_min, t_max, top_range
 
 
 @app.callback(dash.dependencies.Output('scatter', 'figure'),
