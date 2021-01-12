@@ -49,3 +49,49 @@ def test_processData():
     assert algnm2 == ['----Ttggg', '---tTtgg-', '---gTtgg-', '---tGggg-', '----Ggggc']
     assert f1 == "testFile1.fa"
     assert f2 == "testFile2.fa"
+
+    # # Test3 with peak-position at end of string
+    # Preparation
+    k = 5
+    top = 3
+    peak = 7
+    process3 = Processing(testData, None, k, peak, top)
+
+    # execution
+    algnmList, f1, f2 = KMerAlignmentData.processData(process3)
+
+    algnm1 = algnmList[0]
+    algnm2 = algnmList[1]
+
+    # testing
+    assert len(algnm1) == 1
+    assert len(algnm2) == 2
+    assert algnm1 == ['acccC----']
+    assert algnm2 == ['tgggG----', 'gggcA----']
+    assert f1 == "testFile1.fa"
+    assert f2 == "testFile2.fa"
+
+    # # Test4 with peak-position at start of string
+    # Preparation
+    k = 5
+    top = 3
+    peak = 1
+    process4 = Processing(testData, None, k, peak, top)
+
+    # execution
+    algnmList, f1, f2 = KMerAlignmentData.processData(process4)
+
+    algnm1 = algnmList[0]
+    algnm2 = algnmList[1]
+
+    print(process4.getTopKmer())
+    print(algnm1)
+    print(algnm2)
+
+    # testing
+    assert len(algnm1) == 0
+    assert len(algnm2) == 3
+    assert algnm1 == []
+    assert algnm2 == ['----Tttgg', '----Gttgg', '----Tgggg']
+    assert f1 == "testFile1.fa"
+    assert f2 == "testFile2.fa"

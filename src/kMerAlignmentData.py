@@ -68,12 +68,12 @@ class KMerAlignmentData(Processing):
 
         else:  # if peak position is given, then alignment takes place at position 'peak'
             k = self.getSettings().getK()
-            pattern = '[A-Z]+[a-z]+$'
+            pattern = '[A-Z]'
             for file in [topKmer_f1,topKmer_f2]:
 
                 top_kmer_index = file.index.values.tolist()
-                peak_kmeres = list(filter(lambda s: re.search(pattern, s),
-                                          top_kmer_index))  # filters only kmeres, which include the peak position
+                peak_kmeres = list(filter(lambda s: s if len(re.findall(pattern, s))>0 else None,top_kmer_index))
+
                 algnmList = []
                 for kmer in peak_kmeres:
                     idx = re.search('[A-T]', kmer).span()[0]  # index of peak position within kmer
