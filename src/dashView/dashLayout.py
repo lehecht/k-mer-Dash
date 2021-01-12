@@ -30,8 +30,11 @@ def startDash(slc, k_len, p, t):
     app.run_server(debug=False)
 
 
-def markSliderRange(min, max):
+def markSliderRange(min, max, peak):
     mark = {}
+    if peak:
+        min += 1
+        mark[0] = 'none'
     for i in range(min, max + 1):
         mark[i] = str(i)
     return mark
@@ -106,7 +109,7 @@ app.layout = dbc.Container([
                         max=10,
                         step=1,
                         value=5,
-                        marks=markSliderRange(0, 10)
+                        marks=markSliderRange(0, 10, False)
                     ),
 
                 ], style={
@@ -173,8 +176,8 @@ app.layout = dbc.Container([
                         min=0,
                         max=10,
                         step=1,
-                        value=10,
-                        marks=markSliderRange(0, 10)
+                        value=1,
+                        marks=markSliderRange(0, 10, False)
                     ),
                     html.Br(),
                     # ----------------------------------------- Peak ---------------------------------------------------
@@ -184,8 +187,8 @@ app.layout = dbc.Container([
                         min=1,
                         max=10,
                         step=1,
-                        value=1,
-                        marks=markSliderRange(0, 10)
+                        value=4,
+                        marks=markSliderRange(0, 10, True)
                     ),
                     html.Br(),
                     # -------------------------------- Highlighted Feature ---------------------------------------------
@@ -277,13 +280,21 @@ def updateSliderRange(file1, file2):
     p_val = Processing.getSettings(process).getPeak()
     t_val = Processing.getSettings(process).getTop()
     k_slider_max = k_p_slider_max - 1
-    peak_min = 1
-    k_range = markSliderRange(k_p_slider_min, k_slider_max)
-    peak_range = markSliderRange(peak_min, k_p_slider_max)
+    peak_min = 0
+    k_range = markSliderRange(k_p_slider_min, k_slider_max, False)
+    peak_range = markSliderRange(peak_min, k_p_slider_max, True)
     top_range = specialSliderRange(t_slider_max)
 
     t_max = len(top_range) - 1
     t_min = 0
+
+    if t_val not in list(top_range.keys()):
+        t_val = list(top_range.values()).index(str(t_val))
+
+    if p_val is None:
+        p_val = 0
+
+    print("init", p_val)
 
     return k_p_slider_min, k_slider_max, k_range, k_val, \
            peak_min, k_p_slider_max, peak_range, p_val, \
@@ -297,9 +308,9 @@ def updateSliderRange(file1, file2):
               dash.dependencies.Input('peak', 'value'),
               dash.dependencies.Input('top', 'value'),
               dash.dependencies.State('memory', 'data'),
-              prevent_inital_call=True)
+              # prevent_inital_call=True
+              )
 def updateData(k, peak, top, data):
-
     # translate top_val from slider to real top value
     top_range = specialSliderRange(t_slider_max)
     if top in list(top_range.keys()):
@@ -309,6 +320,11 @@ def updateData(k, peak, top, data):
             top = t_slider_max
         else:
             top = int(top)
+
+    if peak is 0:
+        peak = None
+
+    # print("updated",peak)
 
     selected = Processing.getSettings(process).getSelected()
     newProcess = initializeData.initData(selected, selected, k, peak, top)
@@ -326,17 +342,69 @@ def updateData(k, peak, top, data):
                              sort_action='native')]
 
     algn1, algn2, f1_name, f2_name = initializeData.getAlignmentData(newProcess)
-    algn1 = pd.DataFrame(algn1)
-    algn2 = pd.DataFrame(algn2)
-    if not (len(algn1) is 0) and not (len(algn2) is 0):
-        algn1.columns = [f1_name]
-        algn1[f2_name] = algn2
+
+    if (len(algn1) > 0) and (len(algn2) > 0):
+        print("here")
+        algn1_df = pd.DataFrame(columns=[f1_name], data=algn1)
+        algn2_df = pd.DataFrame(columns=[f2_name], data=algn2)
+        algn1_df = pd.concat([algn1_df,algn2_df],ignore_index=False,axis=1)
         msas = [
-            dash_table.DataTable(columns=[{"name": i, "id": i} for i in algn1.columns], data=algn1.to_dict('records'),
+            dash_table.DataTable(columns=[{"name": i, "id": i} for i in algn1_df.columns],
+                                 data=algn1_df.to_dict('records'),
                                  style_table={'overflow-x': 'hidden'},
                                  style_cell={'textAlign': 'center'})]
+    elif len(algn1) is 0 and len(algn2) is 0:
+        algn1_df = pd.DataFrame(data=[])
+        algn1_df[f1_name] = ''
+        algn1_df[f2_name] = ''
+        msas = [dash_table.DataTable(columns=[{"name": i, "id": i} for i in algn1_df.columns],
+                                     data=algn1_df.to_dict('records'),
+                                     style_table={'overflow-x': 'hidden'},
+                                     style_cell={'textAlign': 'center'})]
+        # if len(algn1) is 0:
+        #     algn1_df = pd.DataFrame(algn2)
+        #     algn1_df.columns = [f2_name]
+        #     algn1_df[f1_name] = ''
+        # else:
+        #     algn1_df = pd.DataFrame(algn1)
+        #     algn1_df.columns = [f1_name]
+        #     algn1_df[f2_name] = ''
+        #
+        # msas = [dash_table.DataTable(columns=[{"name": i, "id": i} for i in algn1_df.columns],
+        #                              data=algn1_df.to_dict('records'),
+        #                              style_table={'overflow-x': 'hidden'},
+        #                              style_cell={'textAlign': 'center'})]
+
+
+    # elif len(algn1) > 0 and len(algn2) is 0:
+    #     print("t2")
+    #     algn1_df = pd.DataFrame(algn1)
+    #     algn1_df.columns = [f1_name]
+    #     algn1_df[f2_name] = ''
+    #
+    #     msas = [dash_table.DataTable(columns=[{"name": i, "id": i} for i in algn1_df.columns],
+    #                                  data=algn1_df.to_dict('records'),
+    #                                  style_table={'overflow-x': 'hidden'},
+    #                                  style_cell={'textAlign': 'center'})]
     else:
-        msas = [dash_table.DataTable(columns=["", ""], data=[],
+        # algn1_df = pd.DataFrame(data=[])
+        # algn1_df[f1_name] = ''
+        # algn1_df[f2_name] = ''
+        # msas = [dash_table.DataTable(columns=[{"name": i, "id": i} for i in algn1_df.columns],
+        #                              data=algn1_df.to_dict('records'),
+        #                              style_table={'overflow-x': 'hidden'},
+        #                              style_cell={'textAlign': 'center'})]
+        if len(algn1) is 0:
+            algn1_df = pd.DataFrame(algn2)
+            algn1_df.columns = [f2_name]
+            algn1_df[f1_name] = ''
+        else:
+            algn1_df = pd.DataFrame(algn1)
+            algn1_df.columns = [f1_name]
+            algn1_df[f2_name] = ''
+
+        msas = [dash_table.DataTable(columns=[{"name": i, "id": i} for i in algn1_df.columns],
+                                     data=algn1_df.to_dict('records'),
                                      style_table={'overflow-x': 'hidden'},
                                      style_cell={'textAlign': 'center'})]
 
@@ -344,9 +412,10 @@ def updateData(k, peak, top, data):
 
     pca_12, file1, file2 = initializeData.getPCA(newProcess)
     pcas = [pca_12, file1, file2]
+    # print("used peak",newProcess.getSettings().getPeak())
 
     data = {'topK': topK_table, 'msas': msas, 'scatter': scatter, 'pcas': pcas}
-
+    # print(data)
 
     return data
 
