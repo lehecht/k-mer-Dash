@@ -270,8 +270,11 @@ app.layout = dbc.Container([
               )
 def updateData(k, peak, top, data):
     # initial values
-    t_slider_max = 50
     t_slider_min = 5
+    if data is None:
+        t_slider_max = 50
+    else:
+        t_slider_max = data['df_size']
 
     # translate top_val from slider to real top value
     top_range = specialSliderRange(t_slider_min, t_slider_max)
@@ -372,6 +375,8 @@ def updateData(k, peak, top, data):
     ],
 )
 def updateSliderRange(file1, file2, ts, data):
+    if ts is None:
+        raise PreventUpdate
     k_p_slider_max = data['seqLen']
     k_p_slider_min = 2
     t_slider_max = data['df_size']
