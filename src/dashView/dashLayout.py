@@ -208,10 +208,6 @@ app.layout = dbc.Container([
                     html.Br(),
                     html.Br(),
 
-                    # ---------------------------------------- Copy Table ------------------------------------------
-                    dbc.Button("Copy K-Mer Table", color="primary", className="mr-1", id="copy"),
-                    html.Div(id="output")
-
                 ], style={
                     'height': '50vh',
                     'left': '0px',
@@ -301,6 +297,7 @@ def updateData(k, peak, top, data):
         dash_table.DataTable(columns=[{"name": i, "id": i} for i in topK.columns], data=topK.to_dict('records'),
                              style_table={'overflow-x': 'hidden'},
                              style_cell={'textAlign': 'center'},
+                             export_format="csv",
                              sort_action='native')]
 
     algn1, algn2, f1_name, f2_name = initializeData.getAlignmentData(newProcess)
