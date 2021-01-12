@@ -9,24 +9,27 @@ from dash.exceptions import PreventUpdate
 from src.processing import Processing
 from src.dashView import initializeData
 
-process = None
-k_p_slider_max = None
-k_p_slider_min = 2
+# process = None
+# k_p_slider_max = None
+# k_p_slider_min = 2
 
-t_slider_max = None
-t_slider_min = 5
+# t_slider_max = None
+# t_slider_min = 5
+selected = None
 
 
 def startDash(slc, k_len, p, t):
     if slc is not None:
-        global process
-        global k_p_slider_max
-        global t_slider_max
-        process = initializeData.initData(slc, slc, k_len, p, t)
-        k_p_slider_max = Processing.getSeqLen(process)
-        # t_slider_max: size of both sets added
-        t_slider_max = len(Processing.getProfilObj1(process).getProfile()) + \
-                       len(Processing.getProfilObj2(process).getProfile())
+        global selected
+        selected = slc
+    #     global process
+    #     global k_p_slider_max
+    #     global t_slider_max
+    #     process = initializeData.initData(slc, slc, k_len, p, t)
+    #     k_p_slider_max = Processing.getSeqLen(process)
+    #     # t_slider_max: size of both sets added
+    #     t_slider_max = len(Processing.getProfilObj1(process).getProfile()) + \
+    #                    len(Processing.getProfilObj2(process).getProfile())
     app.run_server(debug=False)
 
 
@@ -40,8 +43,8 @@ def markSliderRange(min, max, peak):
     return mark
 
 
-def specialSliderRange(max):
-    j = t_slider_min
+def specialSliderRange(min, max):
+    j = min
     mark = {}
     i = 0
     while i < 9:
@@ -108,7 +111,7 @@ app.layout = dbc.Container([
                         min=0,
                         max=10,
                         step=1,
-                        value=5,
+                        value=3,
                         marks=markSliderRange(0, 10, False)
                     ),
 
@@ -176,7 +179,7 @@ app.layout = dbc.Container([
                         min=0,
                         max=10,
                         step=1,
-                        value=1,
+                        value=0,
                         marks=markSliderRange(0, 10, False)
                     ),
                     html.Br(),
@@ -187,7 +190,7 @@ app.layout = dbc.Container([
                         min=1,
                         max=10,
                         step=1,
-                        value=4,
+                        value=0,
                         marks=markSliderRange(0, 10, True)
                     ),
                     html.Br(),
@@ -256,51 +259,6 @@ app.layout = dbc.Container([
 ], className="mw-100 mh-100", style={'left': '0px', 'margin-left': '0px', 'padding': '0px'})
 
 
-@app.callback(
-    [
-        dash.dependencies.Output("k", "min"),
-        dash.dependencies.Output("k", "max"),
-        dash.dependencies.Output("k", "marks"),
-        dash.dependencies.Output("k", "value"),
-        dash.dependencies.Output("peak", "min"),
-        dash.dependencies.Output("peak", "max"),
-        dash.dependencies.Output("peak", "marks"),
-        dash.dependencies.Output("peak", "value"),
-        dash.dependencies.Output("top", "min"),
-        dash.dependencies.Output("top", "max"),
-        dash.dependencies.Output("top", "marks"),
-        dash.dependencies.Output("top", "value"),
-    ],
-    [dash.dependencies.Input("file1", "value"),
-     dash.dependencies.Input("file2", "value"),
-     ],
-)
-def updateSliderRange(file1, file2):
-    k_val = Processing.getSettings(process).getK()
-    p_val = Processing.getSettings(process).getPeak()
-    t_val = Processing.getSettings(process).getTop()
-    k_slider_max = k_p_slider_max - 1
-    peak_min = 0
-    k_range = markSliderRange(k_p_slider_min, k_slider_max, False)
-    peak_range = markSliderRange(peak_min, k_p_slider_max, True)
-    top_range = specialSliderRange(t_slider_max)
-
-    t_max = len(top_range) - 1
-    t_min = 0
-
-    if t_val not in list(top_range.keys()):
-        t_val = list(top_range.values()).index(str(t_val))
-
-    if p_val is None:
-        p_val = 0
-
-    print("init", p_val)
-
-    return k_p_slider_min, k_slider_max, k_range, k_val, \
-           peak_min, k_p_slider_max, peak_range, p_val, \
-           t_min, t_max, top_range, t_val
-
-
 # ------------------------------------ Store Callback ------------------------------------------------------------------
 
 @app.callback(dash.dependencies.Output('memory', 'data'),
@@ -311,8 +269,12 @@ def updateSliderRange(file1, file2):
               # prevent_inital_call=True
               )
 def updateData(k, peak, top, data):
+    # initial values
+    t_slider_max = 50
+    t_slider_min = 5
+
     # translate top_val from slider to real top value
-    top_range = specialSliderRange(t_slider_max)
+    top_range = specialSliderRange(t_slider_min, t_slider_max)
     if top in list(top_range.keys()):
         top = top_range[top]
 
@@ -324,9 +286,6 @@ def updateData(k, peak, top, data):
     if peak is 0:
         peak = None
 
-    # print("updated",peak)
-
-    selected = Processing.getSettings(process).getSelected()
     newProcess = initializeData.initData(selected, selected, k, peak, top)
 
     topK = Processing.getTopKmer(newProcess).copy()
@@ -344,10 +303,9 @@ def updateData(k, peak, top, data):
     algn1, algn2, f1_name, f2_name = initializeData.getAlignmentData(newProcess)
 
     if (len(algn1) > 0) and (len(algn2) > 0):
-        print("here")
         algn1_df = pd.DataFrame(columns=[f1_name], data=algn1)
         algn2_df = pd.DataFrame(columns=[f2_name], data=algn2)
-        algn1_df = pd.concat([algn1_df,algn2_df],ignore_index=False,axis=1)
+        algn1_df = pd.concat([algn1_df, algn2_df], ignore_index=False, axis=1)
         msas = [
             dash_table.DataTable(columns=[{"name": i, "id": i} for i in algn1_df.columns],
                                  data=algn1_df.to_dict('records'),
@@ -361,39 +319,8 @@ def updateData(k, peak, top, data):
                                      data=algn1_df.to_dict('records'),
                                      style_table={'overflow-x': 'hidden'},
                                      style_cell={'textAlign': 'center'})]
-        # if len(algn1) is 0:
-        #     algn1_df = pd.DataFrame(algn2)
-        #     algn1_df.columns = [f2_name]
-        #     algn1_df[f1_name] = ''
-        # else:
-        #     algn1_df = pd.DataFrame(algn1)
-        #     algn1_df.columns = [f1_name]
-        #     algn1_df[f2_name] = ''
-        #
-        # msas = [dash_table.DataTable(columns=[{"name": i, "id": i} for i in algn1_df.columns],
-        #                              data=algn1_df.to_dict('records'),
-        #                              style_table={'overflow-x': 'hidden'},
-        #                              style_cell={'textAlign': 'center'})]
 
-
-    # elif len(algn1) > 0 and len(algn2) is 0:
-    #     print("t2")
-    #     algn1_df = pd.DataFrame(algn1)
-    #     algn1_df.columns = [f1_name]
-    #     algn1_df[f2_name] = ''
-    #
-    #     msas = [dash_table.DataTable(columns=[{"name": i, "id": i} for i in algn1_df.columns],
-    #                                  data=algn1_df.to_dict('records'),
-    #                                  style_table={'overflow-x': 'hidden'},
-    #                                  style_cell={'textAlign': 'center'})]
     else:
-        # algn1_df = pd.DataFrame(data=[])
-        # algn1_df[f1_name] = ''
-        # algn1_df[f2_name] = ''
-        # msas = [dash_table.DataTable(columns=[{"name": i, "id": i} for i in algn1_df.columns],
-        #                              data=algn1_df.to_dict('records'),
-        #                              style_table={'overflow-x': 'hidden'},
-        #                              style_cell={'textAlign': 'center'})]
         if len(algn1) is 0:
             algn1_df = pd.DataFrame(algn2)
             algn1_df.columns = [f2_name]
@@ -412,12 +339,57 @@ def updateData(k, peak, top, data):
 
     pca_12, file1, file2 = initializeData.getPCA(newProcess)
     pcas = [pca_12, file1, file2]
-    # print("used peak",newProcess.getSettings().getPeak())
 
-    data = {'topK': topK_table, 'msas': msas, 'scatter': scatter, 'pcas': pcas}
-    # print(data)
+    df_size = len(newProcess.getDF())
+
+    seqLen = newProcess.getSeqLen()
+
+    data = {'topK': topK_table, 'msas': msas, 'scatter': scatter, 'pcas': pcas, 'df_size': df_size, 'seqLen': seqLen}
 
     return data
+
+
+# --------------------------------------- Slider Values Updater --------------------------------------------------------
+
+
+@app.callback(
+    [
+        dash.dependencies.Output("k", "min"),
+        dash.dependencies.Output("k", "max"),
+        dash.dependencies.Output("k", "marks"),
+        dash.dependencies.Output("peak", "min"),
+        dash.dependencies.Output("peak", "max"),
+        dash.dependencies.Output("peak", "marks"),
+        dash.dependencies.Output("top", "min"),
+        dash.dependencies.Output("top", "max"),
+        dash.dependencies.Output("top", "marks"),
+    ],
+    [
+        dash.dependencies.Input("file1", "value"),
+        dash.dependencies.Input("file2", "value"),
+        dash.dependencies.Input('memory', 'modified_timestamp'),
+        dash.dependencies.State('memory', 'data')
+    ],
+)
+def updateSliderRange(file1, file2, ts, data):
+    k_p_slider_max = data['seqLen']
+    k_p_slider_min = 2
+    t_slider_max = data['df_size']
+    t_slider_min = 5
+
+    k_slider_max = k_p_slider_max - 1
+    peak_min = 0
+    k_range = markSliderRange(k_p_slider_min, k_slider_max, False)
+    peak_range = markSliderRange(peak_min, k_p_slider_max, True)
+    top_range = specialSliderRange(t_slider_min, t_slider_max)
+
+    t_max = len(top_range) - 1
+    t_min = 0
+
+    return k_p_slider_min, k_slider_max, k_range, peak_min, k_p_slider_max, peak_range, t_min, t_max, top_range
+
+
+# --------------------------------------------- Diagram/Table Updater --------------------------------------------------
 
 
 @app.callback(dash.dependencies.Output('scatter', 'figure'),
