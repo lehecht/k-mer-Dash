@@ -9,27 +9,12 @@ from dash.exceptions import PreventUpdate
 from src.processing import Processing
 from src.dashView import initializeData
 
-# process = None
-# k_p_slider_max = None
-# k_p_slider_min = 2
-
-# t_slider_max = None
-# t_slider_min = 5
 selected = None
 
 
-def startDash(slc, k_len, p, t):
-    if slc is not None:
-        global selected
-        selected = slc
-    #     global process
-    #     global k_p_slider_max
-    #     global t_slider_max
-    #     process = initializeData.initData(slc, slc, k_len, p, t)
-    #     k_p_slider_max = Processing.getSeqLen(process)
-    #     # t_slider_max: size of both sets added
-    #     t_slider_max = len(Processing.getProfilObj1(process).getProfile()) + \
-    #                    len(Processing.getProfilObj2(process).getProfile())
+def startDash(slc):
+    global selected
+    selected = slc
     app.run_server(debug=False)
 
 
@@ -285,7 +270,7 @@ def updateData(k, peak, top, pca_feature, data):
     if peak is 0:
         peak = None
 
-    newProcess = initializeData.initData(selected, selected, k, peak, top,pca_feature)
+    newProcess = initializeData.initData(selected, selected, k, peak, top, pca_feature)
 
     topK = Processing.getTopKmer(newProcess).copy()
     kmer = topK.index
