@@ -10,7 +10,7 @@ def test_processData():
     top = 3
     highlight = 0
     peak = None
-    process = Processing(testData, None, k, peak, top)
+    process = Processing(testData, None, k, peak, top,None)
 
     # Executing
     results = KMerPCAData.processData(process)
@@ -36,7 +36,7 @@ def test_processData():
     top = 3
     highlight = 0
     peak = 2
-    process2 = Processing(testData, None, k, peak, top)
+    process2 = Processing(testData, None, k, peak, top,None)
 
     # Executing
     results2 = KMerPCAData.processData(process2)
