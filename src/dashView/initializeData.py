@@ -55,10 +55,12 @@ def getPCA(process):
 
     if process.getSettings().getFeature() is "2":
         feature_name = 'T'
+        colorscale_feat_name = '#T'
         feature_df1 = top_list1['T']
         feature_df2 = top_list2['T']
     else:
         feature_name = 'Frequency'
+        colorscale_feat_name = feature_name
         feature_df1 = top_list1.Frequency
         feature_df2 = top_list2.Frequency
 
@@ -73,7 +75,8 @@ def getPCA(process):
                          color_continuous_scale='plasma',
                          hover_data={"PC1": False, "PC2": False})
         fig.update_layout(template=ptt.custom_plot_template, xaxis=dict(zeroline=False, showline=True),
-                          yaxis=dict(zeroline=False, showline=True))
+                          yaxis=dict(zeroline=False, showline=True), coloraxis_colorbar=dict(
+                title=colorscale_feat_name))
         fig.update_xaxes(title_font=dict(size=15))
         fig.update_yaxes(title_font=dict(size=15))
         fig.update_traces(marker=dict(size=12, line=dict(width=2,
