@@ -6,8 +6,8 @@ import src.layout.plot_theme_templates as ptt
 import plotly.express as px
 
 
-def initData(data, selected, k, peak, top):
-    process = Processing(data, selected, k, peak, top)
+def initData(data, selected, k, peak, top, feature):
+    process = Processing(data, selected, k, peak, top, feature)
     return process
 
 
@@ -19,7 +19,7 @@ def getAlignmentData(process):
         algn1 = [str(e.seq) for e in algn1]
         algn2 = [str(e.seq) for e in algn2]
 
-    return algn1,algn2, f1_name, f2_name
+    return algn1, algn2, f1_name, f2_name
 
 
 def getScatterPlot(process):
@@ -53,13 +53,22 @@ def getPCA(process):
     top_list1 = pca_dfs[4]
     top_list2 = pca_dfs[5]
 
-    pca_df1 = pca_df1.join(top_list1.Frequency)
-    pca_df2 = pca_df2.join(top_list2.Frequency)
+    if process.getSettings().getFeature() is "2":
+        feature_name = 'T'
+        feature_df1 = top_list1['T']
+        feature_df2 = top_list2['T']
+    else:
+        feature_name = 'Frequency'
+        feature_df1 = top_list1.Frequency
+        feature_df2 = top_list2.Frequency
+
+    pca_df1 = pca_df1.join(feature_df1)
+    pca_df2 = pca_df2.join(feature_df2)
 
     figures = []
     for p in [pca_df1, pca_df2]:
         fig = px.scatter(p, x='PC1', y='PC2', hover_name=p.index.tolist(),
-                         color='Frequency',
+                         color=feature_name,
                          opacity=0.6,
                          color_continuous_scale='plasma',
                          hover_data={"PC1": False, "PC2": False})

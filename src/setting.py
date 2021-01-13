@@ -1,16 +1,18 @@
 class Setting:
     data = None
     selected = None
+    feature = None
     k = 0
     peak = 0
     top = 0
 
-    def __init__(self, data, selected, k, peak, top):
+    def __init__(self, data, selected, k, peak, top,feature):
         self.data = data
         self.selected = selected
         self.k = k
         self.peak = peak
         self.top = top
+        self.feature = feature
 
     def setData(self, data):
         self.data = data
@@ -26,6 +28,12 @@ class Setting:
 
     def setTop(self, top):
         self.top = top
+
+    def setFeature(self,feature):
+        self.feature = feature
+
+    def getFeature(self):
+        return self.feature
 
     def getData(self):
         return self.data

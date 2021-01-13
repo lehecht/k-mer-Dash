@@ -261,10 +261,10 @@ app.layout = dbc.Container([
               dash.dependencies.Input('k', 'value'),
               dash.dependencies.Input('peak', 'value'),
               dash.dependencies.Input('top', 'value'),
+              dash.dependencies.Input('Feature', 'value'),
               dash.dependencies.State('memory', 'data'),
-              # prevent_inital_call=True
               )
-def updateData(k, peak, top, data):
+def updateData(k, peak, top, pca_feature, data):
     # initial values
     t_slider_min = 5
     if data is None:
@@ -285,7 +285,7 @@ def updateData(k, peak, top, data):
     if peak is 0:
         peak = None
 
-    newProcess = initializeData.initData(selected, selected, k, peak, top)
+    newProcess = initializeData.initData(selected, selected, k, peak, top,pca_feature)
 
     topK = Processing.getTopKmer(newProcess).copy()
     kmer = topK.index

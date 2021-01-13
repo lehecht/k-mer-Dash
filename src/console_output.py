@@ -9,7 +9,7 @@ import plotly.express as px
 
 
 def printData(data, k, peak, top):
-    process = Processing(data, data, k, peak, top)
+    process = Processing(data, data, k, peak, top, None)
     printPairwAlignment(process)
     printKMerFrequency(process)
     printScatterPlot(process)
