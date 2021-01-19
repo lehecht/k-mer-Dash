@@ -29,6 +29,8 @@ argparser.add_argument('-t', '--top', dest='top', default=10, nargs='?', action=
                        help="(optional) shows top kmers (Default: 10).")
 argparser.add_argument('-c', '--console', dest='console', default=False, nargs='?', action='store', type=bool,
                        help="starts program with gui (= False (Default)) or on commandline (= True).")
+argparser.add_argument('-pt', '--port', dest='port', default=False, nargs='?', action='store', type=int,
+                       help="(optional) port on which runs dash app")
 
 
 def checkFileFormat(file):
@@ -75,7 +77,7 @@ if __name__ == '__main__':
             print(fnf.args[0])
     else:
         try:
-            dashLayout.startDash(files)
+            dashLayout.startDash(files,args.port)
         except InputValueException as ive:
             print(ive.args[0])
         except FileNotFoundError as fnf:

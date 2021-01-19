@@ -12,10 +12,10 @@ from src.dashView import initializeData
 selected = None
 
 
-def startDash(slc):
+def startDash(slc,port):
     global selected
     selected = slc
-    app.run_server(debug=False)
+    app.run_server(debug=False, host='0.0.0.0',port=port)
 
 
 def markSliderRange(min, max, peak):
