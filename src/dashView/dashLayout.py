@@ -310,7 +310,9 @@ def updateData(k, peak, top, pca_feature, data):
     pca_12, file1, file2 = initializeData.getPCA(newProcess)
     pcas = [pca_12, file1, file2]
 
-    df_size = len(newProcess.getDF())
+    # maximal slider value before value 'all'
+    # depends on smallest profile because otherwise all entries would be displayed
+    df_size = min([len(newProcess.getProfilObj1().getProfile()), len(newProcess.getProfilObj2().getProfile())])
 
     seqLen = newProcess.getSeqLen()
 
