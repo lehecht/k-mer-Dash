@@ -12,11 +12,10 @@ from src.dashView import initializeData
 selected = None
 
 
-def startDash(slc,port):
+def startDash(slc, port):
     global selected
     selected = slc
-    print(port)
-    app.run_server(debug=False, host='0.0.0.0',port=port)
+    app.run_server(debug=False, host='0.0.0.0', port=port)
 
 
 def markSliderRange(min, max, peak):
@@ -54,7 +53,8 @@ app.title = "k-Mer Dash"
 
 app.layout = dbc.Container([
     # ------------------------------------------ Store -----------------------------------------------------------------
-    dcc.Store(id='memory', storage_type='memory'),
+    dbc.Spinner(children=[dcc.Store(id='memory', storage_type='memory')],
+                color="primary", fullscreen=True),
 
     # -------------------------------------------------------------------------------------------------------------------
     dbc.Card([
@@ -112,12 +112,7 @@ app.layout = dbc.Container([
 
             # --------------------------------------- ScatterPlot ------------------------------------------------------
             dbc.Col(dbc.Card([
-                dbc.Spinner(children=[
-                    dcc.Graph(figure={}, id="scatter", style={'height': '50vh'})], color="primary",
-                    spinner_style={'position': 'absolute',
-                                   'top': '50%',
-                                   'left': '50%'
-                                   })
+                dcc.Graph(figure={}, id="scatter", style={'height': '50vh'})
 
             ], style={
                 'background': '#f2f2f2', 'height': '50vh'}, outline=True),
@@ -127,7 +122,7 @@ app.layout = dbc.Container([
 
             # ------------------------------------------------- PCAs ---------------------------------------------------
             dbc.Col(dbc.Card([
-                dbc.Spinner(children=[dcc.Tabs(id='tabs-example', value='Tab1', children=[
+                dcc.Tabs(id='tabs-example', value='Tab1', children=[
                     dcc.Tab(label="", value='Tab1', id="Tab1", children=[
                         dcc.Graph(figure={}, id="PCA1",
                                   style={'height': '42vh'}
@@ -139,10 +134,7 @@ app.layout = dbc.Container([
                                   )
                     ]),
                 ],
-                                               )], color="primary", spinner_style={'position': 'absolute',
-                                                                                   'top': '50%',
-                                                                                   'left': '50%'
-                                                                                   }),
+                         ),
 
             ], style={
                 'background': '#f2f2f2', 'height': '50vh'}, outline=True),
@@ -205,32 +197,21 @@ app.layout = dbc.Container([
 
             # -------------------------------------------- TopK --------------------------------------------------------
             dbc.Col(
-                dbc.Spinner(children=[dbc.Card(id="topK", children=[], style={
-                    'background': '#f2f2f2', 'height': '49vh', 'overflow-y': 'scroll'}, outline=True)],
-                            color="primary", spinner_style={'position': 'absolute',
-                                                            'top': '50%',
-                                                            'left': '50%'
-                                                            }),
+                dbc.Card(id="topK", children=[], style={
+                    'background': '#f2f2f2', 'height': '49vh', 'overflow-y': 'scroll'}, outline=True),
                 width=5,
                 style={"padding-right": '5px',
                        "padding-top": '5px',
                        "padding-left": '10px'}),
 
             # ------------------------------------------- MSA ----------------------------------------------------------
-            dbc.Col(
-                dbc.Spinner(children=[
-
-                    dbc.Card(id="msa", children=[], style={
-                        'background': '#f2f2f2', 'height': '49vh', 'overflow-y': 'scroll'}, outline=True)],
-                    color="primary", spinner_style={'position': 'absolute',
-                                                    'top': '50%',
-                                                    'left': '50%'
-                                                    }),
-                width=5,
-                style={"padding-right": '0px',
-                       "padding-top": '5px',
-                       "padding-left": '0px'}
-            )
+            dbc.Col(dbc.Card(id="msa", children=[], style={
+                'background': '#f2f2f2', 'height': '49vh', 'overflow-y': 'scroll'}, outline=True),
+                    width=5,
+                    style={"padding-right": '0px',
+                           "padding-top": '5px',
+                           "padding-left": '0px'}
+                    )
         ], style={'padding-top': '0px', 'padding-bottom': '0px', 'margin-top': '0px', 'margin-bottom': '0px',
                   'margin-left': '0px', 'padding-left': '0px'},
             className="mw-100 mh-100"
@@ -295,7 +276,7 @@ def updateData(k, peak, top, pca_feature, data):
         msas = [
             dash_table.DataTable(columns=[{"name": i, "id": i} for i in algn1_df.columns],
                                  data=algn1_df.to_dict('records'),
-                                 # style_table={'overflow-x': 'hidden'},
+                                 style_table={'overflow-x': 'hidden'},
                                  style_cell={'textAlign': 'center'},
                                  export_format="csv")]
     elif len(algn1) is 0 and len(algn2) is 0:
@@ -304,7 +285,7 @@ def updateData(k, peak, top, pca_feature, data):
         algn1_df[f2_name] = ''
         msas = [dash_table.DataTable(columns=[{"name": i, "id": i} for i in algn1_df.columns],
                                      data=algn1_df.to_dict('records'),
-                                     # style_table={'overflow-x': 'hidden'},
+                                     style_table={'overflow-x': 'hidden'},
                                      style_cell={'textAlign': 'center'},
                                      export_format="csv")]
 
@@ -320,7 +301,7 @@ def updateData(k, peak, top, pca_feature, data):
 
         msas = [dash_table.DataTable(columns=[{"name": i, "id": i} for i in algn1_df.columns],
                                      data=algn1_df.to_dict('records'),
-                                     # style_table={'overflow-x': 'hidden'},
+                                     style_table={'overflow-x': 'hidden'},
                                      style_cell={'textAlign': 'center'},
                                      export_format="csv")]
 
