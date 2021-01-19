@@ -29,7 +29,7 @@ argparser.add_argument('-t', '--top', dest='top', default=10, nargs='?', action=
                        help="(optional) shows top kmers (Default: 10).")
 argparser.add_argument('-c', '--console', dest='console', default=False, nargs='?', action='store', type=bool,
                        help="starts program with gui (= False (Default)) or on commandline (= True).")
-argparser.add_argument('-pt', '--port', dest='port', default=False, nargs='?', action='store', type=int,
+argparser.add_argument('-pt', '--port', dest='port', default=8088, nargs='?', action='store', type=int,
                        help="(optional) port on which runs dash app")
 
 
