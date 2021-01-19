@@ -15,6 +15,7 @@ selected = None
 def startDash(slc,port):
     global selected
     selected = slc
+    print(port)
     app.run_server(debug=False, host='0.0.0.0',port=port)
 
 
@@ -294,16 +295,18 @@ def updateData(k, peak, top, pca_feature, data):
         msas = [
             dash_table.DataTable(columns=[{"name": i, "id": i} for i in algn1_df.columns],
                                  data=algn1_df.to_dict('records'),
-                                 style_table={'overflow-x': 'hidden'},
-                                 style_cell={'textAlign': 'center'})]
+                                 # style_table={'overflow-x': 'hidden'},
+                                 style_cell={'textAlign': 'center'},
+                                 export_format="csv")]
     elif len(algn1) is 0 and len(algn2) is 0:
         algn1_df = pd.DataFrame(data=[])
         algn1_df[f1_name] = ''
         algn1_df[f2_name] = ''
         msas = [dash_table.DataTable(columns=[{"name": i, "id": i} for i in algn1_df.columns],
                                      data=algn1_df.to_dict('records'),
-                                     style_table={'overflow-x': 'hidden'},
-                                     style_cell={'textAlign': 'center'})]
+                                     # style_table={'overflow-x': 'hidden'},
+                                     style_cell={'textAlign': 'center'},
+                                     export_format="csv")]
 
     else:
         if len(algn1) is 0:
@@ -317,8 +320,9 @@ def updateData(k, peak, top, pca_feature, data):
 
         msas = [dash_table.DataTable(columns=[{"name": i, "id": i} for i in algn1_df.columns],
                                      data=algn1_df.to_dict('records'),
-                                     style_table={'overflow-x': 'hidden'},
-                                     style_cell={'textAlign': 'center'})]
+                                     # style_table={'overflow-x': 'hidden'},
+                                     style_cell={'textAlign': 'center'},
+                                     export_format="csv")]
 
     scatter = initializeData.getScatterPlot(newProcess)
 
