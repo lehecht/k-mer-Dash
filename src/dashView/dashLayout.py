@@ -64,10 +64,6 @@ app.layout = dbc.Container([
                     html.H3("Menu"),
                     html.Br(),
                     html.Br(),
-                    # ------------------------- Choose Fasta-Files -----------------------------------------------------
-                    dbc.Button("Choose Files", color="primary", className="mr-1", disabled=True),
-                    html.Br(),
-                    html.Br(),
                     # ------------------------------------- Select File1 And File 2 ------------------------------------
                     html.H6("Selected Files:"),
                     dbc.Select(
@@ -76,7 +72,6 @@ app.layout = dbc.Container([
                             {"label": "File 1", "value": "1"},
                             {"label": "File 2", "value": "2"},
                         ],
-                        # value="1"
                         disabled=True),
                     dbc.Select(
                         id="file2",
@@ -84,7 +79,6 @@ app.layout = dbc.Container([
                             {"label": "File 1", "value": "1"},
                             {"label": "File 2", "value": "2"},
                         ],
-                        # value="2"
                         disabled=True),
                     html.Br(),
                     html.Br(),
@@ -100,57 +94,8 @@ app.layout = dbc.Container([
                         value=3,
                         marks=markSliderRange(0, 10, False)
                     ),
+                    html.Br(),
 
-                ], style={
-                    'height': '50vh',
-                    'left': '0px',
-                    'background': 'lightgrey'}),
-                width=2,
-                style={"padding-right": '0px',
-                       "padding-left": '0px',
-                       'margin-right': '0px'}),
-
-            # --------------------------------------- ScatterPlot ------------------------------------------------------
-            dbc.Col(dbc.Card([
-                dcc.Graph(figure={}, id="scatter", style={'height': '50vh'})
-
-            ], style={
-                'background': '#f2f2f2', 'height': '50vh'}, outline=True),
-                width=5,
-                style={"padding-right": '5px',
-                       "padding-left": '10px'}),
-
-            # ------------------------------------------------- PCAs ---------------------------------------------------
-            dbc.Col(dbc.Card([
-                dcc.Tabs(id='tabs-example', value='Tab1', children=[
-                    dcc.Tab(label="", value='Tab1', id="Tab1", children=[
-                        dcc.Graph(figure={}, id="PCA1",
-                                  style={'height': '42vh'}
-                                  )
-                    ]),
-                    dcc.Tab(label="", value='Tab2', id="Tab2", children=[
-                        dcc.Graph(figure={}, id="PCA2",
-                                  style={'height': '42vh'}
-                                  )
-                    ]),
-                ],
-                         ),
-
-            ], style={
-                'background': '#f2f2f2', 'height': '50vh'}, outline=True),
-                width=5,
-                style={"padding-right": '0px',
-                       "padding-left": '0px'}
-            )
-        ], style={'padding-top': '0px', 'padding-bottom': '0px', 'margin-top': '0px', 'margin-bottom': '0px',
-                  'margin-left': '0px', 'padding-left': '0px'},
-            className="mw-100 mh-100"
-        ),
-
-        dbc.Row([
-            dbc.Col(
-                dbc.CardBody([
-                    # ---------------------------------------- Top -----------------------------------------------------
                     html.H6("Top-values:"),
                     dcc.Slider(
                         id='top',
@@ -187,7 +132,7 @@ app.layout = dbc.Container([
                     html.Br(),
 
                 ], style={
-                    'height': '50vh',
+                    'height': '100vh',
                     'left': '0px',
                     'background': 'lightgrey'}),
                 width=2,
@@ -195,27 +140,54 @@ app.layout = dbc.Container([
                        "padding-left": '0px',
                        'margin-right': '0px'}),
 
-            # -------------------------------------------- TopK --------------------------------------------------------
-            dbc.Col(
+            # --------------------------------------- ScatterPlot ------------------------------------------------------
+            dbc.Col([dbc.Card([
+                dcc.Graph(figure={}, id="scatter", style={'height': '50vh'}),
+
+            ], style={
+                'background': '#f2f2f2', 'height': '50vh'}, outline=True),
+
+                # -------------------------------------------- TopK --------------------------------------------------------
                 dbc.Card(id="topK", children=[], style={
                     'background': '#f2f2f2', 'height': '49vh', 'overflow-y': 'scroll'}, outline=True),
+            ],
                 width=5,
                 style={"padding-right": '5px',
-                       "padding-top": '5px',
                        "padding-left": '10px'}),
 
-            # ------------------------------------------- MSA ----------------------------------------------------------
-            dbc.Col(dbc.Card(id="msa", children=[], style={
-                'background': '#f2f2f2', 'height': '49vh', 'overflow-y': 'scroll'}, outline=True),
-                    width=5,
-                    style={"padding-right": '0px',
-                           "padding-top": '5px',
-                           "padding-left": '0px'}
-                    )
+            # ------------------------------------------------- PCAs ---------------------------------------------------
+            dbc.Col(
+                [dbc.Card([
+                    dcc.Tabs(id='tabs-example', value='Tab1', children=[
+                        dcc.Tab(label="", value='Tab1', id="Tab1", children=[
+                            dcc.Graph(figure={}, id="PCA1",
+                                      style={'height': '42vh'}
+                                      )
+                        ]),
+                        dcc.Tab(label="", value='Tab2', id="Tab2", children=[
+                            dcc.Graph(figure={}, id="PCA2",
+                                      style={'height': '42vh'}
+                                      )
+                        ]),
+                    ],
+                             ),
+
+                ], style={
+                    'background': '#f2f2f2', 'height': '50vh'}, outline=True),
+
+                    # ------------------------------------------- MSA ----------------------------------------------------------
+                    dbc.Card(id="msa", children=[], style={
+                        'background': '#f2f2f2', 'height': '49vh', 'overflow-y': 'scroll'}, outline=True),
+                ],
+                width=5,
+                style={"padding-right": '0px',
+                       "padding-left": '0px'}
+            )
+
         ], style={'padding-top': '0px', 'padding-bottom': '0px', 'margin-top': '0px', 'margin-bottom': '0px',
                   'margin-left': '0px', 'padding-left': '0px'},
             className="mw-100 mh-100"
-        )
+        ),
 
     ],
         className="mw-100 mh-100"),
