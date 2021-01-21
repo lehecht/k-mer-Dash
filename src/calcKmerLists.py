@@ -3,6 +3,8 @@ from src.inputValueException import InputValueException
 import os
 import pandas as pd
 
+import time
+
 
 def calcFrequency(k, peak, selected):
     profil1 = dict()
@@ -52,39 +54,63 @@ def createDataFrame(p1, p2, selected):
     xAxis = []  # frequency count from file 1
     yAxis = []  # frequency count from file 2
     kmer_List = []
+    profil1 = p1.getProfile()
+    profil2 = p2.getProfile()
 
     file1_kmer = list(p1.getProfile().keys())
-    file2_kmer = list(p2.getProfile().keys())
 
-    file1_freq = list(p1.getProfile().values())
-    file2_freq = list(p2.getProfile().values())
+    file2_kmer = list(p2.getProfile().keys())
 
     # calculates coordinates
 
     intersec = set(file1_kmer).intersection(file2_kmer)  # ascertains kmeres which appear in both files
 
-    for kmer in intersec:
-        idx1 = file1_kmer.index(kmer)
-        idx2 = file2_kmer.index(kmer)
+    p1_diff = set(file1_kmer).difference(file2_kmer)
+    p2_diff = set(file2_kmer).difference(file1_kmer)
 
-        xAxis.append(file1_freq[idx1])
-        yAxis.append(file2_freq[idx2])
+    t0 = time.clock()
+
+    for kmer in intersec:
+        # idx1 = file1_kmer.index(kmer)
+        # idx2 = file2_kmer.index(kmer)
+
+        # xAxis.append(file1_freq[idx1])
+        xAxis.append(profil1[kmer])
+        # yAxis.append(file2_freq[idx2])
+        yAxis.append(profil2[kmer])
+
         kmer_List.append(kmer)
 
-        file1_kmer.remove(kmer)
-        file2_kmer.remove(kmer)
-        del file1_freq[idx1]
-        del file2_freq[idx2]
+        # file1_kmer.remove(kmer)
+        # file2_kmer.remove(kmer)
+        # del file1_freq[idx1]
+        # del file2_freq[idx2]
 
-    for i in range(0, len(file1_kmer)):
-        xAxis.append(file1_freq[i])
+    t1 = time.clock()
+
+    print(t1 - t0)
+
+    # for i in range(0, len(file1_kmer)):
+    #     xAxis.append(file1_freq[i])
+    #     yAxis.append(0)
+    #     kmer_List.append(file1_kmer[i])
+
+    for k1 in p1_diff:
+        kmer_freq = profil1[k1]
+        xAxis.append(kmer_freq)
         yAxis.append(0)
-        kmer_List.append(file1_kmer[i])
+        kmer_List.append(k1)
 
-    for j in range(0, len(file2_kmer)):
+    # for j in range(0, len(file2_kmer)):
+    #     xAxis.append(0)
+    #     yAxis.append(file2_freq[j])
+    #     kmer_List.append(file2_kmer[j])
+
+    for k2 in p2_diff:
+        kmer_freq = profil2[k2]
         xAxis.append(0)
-        yAxis.append(file2_freq[j])
-        kmer_List.append(file2_kmer[j])
+        yAxis.append(kmer_freq)
+        kmer_List.append(k2)
 
     fileName1 = os.path.basename(selected[0])
     fileName2 = os.path.basename(selected[1])

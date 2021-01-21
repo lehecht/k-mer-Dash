@@ -72,14 +72,21 @@ def test_createDataFrame():
     # Execution
     df = createDataFrame(profil1, profil2, selected)
     kmerList = df.index.tolist()
-    freq1 = df["file1"].values.tolist()
-    freq2 = df["file2"].values.tolist()
+
+    p1_kmerList = set(profil1.getProfile().keys()).intersection(kmerList)
+    p2_kmerList = set(profil2.getProfile().keys()).intersection(kmerList)
+
 
     # Testing
     assert len(kmerList) == 5
-    assert kmerList == ["AAT", "TAT", "GCC", "TCC", "GAC"]
-    assert freq1 == [3, 5, 7, 0, 0]
-    assert freq2 == [8, 0, 0, 2, 11]
+    assert set(kmerList) == {'AAT', 'TAT', 'GCC', 'GAC', 'TCC'}
+
+    for kmer in p1_kmerList:
+        assert df.loc[kmer,['file1']].tolist()[0] == profil1.getProfile()[kmer]
+
+    for kmer in p2_kmerList:
+        assert df.loc[kmer,['file2']].tolist()[0] == profil2.getProfile()[kmer]
+
 
     # Test2
     profil1 = Profile({"AAA": 1, "TTT": 1}, "dir/file1")
@@ -88,14 +95,18 @@ def test_createDataFrame():
     # Execution
     df = createDataFrame(profil1, profil2, selected)
     kmerList = df.index.tolist()
-    freq1 = df["file1"].values.tolist()
-    freq2 = df["file2"].values.tolist()
+    p1_kmerList = set(profil1.getProfile().keys()).intersection(kmerList)
+    p2_kmerList = set(profil2.getProfile().keys()).intersection(kmerList)
 
     # Testing
     assert len(kmerList) == 4
-    assert kmerList == ["AAA", "TTT", "GGG", "CCC"]
-    assert freq1 == [1, 1, 0, 0]
-    assert freq2 == [0, 0, 1, 1]
+    assert set(kmerList) == {"AAA", "TTT", "GGG", "CCC"}
+
+    for kmer in p1_kmerList:
+        assert df.loc[kmer,['file1']].tolist()[0] == profil1.getProfile()[kmer]
+
+    for kmer in p2_kmerList:
+        assert df.loc[kmer,['file2']].tolist()[0] == profil2.getProfile()[kmer]
 
 
 def test_calcTopKmer():
