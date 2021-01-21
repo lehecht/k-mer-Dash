@@ -12,8 +12,8 @@ import re
 
 class KMerAlignmentData(Processing):
 
-    def __init__(self, data, selected, k, peak, top):
-        super().__init__(data, selected, k, peak, top)
+    def __init__(self, data, selected, k, peak, top, feature):
+        super().__init__(data, selected, k, peak, top, feature)
 
     def processData(self):  # throws FileNotFoundError
         peak = self.getSettings().getPeak()
@@ -69,10 +69,10 @@ class KMerAlignmentData(Processing):
         else:  # if peak position is given, then alignment takes place at position 'peak'
             k = self.getSettings().getK()
             pattern = '[A-Z]'
-            for file in [topKmer_f1,topKmer_f2]:
+            for file in [topKmer_f1, topKmer_f2]:
 
                 top_kmer_index = file.index.values.tolist()
-                peak_kmeres = list(filter(lambda s: s if len(re.findall(pattern, s))>0 else None,top_kmer_index))
+                peak_kmeres = list(filter(lambda s: s if len(re.findall(pattern, s)) > 0 else None, top_kmer_index))
 
                 algnmList = []
                 for kmer in peak_kmeres:

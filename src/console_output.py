@@ -93,6 +93,7 @@ def printPairwAlignment(process):
             name = f2_name
             print()
 
+
 def printPCA(process):
     pca_dfs = KMerPCAData.processData(process)
     pca_df1 = pca_dfs[0]

@@ -35,8 +35,8 @@ def fillDataFrame(df, all_tripplets):
 
 class KMerPCAData(Processing):
 
-    def __init__(self, data, selected, k, peak, top):
-        super().__init__(data, selected, k, peak, top)
+    def __init__(self, data, selected, k, peak, top, feature):
+        super().__init__(data, selected, k, peak, top, feature)
 
     def processData(self):
         topKmer = self.getTopKmer()

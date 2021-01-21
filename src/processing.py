@@ -26,8 +26,6 @@ class Processing:
         if os.stat(selected[0]).st_size is 0 or os.stat(selected[1]).st_size is 0:
             raise FileCountException('One of the files is empty!')
 
-        # self.profile1 = Profile(dict(), selected[0])
-        # self.profile2 = Profile(dict(), selected[1])
         self.profile1 = Profile(calcFrequency(k, peak, selected)[0], selected[0])
         self.profile2 = Profile(calcFrequency(k, peak, selected)[1], selected[1])
 
@@ -38,9 +36,6 @@ class Processing:
             self.seq_len = seq1_len
         else:
             self.seq_len = seq2_len
-
-        # self.profile1.setProfile(calcFrequency(k, peak, selected)[0])
-        # self.profile2.setProfile(calcFrequency(k, peak, selected)[1])
 
         len_p1 = len(self.profile1.getProfile())  # dict length
         len_p2 = len(self.profile2.getProfile())
