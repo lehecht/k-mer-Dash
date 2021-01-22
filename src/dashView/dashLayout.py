@@ -144,7 +144,10 @@ app.layout = dbc.Container([
             dbc.Col([
                 dbc.Card([
                     dbc.Spinner(children=[dcc.Graph(figure={}, id="scatter", style={'height': '50vh'})],
-                                color="primary"),
+                                color="primary", spinner_style={'position': 'absolute',
+                                                                'top': '50%',
+                                                                'left': '50%'
+                                                                }),
 
                 ], style={
                     'background': '#f2f2f2', 'height': '50vh'}, outline=True),
@@ -152,7 +155,10 @@ app.layout = dbc.Container([
                 # -------------------------------------------- TopK ----------------------------------------------------
                 dbc.Spinner(children=[dbc.Card(id="topK", children=[], style={
                     'background': '#f2f2f2', 'height': '49vh', 'overflow-y': 'scroll'}, outline=True)],
-                            color="primary"),
+                            color="primary", spinner_style={'position': 'absolute',
+                                                            'top': '50%',
+                                                            'left': '50%'
+                                                            }),
             ],
                 width=5,
                 style={"padding-right": '5px',
@@ -176,12 +182,19 @@ app.layout = dbc.Container([
                              ),
 
                 ], style={
-                    'background': '#f2f2f2', 'height': '50vh'}, outline=True)], color="primary"),
+                    'background': '#f2f2f2', 'height': '50vh'}, outline=True)], color="primary",
+                    spinner_style={'position': 'absolute',
+                                   'top': '50%',
+                                   'left': '50%'
+                                   }),
 
                     # ------------------------------------------- MSA --------------------------------------------------
                     dbc.Spinner(children=[dbc.Card(id="msa", children=[], style={
                         'background': '#f2f2f2', 'height': '49vh', 'overflow-y': 'scroll'}, outline=True)],
-                                color="primary"),
+                                color="primary", spinner_style={'position': 'absolute',
+                                                                'top': '50%',
+                                                                'left': '50%'
+                                                                }),
                 ],
                 width=5,
                 style={"padding-right": '0px',
