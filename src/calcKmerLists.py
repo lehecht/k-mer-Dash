@@ -3,6 +3,7 @@ from src.inputValueException import InputValueException
 import os
 import pandas as pd
 
+
 def calcFrequency(k, peak, selected):
     profil1 = dict()
     profil2 = dict()
@@ -67,7 +68,6 @@ def createDataFrame(p1, p2, selected):
     # all kmers, which are in profil2 but not in profil1
     p2_diff = set(file2_kmer).difference(file1_kmer)
 
-
     for kmer in intersec:
         xAxis.append(profil1[kmer])
         yAxis.append(profil2[kmer])
@@ -109,6 +109,7 @@ def calcTopKmer(top, p1, p2):
     profile1.sort(key=(lambda item: item[1]), reverse=True)
     profile2.sort(key=(lambda item: item[1]), reverse=True)
 
+    # checks if only last of top values appears several times in profile
     if top is not None:
         profile1_top = profile1[:top]
         profile2_top = profile2[:top]

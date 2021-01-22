@@ -2,7 +2,6 @@ from Bio import SeqIO, AlignIO
 from src.processing import Processing
 from Bio.SeqRecord import SeqRecord
 from Bio.Seq import Seq
-import glob
 import os
 import sys
 import subprocess
