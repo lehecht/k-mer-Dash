@@ -31,27 +31,13 @@ class KMerScatterPlotData(Processing):
 
         max_score = result_df[fileName1].max() * result_df[fileName2].max()
 
+        # calculates scores for point size in diagram
         result_df = pd.eval("size_score = (result_df[fileName1] * result_df[fileName2])/max_score", target=result_df)
 
+        # overwrite all point sizes < 0.01 with 0.01
         small_freq = result_df.query("size_score < 0.01").index.tolist()
-        result_df.loc[small_freq,["size_score"]] = 0.01
+        result_df.loc[small_freq, ["size_score"]] = 0.01
 
-        # result_df["size_score"] = result_df["size_score"].replace("<0.01",0.01)
-        # print(result_df)
-        # result_df["size_score"] = result_df["size_score"].fillna(0.01)
-        # print(result_df)
-
-        # t1 = time.time()
-        # print(t1 - t0)
-
-        # for i in range(0, len(result_df)):
-        #     score = result_df.iloc[i][fileName1] * result_df.iloc[i][fileName2]
-        #     score = score / max_score
-        #     if score < 0.01:
-        #         score = 0.01
-        #     size_score.append(score)
-
-        # result_df["size_score"] = size_score
         size_score = result_df["size_score"].tolist()
 
         return [result_df, label, [fileName1, fileName2], size_score]
