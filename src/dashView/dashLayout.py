@@ -141,15 +141,18 @@ app.layout = dbc.Container([
                        'margin-right': '0px'}),
 
             # --------------------------------------- ScatterPlot ------------------------------------------------------
-            dbc.Col([dbc.Card([
-                dcc.Graph(figure={}, id="scatter", style={'height': '50vh'}),
+            dbc.Col([
+                dbc.Card([
+                    dbc.Spinner(children=[dcc.Graph(figure={}, id="scatter", style={'height': '50vh'})],
+                                color="primary"),
 
-            ], style={
-                'background': '#f2f2f2', 'height': '50vh'}, outline=True),
+                ], style={
+                    'background': '#f2f2f2', 'height': '50vh'}, outline=True),
 
-                # -------------------------------------------- TopK --------------------------------------------------------
-                dbc.Card(id="topK", children=[], style={
-                    'background': '#f2f2f2', 'height': '49vh', 'overflow-y': 'scroll'}, outline=True),
+                # -------------------------------------------- TopK ----------------------------------------------------
+                dbc.Spinner(children=[dbc.Card(id="topK", children=[], style={
+                    'background': '#f2f2f2', 'height': '49vh', 'overflow-y': 'scroll'}, outline=True)],
+                            color="primary"),
             ],
                 width=5,
                 style={"padding-right": '5px',
@@ -157,7 +160,7 @@ app.layout = dbc.Container([
 
             # ------------------------------------------------- PCAs ---------------------------------------------------
             dbc.Col(
-                [dbc.Card([
+                [dbc.Spinner(children=[dbc.Card([
                     dcc.Tabs(id='tabs-example', value='Tab1', children=[
                         dcc.Tab(label="", value='Tab1', id="Tab1", children=[
                             dcc.Graph(figure={}, id="PCA1",
@@ -173,11 +176,12 @@ app.layout = dbc.Container([
                              ),
 
                 ], style={
-                    'background': '#f2f2f2', 'height': '50vh'}, outline=True),
+                    'background': '#f2f2f2', 'height': '50vh'}, outline=True)], color="primary"),
 
-                    # ------------------------------------------- MSA ----------------------------------------------------------
-                    dbc.Card(id="msa", children=[], style={
-                        'background': '#f2f2f2', 'height': '49vh', 'overflow-y': 'scroll'}, outline=True),
+                    # ------------------------------------------- MSA --------------------------------------------------
+                    dbc.Spinner(children=[dbc.Card(id="msa", children=[], style={
+                        'background': '#f2f2f2', 'height': '49vh', 'overflow-y': 'scroll'}, outline=True)],
+                                color="primary"),
                 ],
                 width=5,
                 style={"padding-right": '0px',
