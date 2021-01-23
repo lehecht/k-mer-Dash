@@ -41,7 +41,7 @@ class Processing:
         len_p2 = len(self.profile2.getProfile())
 
         if (top > len_p1 or top > len_p2) and ((len_p1 is not 0) and (len_p2 is not 0)):
-            print("WARNING: top-value is greater than amount of entries.")
+            print("INFO: top-value is greater than amount of calculated entries for one or both files.")
             print("All entries will be displayed.")
             self.setting.setTop(None)
             top = None

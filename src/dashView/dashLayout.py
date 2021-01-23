@@ -52,6 +52,16 @@ app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.title = "k-Mer Dash"
 
 app.layout = dbc.Container([
+    dbc.Alert(
+        "Top-Slider changed. "
+        "Please note, that current value is last 'all'-value. "
+        "It does not need to be exact the present value on the current slider. "
+        "To use values of current slider, just select any other value.",
+        id="all",
+        is_open=False,
+        duration=30000,
+        color="info"
+    ),
     # ------------------------------------------ Store -----------------------------------------------------------------
     dbc.Spinner(children=[dcc.Store(id='memory', storage_type='memory')],
                 color="primary", fullscreen=True),
@@ -95,7 +105,7 @@ app.layout = dbc.Container([
                         marks=markSliderRange(0, 10, False)
                     ),
                     html.Br(),
-
+                    # ------------------------------------------ top ---------------------------------------------------
                     html.H6("Top-values:"),
                     dcc.Slider(
                         id='top',
@@ -213,26 +223,29 @@ app.layout = dbc.Container([
 
 # ------------------------------------ Store Callback ------------------------------------------------------------------
 
-@app.callback(dash.dependencies.Output('memory', 'data'),
-              dash.dependencies.Input('k', 'value'),
-              dash.dependencies.Input('peak', 'value'),
-              dash.dependencies.Input('top', 'value'),
-              dash.dependencies.Input('Feature', 'value'),
-              dash.dependencies.State('memory', 'data'),
-              )
+@app.callback(
+    dash.dependencies.Output('memory', 'data'),
+    dash.dependencies.Input('k', 'value'),
+    dash.dependencies.Input('peak', 'value'),
+    dash.dependencies.Input('top', 'value'),
+    dash.dependencies.Input('Feature', 'value'),
+    dash.dependencies.State('memory', 'data'),
+)
 def updateData(k, peak, top, pca_feature, data):
     # initial values
     t_slider_min = 5
     if data is None:
         t_slider_max = 50
     else:
-        t_slider_max = data['df_size']
+        t_slider_max = data['big_profil_size']
+        print(t_slider_max)
 
     # translate top_val from slider to real top value
     top_range = specialSliderRange(t_slider_min, t_slider_max)
+    if top >= len(top_range):
+        top = len(top_range)-1
     if top in list(top_range.keys()):
         top = top_range[top]
-
         if top is 'all':
             top = t_slider_max
         else:
@@ -301,11 +314,12 @@ def updateData(k, peak, top, pca_feature, data):
 
     # maximal slider value before value 'all'
     # depends on smallest profile because otherwise all entries would be displayed
-    df_size = min([len(newProcess.getProfilObj1().getProfile()), len(newProcess.getProfilObj2().getProfile())])
+
+    big_profil_size = max([len(newProcess.getProfilObj1().getProfile()), len(newProcess.getProfilObj2().getProfile())])
 
     seqLen = newProcess.getSeqLen()
 
-    data = {'topK': topK_table, 'msas': msas, 'scatter': scatter, 'pcas': pcas, 'df_size': df_size, 'seqLen': seqLen}
+    data = {'topK': topK_table, 'msas': msas, 'scatter': scatter, 'pcas': pcas, 'big_profil_size': big_profil_size, 'seqLen': seqLen}
 
     return data
 
@@ -324,20 +338,24 @@ def updateData(k, peak, top, pca_feature, data):
         dash.dependencies.Output("top", "min"),
         dash.dependencies.Output("top", "max"),
         dash.dependencies.Output("top", "marks"),
+        dash.dependencies.Output("all", "is_open"),
     ],
     [
         dash.dependencies.Input("file1", "value"),
         dash.dependencies.Input("file2", "value"),
         dash.dependencies.Input('memory', 'modified_timestamp'),
-        dash.dependencies.State('memory', 'data')
+        dash.dependencies.State('memory', 'data'),
+        dash.dependencies.State('top', 'marks'),
+        dash.dependencies.State('all', 'is_open'),
+        dash.dependencies.State('top', 'value')
     ],
 )
-def updateSliderRange(file1, file2, ts, data):
+def updateSliderRange(file1, file2, ts, data, old_marks, is_open, top_val):
     if ts is None:
         raise PreventUpdate
     k_p_slider_max = data['seqLen']
     k_p_slider_min = 2
-    t_slider_max = data['df_size']
+    t_slider_max = data['big_profil_size']
     t_slider_min = 5
 
     k_slider_max = k_p_slider_max - 1
@@ -346,10 +364,19 @@ def updateSliderRange(file1, file2, ts, data):
     peak_range = markSliderRange(peak_min, k_p_slider_max, True)
     top_range = specialSliderRange(t_slider_min, t_slider_max)
 
+    start_top_range = {'0': '0', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8',
+                       '9': '9', '10': '10'}
+
+    while (len(old_marks)-1) < top_val:
+        top_val = top_val - 1
+
+    if (len(old_marks) < len(top_range)) and (old_marks[str(top_val)] == 'all'):
+        is_open = True
+
     t_max = len(top_range) - 1
     t_min = 0
 
-    return k_p_slider_min, k_slider_max, k_range, peak_min, k_p_slider_max, peak_range, t_min, t_max, top_range
+    return k_p_slider_min, k_slider_max, k_range, peak_min, k_p_slider_max, peak_range, t_min, t_max, top_range, is_open
 
 
 # --------------------------------------------- Diagram/Table Updater --------------------------------------------------
