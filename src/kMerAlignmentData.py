@@ -52,8 +52,15 @@ class KMerAlignmentData(Processing):
                 if clustalw is not None:
                     infile = "-INFILE={i}".format(i=input_file_name)
                     outfile = '-OUTFILE={f}'.format(f=output_file_name)
-                    subprocess.run([clustalw, infile, outfile],
-                                   stdout=subprocess.DEVNULL)  # executes clustalw multiple alignment
+                    option = "-clustering=UPGMA"
+                    if self.getSettings().getTop() is None:
+                        # executes clustalw multiple alignment for large input (~10.000 entries)
+                        subprocess.run([clustalw, infile, outfile, option],
+                                       stdout=subprocess.DEVNULL)
+                    else:
+                        # executes clustalw multiple alignment for smaller input (<<10.000 entries)
+                        subprocess.run([clustalw, infile, outfile],
+                                       stdout=subprocess.DEVNULL)
                     alignments.append(AlignIO.read(output_file_name, "clustal"))  # reads multiple alignment file
 
                 else:
