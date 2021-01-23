@@ -4,26 +4,31 @@ import os
 import pandas as pd
 
 
+# calculates kmer frequencies
+# k: kmer-length
+# peak: peak-position, where sequences should be aligned
+# selected: input files
 def calcFrequency(k, peak, selected):
-    profil1 = dict()
-    profil2 = dict()
+    profile1 = dict()  # for file1
+    profile2 = dict()  # for file2
     kmer = ''
     for file in selected:  # selects data
         if file == selected[0]:  # Name of first File
-            profile = profil1
+            profile = profile1
         else:
-            profile = profil2
+            profile = profile2
         for record in SeqIO.parse(file, "fasta"):  # reads fasta-file
             sequence = str(record.seq)
-            seqLength = len(sequence)
+            seq_length = len(sequence)
             if peak is not None:
-                if seqLength < peak:  # is thrown if peak is greater than sequence length
+                if seq_length < peak:  # is thrown if peak is greater than sequence length
                     raise InputValueException('Invalid peak: must be smaller than sequence length or equal')
                 sequence = createPeakPosition(peak, sequence)
-            if seqLength <= k:
+            if seq_length <= k:
                 raise InputValueException(  # is thrown if k is greater or equal than sequence length
                     "Invalid k: must be smaller than sequence length")
-            for i in range(0, (seqLength - k + 1)):
+            # kmer frequency counting:
+            for i in range(0, (seq_length - k + 1)):
                 if i == 0:
                     kmer = sequence[0:k]  # init first kmer
                 else:
@@ -32,28 +37,35 @@ def calcFrequency(k, peak, selected):
                     profile[kmer] += 1
                 except KeyError:
                     profile[kmer] = 1
-    return [profil1, profil2]
+    return [profile1, profile2]
 
 
+# determines sequence length of first sequence of file
+# it is assumed, that every sequence has same length
+# file: not empty fasta file
 def getSeqLength(file):
     records = list(SeqIO.parse(file, "fasta").records)
     seq_len = len(records[0].seq)
     return seq_len
 
 
+# changes sequence with only capital letters to sequence with only one capital letter (peak position)
+# peak: peak-position, where sequences should be aligned
+# seq: sequence
 def createPeakPosition(peak, seq):
     sequence = seq.lower()
-    peakVal = seq[peak - 1]
-    res = ''.join([sequence[:peak - 1], peakVal, sequence[peak:]])
+    peak_val = seq[peak - 1]
+    res = ''.join([sequence[:peak - 1], peak_val, sequence[peak:]])
     return res
 
 
+# table which contains kmer-frequencies as coordinates (kmer: x:(file1) = fre1,y:(file2)= fre2)
 def createDataFrame(p1, p2, selected):
-    xAxis = []  # frequency count from file 1
-    yAxis = []  # frequency count from file 2
-    kmer_List = []
-    profil1 = p1.getProfile()
-    profil2 = p2.getProfile()
+    x_axis = []  # frequency count from file 1
+    y_axis = []  # frequency count from file 2
+    kmer_list = []
+    profile1 = p1.getProfile()
+    profile2 = p2.getProfile()
 
     file1_kmer = list(p1.getProfile().keys())
 
@@ -62,58 +74,61 @@ def createDataFrame(p1, p2, selected):
     # calculates coordinates
     intersec = set(file1_kmer).intersection(file2_kmer)  # ascertains kmeres which appear in both files
 
-    # all kmers, which are in profil1 but not in profil2
+    # all kmers, which are in profile1 but not in profile2
     p1_diff = set(file1_kmer).difference(file2_kmer)
 
-    # all kmers, which are in profil2 but not in profil1
+    # all kmers, which are in profile2 but not in profile1
     p2_diff = set(file2_kmer).difference(file1_kmer)
 
     for kmer in intersec:
-        xAxis.append(profil1[kmer])
-        yAxis.append(profil2[kmer])
+        x_axis.append(profile1[kmer])
+        y_axis.append(profile2[kmer])
 
-        kmer_List.append(kmer)
+        kmer_list.append(kmer)
 
     for k1 in p1_diff:
-        kmer_freq = profil1[k1]
-        xAxis.append(kmer_freq)
-        yAxis.append(0)
-        kmer_List.append(k1)
+        kmer_freq = profile1[k1]
+        x_axis.append(kmer_freq)
+        y_axis.append(0)
+        kmer_list.append(k1)
 
     for k2 in p2_diff:
-        kmer_freq = profil2[k2]
-        xAxis.append(0)
-        yAxis.append(kmer_freq)
-        kmer_List.append(k2)
+        kmer_freq = profile2[k2]
+        x_axis.append(0)
+        y_axis.append(kmer_freq)
+        kmer_list.append(k2)
 
-    fileName1 = os.path.basename(selected[0])
-    fileName2 = os.path.basename(selected[1])
+    file_name1 = os.path.basename(selected[0])
+    file_name2 = os.path.basename(selected[1])
 
-    res = pd.DataFrame(xAxis, index=kmer_List, columns=[fileName1])
-    res[fileName2] = yAxis
+    res = pd.DataFrame(x_axis, index=kmer_list, columns=[file_name1])
+    res[file_name2] = y_axis
 
     return res
 
 
+# creates table with only top k-mers
+# top: number of best values
+# p1/p2: dictionary with kmers and their frequencies
 def calcTopKmer(top, p1, p2):
     profile1 = p1.getProfile().copy()
     profile2 = p2.getProfile().copy()
 
-    fileName1 = os.path.basename(p1.getName())
-    fileName2 = os.path.basename(p2.getName())
+    file_name1 = os.path.basename(p1.getName())
+    file_name2 = os.path.basename(p2.getName())
 
-    profile1 = list(map((lambda e: (e[0], e[1], fileName1)),
+    profile1 = list(map((lambda e: (e[0], e[1], file_name1)),
                         list(profile1.items())))  # creates list of triples (kmer, frequency, filename)
-    profile2 = list(map((lambda e: (e[0], e[1], fileName2)), list(profile2.items())))
+    profile2 = list(map((lambda e: (e[0], e[1], file_name2)), list(profile2.items())))
 
     profile1.sort(key=(lambda item: item[1]), reverse=True)
     profile2.sort(key=(lambda item: item[1]), reverse=True)
 
-    # checks if only last of top values appears several times in profile
     if top is not None:
         profile1_top = profile1[:top]
         profile2_top = profile2[:top]
 
+        # checks if only last of top values appears several times in profile
         for p in [profile1, profile2]:
             dup_kmer_freq = []
             for i in range(top, len(p)):
@@ -131,10 +146,10 @@ def calcTopKmer(top, p1, p2):
         profile1_top = profile1.copy()
         profile2_top = profile2.copy()
 
-    allKmer = profile1_top
-    allKmer.extend(profile2_top)
+    all_kmer = profile1_top
+    all_kmer.extend(profile2_top)
 
-    topKmer = pd.DataFrame(allKmer, columns=['', 'Frequency', 'File'])
-    topKmer = topKmer.set_index('')
+    top_kmer = pd.DataFrame(all_kmer, columns=['', 'Frequency', 'File'])
+    top_kmer = top_kmer.set_index('')
 
-    return topKmer
+    return top_kmer

@@ -9,27 +9,35 @@ from dash.exceptions import PreventUpdate
 from src.processing import Processing
 from src.dashView import initializeData
 
+# selected files, which are processed
+# read-only
 selected = None
 
 
+# starts dash
+# slc: input data
+# port: port
 def startDash(slc, port):
     global selected
     selected = slc
     app.run_server(debug=False, host='0.0.0.0', port=port)
 
 
-def markSliderRange(min, max, peak):
+# calculates slider ranges
+# peak-boolean sets first value to 'none' (for peak-slider)
+def markSliderRange(min_val, max_val, peak):
     mark = {}
     if peak:
-        min += 1
+        min_val += 1
         mark[0] = 'none'
-    for i in range(min, max + 1):
+    for i in range(min_val, max_val + 1):
         mark[i] = str(i)
     return mark
 
 
-def specialSliderRange(min, max):
-    j = min
+# calculation of slider ranges in steps [50, 100, 500, 1000,...,all]
+def specialSliderRange(min_val, max_val):
+    j = min_val
     mark = {}
     i = 0
     while i < 9:
@@ -38,7 +46,7 @@ def specialSliderRange(min, max):
         else:
             j = j * 5
 
-        if j <= max:
+        if j <= max_val:
             mark[i] = str(j)
         else:
             break
@@ -47,11 +55,14 @@ def specialSliderRange(min, max):
     return mark
 
 
+# ------------------------------------------- Dash-Layout --------------------------------------------------------------
+
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 app.title = "k-Mer Dash"
 
 app.layout = dbc.Container([
+    # ---------------------------------------------- Info-Alert --------------------------------------------------------
     dbc.Alert(
         "Top-Slider changed. "
         "Please note, that current top-value is last 'all'-value. "
@@ -133,7 +144,7 @@ app.layout = dbc.Container([
                         id="Feature",
                         options=[
                             {"label": "Frequency", "value": "1"},
-                            {"label": "T Occurences", "value": "2"},
+                            {"label": "T Occurrences", "value": "2"},
                         ],
                         value="1"
                     ),
@@ -232,16 +243,23 @@ app.layout = dbc.Container([
     dash.dependencies.Input('Feature', 'value'),
     dash.dependencies.State('memory', 'data'),
 )
+# calculates new data for tables/diagrams
+# k: kmer length
+# peak: peak: peak-position, where sequences should be aligned
+# top: number of best values
+# pca_feature: number of T or kmer-Frequency for pcas
+# data: storage to share data between callbacks
 def updateData(k, peak, top, pca_feature, data):
     # initial values
     t_slider_min = 5
     if data is None:
         t_slider_max = 50
     else:
-        t_slider_max = data['big_profil_size']
+        t_slider_max = data['big_profile_size']
 
     # translate top_val from slider to real top value
     top_range = specialSliderRange(t_slider_min, t_slider_max)
+    # if last top-slider was bigger than current one, adapt all value
     if top >= len(top_range):
         top = len(top_range) - 1
     if top in list(top_range.keys()):
@@ -254,28 +272,32 @@ def updateData(k, peak, top, pca_feature, data):
     if peak is 0:
         peak = None
 
-    newProcess = initializeData.initData(selected, selected, k, peak, top, pca_feature)
+    new_process = initializeData.initData(selected, selected, k, peak, top, pca_feature)
 
-    topK = Processing.getTopKmer(newProcess).copy()
-    kmer = topK.index
-    topK["K-Mer"] = kmer
-    topK[""] = ["" for i in range(0, len(topK))]
-    topK = topK[["", "K-Mer", "Frequency", "File"]]
-    topK = topK.sort_values(by="Frequency", ascending=False)
-    topK_table = [
-        dash_table.DataTable(columns=[{"name": i, "id": i} for i in topK.columns], data=topK.to_dict('records'),
+    # calculate top-table
+    top_k = Processing.getTopKmer(new_process).copy()
+    kmer = top_k.index
+    top_k["K-Mer"] = kmer
+    top_k[""] = ["" for i in range(0, len(top_k))]
+    top_k = top_k[["", "K-Mer", "Frequency", "File"]]
+    top_k = top_k.sort_values(by="Frequency", ascending=False)
+    top_k_table = [
+        dash_table.DataTable(columns=[{"name": i, "id": i} for i in top_k.columns], data=top_k.to_dict('records'),
                              style_table={'overflow-x': 'hidden'},
                              style_cell={'textAlign': 'center'},
                              export_format="csv",
                              sort_action='native')]
 
+    # calculate MSA
     try:
-        algn1, algn2, f1_name, f2_name = initializeData.getAlignmentData(newProcess)
-    except ValueError:
+        algn1, algn2, f1_name, f2_name = initializeData.getAlignmentData(new_process)
+    except ValueError:  # is thrown is there are too many entries
         algn1 = ['Alignment could not be calculated']
         algn2 = ['Alignment could not be calculated']
-        f1_name = topK['File'].drop_duplicates().values.tolist()[1]
-        f2_name = topK['File'].drop_duplicates().values.tolist()[0]
+        f1_name = top_k['File'].drop_duplicates().values.tolist()[1]
+        f2_name = top_k['File'].drop_duplicates().values.tolist()[0]
+
+    # if cols differ in their length, need to do some adaptions
 
     if (len(algn1) > 0) and (len(algn2) > 0):
         algn1_df = pd.DataFrame(columns=[f1_name], data=algn1)
@@ -287,7 +309,7 @@ def updateData(k, peak, top, pca_feature, data):
                                  style_table={'overflow-x': 'hidden'},
                                  style_cell={'textAlign': 'center'},
                                  export_format="csv")]
-    elif len(algn1) is 0 and len(algn2) is 0:
+    elif len(algn1) == 0 and len(algn2) == 0:
         algn1_df = pd.DataFrame(data=[])
         algn1_df[f1_name] = ''
         algn1_df[f2_name] = ''
@@ -298,7 +320,7 @@ def updateData(k, peak, top, pca_feature, data):
                                      export_format="csv")]
 
     else:
-        if len(algn1) is 0:
+        if len(algn1) == 0:
             algn1_df = pd.DataFrame(algn2)
             algn1_df.columns = [f2_name]
             algn1_df[f1_name] = ''
@@ -313,20 +335,25 @@ def updateData(k, peak, top, pca_feature, data):
                                      style_cell={'textAlign': 'center'},
                                      export_format="csv")]
 
-    scatter = initializeData.getScatterPlot(newProcess)
+    # calculate scatterplot
 
-    pca_12, file1, file2 = initializeData.getPCA(newProcess)
+    scatter = initializeData.getScatterPlot(new_process)
+
+    # calculate PCAs
+
+    pca_12, file1, file2 = initializeData.getPCA(new_process)
     pcas = [pca_12, file1, file2]
 
     # maximal slider value before value 'all'
     # depends on smallest profile because otherwise all entries would be displayed
 
-    big_profil_size = max([len(newProcess.getProfilObj1().getProfile()), len(newProcess.getProfilObj2().getProfile())])
+    big_profile_size = max(
+        [len(new_process.getProfilObj1().getProfile()), len(new_process.getProfilObj2().getProfile())])
 
-    seqLen = newProcess.getSeqLen()
+    seq_len = new_process.getSeqLen()
 
-    data = {'topK': topK_table, 'msas': msas, 'scatter': scatter, 'pcas': pcas, 'big_profil_size': big_profil_size,
-            'seqLen': seqLen}
+    data = {'topK': top_k_table, 'msas': msas, 'scatter': scatter, 'pcas': pcas, 'big_profile_size': big_profile_size,
+            'seqLen': seq_len}
 
     return data
 
@@ -357,23 +384,31 @@ def updateData(k, peak, top, pca_feature, data):
         dash.dependencies.State('top', 'value')
     ],
 )
+# calculates slider ranges (marks)
+# fil1/file2: input file
+# ts: timestamp when data was modified
+# data: storage to share data between callbacks
+# old_marks: last old top-slider dictionary
+# is_open: bool, which shows alert status (hidden/open)
+# top_val: current top-value
 def updateSliderRange(file1, file2, ts, data, old_marks, is_open, top_val):
     if ts is None:
         raise PreventUpdate
     k_p_slider_max = data['seqLen']
     k_p_slider_min = 2
-    t_slider_max = data['big_profil_size']
+    t_slider_max = data['big_profile_size']
     t_slider_min = 5
 
     k_slider_max = k_p_slider_max - 1
     peak_min = 0
+
+    # calculation of new slider ranges, if files were changed or if dataframe-size was changed (for top-slider)
+
     k_range = markSliderRange(k_p_slider_min, k_slider_max, False)
     peak_range = markSliderRange(peak_min, k_p_slider_max, True)
     top_range = specialSliderRange(t_slider_min, t_slider_max)
 
-    start_top_range = {'0': '0', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8',
-                       '9': '9', '10': '10'}
-
+    # if last top-value was 'all' and new top-slider is bigger than last, an alert is triggered
     while (len(old_marks) - 1) < top_val:
         top_val = top_val - 1
 
@@ -388,10 +423,14 @@ def updateSliderRange(file1, file2, ts, data, old_marks, is_open, top_val):
 
 # --------------------------------------------- Diagram/Table Updater --------------------------------------------------
 
+# Tables/Diagrams only get updated figures/datatables here
+
 
 @app.callback(dash.dependencies.Output('scatter', 'figure'),
               dash.dependencies.Input('memory', 'modified_timestamp'),
               dash.dependencies.State('memory', 'data'))
+# ts: timestamp when data was modified
+# data: storage to share data between callbacks
 def updateScatter(ts, data):
     if ts is None:
         raise PreventUpdate
@@ -404,6 +443,8 @@ def updateScatter(ts, data):
                dash.dependencies.Output('Tab2', 'label')],
               dash.dependencies.Input('memory', 'modified_timestamp'),
               dash.dependencies.State('memory', 'data'))
+# ts: timestamp when data was modified
+# data: storage to share data between callbacks
 def updateScatter(ts, data):
     if ts is None:
         raise PreventUpdate
@@ -418,6 +459,8 @@ def updateScatter(ts, data):
 @app.callback(dash.dependencies.Output('topK', 'children'),
               dash.dependencies.Input('memory', 'modified_timestamp'),
               dash.dependencies.State('memory', 'data'))
+# ts: timestamp when data was modified
+# data: storage to share data between callbacks
 def updateTopK(ts, data):
     if ts is None:
         raise PreventUpdate
@@ -427,6 +470,8 @@ def updateTopK(ts, data):
 @app.callback(dash.dependencies.Output('msa', 'children'),
               dash.dependencies.Input('memory', 'modified_timestamp'),
               dash.dependencies.State('memory', 'data'))
+# ts: timestamp when data was modified
+# data: storage to share data between callbacks
 def updateMSA(ts, data):
     if ts is None:
         raise PreventUpdate
