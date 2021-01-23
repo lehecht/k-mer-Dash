@@ -269,7 +269,13 @@ def updateData(k, peak, top, pca_feature, data):
                              export_format="csv",
                              sort_action='native')]
 
-    algn1, algn2, f1_name, f2_name = initializeData.getAlignmentData(newProcess)
+    try:
+        algn1, algn2, f1_name, f2_name = initializeData.getAlignmentData(newProcess)
+    except ValueError:
+        algn1 = ['Alignment could not be calculated']
+        algn2 = ['Alignment could not be calculated']
+        f1_name = topK['File'].drop_duplicates().values.tolist()[1]
+        f2_name = topK['File'].drop_duplicates().values.tolist()[0]
 
     if (len(algn1) > 0) and (len(algn2) > 0):
         algn1_df = pd.DataFrame(columns=[f1_name], data=algn1)
