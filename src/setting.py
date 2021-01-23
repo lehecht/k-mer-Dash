@@ -1,12 +1,12 @@
 class Setting:
-    data = None
-    selected = None
-    feature = None
-    k = 0
-    peak = 0
-    top = 0
+    data = None  # data: file input list
+    selected = None  # selected: two files, which are processed
+    feature = None  # feature: number of T or kmer-Frequency for pcas
+    k = 0  # k: kmer length
+    peak = 0  # peak: peak: peak-position, where sequences should be aligned
+    top = 0  # top: number of best values
 
-    def __init__(self, data, selected, k, peak, top,feature):
+    def __init__(self, data, selected, k, peak, top, feature):
         self.data = data
         self.selected = selected
         self.k = k
@@ -29,7 +29,7 @@ class Setting:
     def setTop(self, top):
         self.top = top
 
-    def setFeature(self,feature):
+    def setFeature(self, feature):
         self.feature = feature
 
     def getFeature(self):
@@ -49,4 +49,3 @@ class Setting:
 
     def getTop(self):
         return self.top
-

@@ -1,6 +1,6 @@
 class Profile:
-    profile = None
-    file_name = None
+    profile = None  # dictionary for kmers and their frequencies
+    file_name = None  # file name with path
 
     def __init__(self, profile, name):
         self.profile = profile

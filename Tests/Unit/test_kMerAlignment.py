@@ -1,22 +1,21 @@
 from src.kMerAlignmentData import KMerAlignmentData
-from src.processing import Processing
 
 
 def test_processData():
-    testData = ["Tests/Unit/testdata/testFile1.fa", "Tests/Unit/testdata/testFile2.fa"]
+    test_data = ["Tests/Unit/testdata/testFile1.fa", "Tests/Unit/testdata/testFile2.fa"]
 
     # Test1 without peak position
     # Preparation
     k = 5
     top = 3
     peak = None
-    process = Processing(testData, None, k, peak, top,None)
+    process = KMerAlignmentData(test_data, None, k, peak, top, None)
 
     # execution
-    algnmList, f1, f2 = KMerAlignmentData.processData(process)
+    algnm_list, f1, f2 = KMerAlignmentData.processData(process)
 
-    algnm1 = algnmList[0]
-    algnm2 = algnmList[1]
+    algnm1 = algnm_list[0]
+    algnm2 = algnm_list[1]
 
     algnm1_list = [str(e.seq) for e in algnm1]
     algnm2_list = [str(e.seq) for e in algnm2]
@@ -34,13 +33,13 @@ def test_processData():
     k = 5
     top = 3
     peak = 2
-    process2 = Processing(testData, None, k, peak, top,None)
+    process2 = KMerAlignmentData(test_data, None, k, peak, top, None)
 
     # execution
-    algnmList, f1, f2 = KMerAlignmentData.processData(process2)
+    algnm_list, f1, f2 = KMerAlignmentData.processData(process2)
 
-    algnm1 = algnmList[0]
-    algnm2 = algnmList[1]
+    algnm1 = algnm_list[0]
+    algnm2 = algnm_list[1]
 
     # testing
     assert len(algnm1) == 5
@@ -55,13 +54,13 @@ def test_processData():
     k = 5
     top = 3
     peak = 7
-    process3 = Processing(testData, None, k, peak, top,None)
+    process3 = KMerAlignmentData(test_data, None, k, peak, top, None)
 
     # execution
-    algnmList, f1, f2 = KMerAlignmentData.processData(process3)
+    algnm_list, f1, f2 = KMerAlignmentData.processData(process3)
 
-    algnm1 = algnmList[0]
-    algnm2 = algnmList[1]
+    algnm1 = algnm_list[0]
+    algnm2 = algnm_list[1]
 
     # testing
     assert len(algnm1) == 1
@@ -76,13 +75,13 @@ def test_processData():
     k = 5
     top = 3
     peak = 1
-    process4 = Processing(testData, None, k, peak, top,None)
+    process4 = KMerAlignmentData(test_data, None, k, peak, top, None)
 
     # execution
-    algnmList, f1, f2 = KMerAlignmentData.processData(process4)
+    algnm_list, f1, f2 = KMerAlignmentData.processData(process4)
 
-    algnm1 = algnmList[0]
-    algnm2 = algnmList[1]
+    algnm1 = algnm_list[0]
+    algnm2 = algnm_list[1]
 
     print(process4.getTopKmer())
     print(algnm1)

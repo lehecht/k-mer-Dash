@@ -8,6 +8,11 @@ import src.layout.plot_theme_templates as ptt
 import plotly.express as px
 
 
+# starts preprocess to calculate kmer-frequencies,etc and call print-methods
+# data: file list
+# k: kmer length
+# peak: peak: peak-position, where sequences should be aligned
+# top: number of best values
 def printData(data, k, peak, top):
     process = Processing(data, data, k, peak, top, None)
     printPairwAlignment(process)
@@ -16,9 +21,12 @@ def printData(data, k, peak, top):
     printPCA(process)
 
 
+# gets data and displays scatterplot
+# process: object, which contains information for further calculation-processes
 def printScatterPlot(process):
     result = KMerScatterPlotData.processData(process)
     df = result[0]
+    # list of kmers
     label = result[1]
     fileNames = result[2]
 
@@ -38,6 +46,8 @@ def printScatterPlot(process):
     fig.show()
 
 
+# gets data and prints kmer-frequency table to stdout
+# process: object, which contains information for further calculation-processes
 def printKMerFrequency(process):
     top = process.getSettings().getTop()
     k = process.getSettings().getK()
@@ -69,6 +79,8 @@ def printKMerFrequency(process):
         print("{}\t\t{:<{space}}\t\t{}".format(kmer_list[i], freq_list[i], file_list[i], space=char_space))
 
 
+# gets alignment data and prints alignment to stdout
+# process: object, which contains information for further calculation-processes
 def printPairwAlignment(process):
     alignment_lists, f1_name, f2_name = KMerAlignmentData.processData(process)
 
@@ -94,6 +106,8 @@ def printPairwAlignment(process):
             print()
 
 
+# gets pca data separate for both files and displays it as scatterplot
+# process: object, which contains information for further calculation-processes
 def printPCA(process):
     pca_dfs = KMerPCAData.processData(process)
     pca_df1 = pca_dfs[0]

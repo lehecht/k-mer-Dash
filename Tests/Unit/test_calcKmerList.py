@@ -65,84 +65,82 @@ def test_calcFrequency_k():  # tests if InputValueException is thrown if k => se
 def test_createDataFrame():
     # Test1
     # Preparation
-    profil1 = Profile({"AAT": 3, "TAT": 5, "GCC": 7}, "dir/file1")
-    profil2 = Profile({"AAT": 8, "TCC": 2, "GAC": 11}, "dir/file2")
+    profile1 = Profile({"AAT": 3, "TAT": 5, "GCC": 7}, "dir/file1")
+    profile2 = Profile({"AAT": 8, "TCC": 2, "GAC": 11}, "dir/file2")
     selected = ["dir/file1", "dir/file2"]
 
     # Execution
-    df = createDataFrame(profil1, profil2, selected)
-    kmerList = df.index.tolist()
+    df = createDataFrame(profile1, profile2, selected)
+    kmer_list = df.index.tolist()
 
-    p1_kmerList = set(profil1.getProfile().keys()).intersection(kmerList)
-    p2_kmerList = set(profil2.getProfile().keys()).intersection(kmerList)
-
+    p1_kmer_list = set(profile1.getProfile().keys()).intersection(kmer_list)
+    p2_kmer_list = set(profile2.getProfile().keys()).intersection(kmer_list)
 
     # Testing
-    assert len(kmerList) == 5
-    assert set(kmerList) == {'AAT', 'TAT', 'GCC', 'GAC', 'TCC'}
+    assert len(kmer_list) == 5
+    assert set(kmer_list) == {'AAT', 'TAT', 'GCC', 'GAC', 'TCC'}
 
-    for kmer in p1_kmerList:
-        assert df.loc[kmer,['file1']].tolist()[0] == profil1.getProfile()[kmer]
+    for kmer in p1_kmer_list:
+        assert df.loc[kmer, ['file1']].tolist()[0] == profile1.getProfile()[kmer]
 
-    for kmer in p2_kmerList:
-        assert df.loc[kmer,['file2']].tolist()[0] == profil2.getProfile()[kmer]
-
+    for kmer in p2_kmer_list:
+        assert df.loc[kmer, ['file2']].tolist()[0] == profile2.getProfile()[kmer]
 
     # Test2
-    profil1 = Profile({"AAA": 1, "TTT": 1}, "dir/file1")
-    profil2 = Profile({"GGG": 1, "CCC": 1}, "dir/file2")
+    profile1 = Profile({"AAA": 1, "TTT": 1}, "dir/file1")
+    profile2 = Profile({"GGG": 1, "CCC": 1}, "dir/file2")
 
     # Execution
-    df = createDataFrame(profil1, profil2, selected)
-    kmerList = df.index.tolist()
-    p1_kmerList = set(profil1.getProfile().keys()).intersection(kmerList)
-    p2_kmerList = set(profil2.getProfile().keys()).intersection(kmerList)
+    df = createDataFrame(profile1, profile2, selected)
+    kmer_list = df.index.tolist()
+    p1_kmer_list = set(profile1.getProfile().keys()).intersection(kmer_list)
+    p2_kmer_list = set(profile2.getProfile().keys()).intersection(kmer_list)
 
     # Testing
-    assert len(kmerList) == 4
-    assert set(kmerList) == {"AAA", "TTT", "GGG", "CCC"}
+    assert len(kmer_list) == 4
+    assert set(kmer_list) == {"AAA", "TTT", "GGG", "CCC"}
 
-    for kmer in p1_kmerList:
-        assert df.loc[kmer,['file1']].tolist()[0] == profil1.getProfile()[kmer]
+    for kmer in p1_kmer_list:
+        assert df.loc[kmer, ['file1']].tolist()[0] == profile1.getProfile()[kmer]
 
-    for kmer in p2_kmerList:
-        assert df.loc[kmer,['file2']].tolist()[0] == profil2.getProfile()[kmer]
+    for kmer in p2_kmer_list:
+        assert df.loc[kmer, ['file2']].tolist()[0] == profile2.getProfile()[kmer]
 
 
 def test_calcTopKmer():
     # Test1: t is smaller than amount of entries
     # Preparation
     top = 3
-    profil1 = Profile({"AAT": 3, "TAT": 5, "GCC": 7, "CCC": 15, "TAA": 22}, "dir/file1")
-    profil2 = Profile({"AAT": 8, "TCC": 2, "GAC": 11, "CCC": 23, "GGG": 1}, "dir/file2")
+    profile1 = Profile({"AAT": 3, "TAT": 5, "GCC": 7, "CCC": 15, "TAA": 22}, "dir/file1")
+    profile2 = Profile({"AAT": 8, "TCC": 2, "GAC": 11, "CCC": 23, "GGG": 1}, "dir/file2")
 
     # Execution
-    top_kmer_df = calcTopKmer(top, profil1, profil2)
-    topKmerList = top_kmer_df.index.tolist()
-    maxFreq = top_kmer_df["Frequency"].values.tolist()
-    fileNameList = top_kmer_df["File"].values.tolist()
+    top_kmer_df = calcTopKmer(top, profile1, profile2)
+    top_kmer_list = top_kmer_df.index.tolist()
+    max_freq = top_kmer_df["Frequency"].values.tolist()
+    file_name_list = top_kmer_df["File"].values.tolist()
 
     # Testing
-    assert len(topKmerList) == int(2 * top)
-    assert topKmerList == ['TAA', 'CCC', 'GCC', 'CCC', 'GAC', 'AAT']
-    assert maxFreq == [22, 15, 7, 23, 11, 8]
-    assert fileNameList == ["file1", "file1", "file1", "file2", "file2", "file2"]
+    assert len(top_kmer_list) == int(2 * top)
+    assert top_kmer_list == ['TAA', 'CCC', 'GCC', 'CCC', 'GAC', 'AAT']
+    assert max_freq == [22, 15, 7, 23, 11, 8]
+    assert file_name_list == ["file1", "file1", "file1", "file2", "file2", "file2"]
 
     # Test2: t is greater than amount of entries
     # Preparation
     top = None  # is set on None in processing file
 
     # Execution
-    top_kmer_df2 = calcTopKmer(top, profil1, profil2)
-    topKmerList2 = top_kmer_df2.index.tolist()
-    maxFreq2 = top_kmer_df2["Frequency"].values.tolist()
-    fileNameList2 = top_kmer_df2["File"].values.tolist()
+    top_kmer_df2 = calcTopKmer(top, profile1, profile2)
+    top_kmer_list2 = top_kmer_df2.index.tolist()
+    max_freq2 = top_kmer_df2["Frequency"].values.tolist()
+    file_name_list2 = top_kmer_df2["File"].values.tolist()
 
     # Testing
-    assert len(topKmerList2) == len(profil1.getProfile()) + len(profil2.getProfile())
-    assert topKmerList2 == ['TAA', 'CCC', 'GCC', 'TAT', 'AAT', 'CCC', 'GAC', 'AAT', 'TCC', 'GGG']
-    assert maxFreq2 == [22, 15, 7, 5, 3, 23, 11, 8, 2, 1]
-    assert fileNameList2 == ["file1", "file1", "file1", "file1", "file1", "file2", "file2", "file2", "file2", "file2"]
+    assert len(top_kmer_list2) == len(profile1.getProfile()) + len(profile2.getProfile())
+    assert top_kmer_list2 == ['TAA', 'CCC', 'GCC', 'TAT', 'AAT', 'CCC', 'GAC', 'AAT', 'TCC', 'GGG']
+    assert max_freq2 == [22, 15, 7, 5, 3, 23, 11, 8, 2, 1]
+    assert file_name_list2 == ["file1", "file1", "file1", "file1", "file1", "file2", "file2", "file2", "file2", "file2"]
 
 
 def test_createPeakPosition():
@@ -152,7 +150,7 @@ def test_createPeakPosition():
     sequence = "ACCGT"
 
     # Execution
-    newSeq = createPeakPosition(peak, sequence)
+    new_seq = createPeakPosition(peak, sequence)
 
     # Testing
-    assert newSeq == "aCcgt"
+    assert new_seq == "aCcgt"

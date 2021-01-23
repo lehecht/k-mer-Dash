@@ -1,13 +1,15 @@
 from src.processing import Processing
 import pandas as pd
-import time
 
 
+# inherits from process
+# implements processData for scatterplot of frequencies
 class KMerScatterPlotData(Processing):
 
     def __init__(self, data, selected, k, peak, top, feature):
         super().__init__(data, selected, k, peak, top, feature)
 
+    # processes data to display kmers according their frequency later
     def processData(self):
         topKmer = self.getTopKmer()
         data = self.getDF()  # get top kmeres
@@ -24,6 +26,7 @@ class KMerScatterPlotData(Processing):
 
         k = self.getSettings().getK()
 
+        # important for legend in scatterplot
         result_df['highlight'] = "{}-mer".format(k)  # highlights top kmere
 
         for kmer in topKmer.index.tolist():
