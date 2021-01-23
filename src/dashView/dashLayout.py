@@ -54,9 +54,9 @@ app.title = "k-Mer Dash"
 app.layout = dbc.Container([
     dbc.Alert(
         "Top-Slider changed. "
-        "Please note, that current value is last 'all'-value. "
-        "It does not need to be exact the present value on the current slider. "
-        "To use values of current slider, just select any other value.",
+        "Please note, that current top-value is last 'all'-value. "
+        "It does not need to be exact the present value on the current top-slider. "
+        "To use values of current top-slider, just select any other value.",
         id="all",
         is_open=False,
         duration=30000,
@@ -176,27 +176,28 @@ app.layout = dbc.Container([
 
             # ------------------------------------------------- PCAs ---------------------------------------------------
             dbc.Col(
-                [dbc.Spinner(children=[dbc.Card([
-                    dcc.Tabs(id='tabs-example', value='Tab1', children=[
-                        dcc.Tab(label="", value='Tab1', id="Tab1", children=[
-                            dcc.Graph(figure={}, id="PCA1",
-                                      style={'height': '42vh'}
-                                      )
-                        ]),
-                        dcc.Tab(label="", value='Tab2', id="Tab2", children=[
-                            dcc.Graph(figure={}, id="PCA2",
-                                      style={'height': '42vh'}
-                                      )
-                        ]),
-                    ],
-                             ),
+                [dbc.Card([
+                    dbc.Spinner(children=[
+                        dcc.Tabs(id='tabs-example', value='Tab1', children=[
+                            dcc.Tab(label="", value='Tab1', id="Tab1", children=[
+                                dcc.Graph(figure={}, id="PCA1",
+                                          style={'height': '42vh'}
+                                          )
+                            ]),
+                            dcc.Tab(label="", value='Tab2', id="Tab2", children=[
+                                dcc.Graph(figure={}, id="PCA2",
+                                          style={'height': '42vh'}
+                                          )
+                            ]),
+                        ],
+                                 )], color="primary",
+                        spinner_style={'position': 'absolute',
+                                       'top': '50%',
+                                       'left': '50%'
+                                       }),
 
                 ], style={
-                    'background': '#f2f2f2', 'height': '50vh'}, outline=True)], color="primary",
-                    spinner_style={'position': 'absolute',
-                                   'top': '50%',
-                                   'left': '50%'
-                                   }),
+                    'background': '#f2f2f2', 'height': '50vh'}, outline=True),
 
                     # ------------------------------------------- MSA --------------------------------------------------
                     dbc.Spinner(children=[dbc.Card(id="msa", children=[], style={
@@ -238,12 +239,11 @@ def updateData(k, peak, top, pca_feature, data):
         t_slider_max = 50
     else:
         t_slider_max = data['big_profil_size']
-        print(t_slider_max)
 
     # translate top_val from slider to real top value
     top_range = specialSliderRange(t_slider_min, t_slider_max)
     if top >= len(top_range):
-        top = len(top_range)-1
+        top = len(top_range) - 1
     if top in list(top_range.keys()):
         top = top_range[top]
         if top is 'all':
@@ -319,7 +319,8 @@ def updateData(k, peak, top, pca_feature, data):
 
     seqLen = newProcess.getSeqLen()
 
-    data = {'topK': topK_table, 'msas': msas, 'scatter': scatter, 'pcas': pcas, 'big_profil_size': big_profil_size, 'seqLen': seqLen}
+    data = {'topK': topK_table, 'msas': msas, 'scatter': scatter, 'pcas': pcas, 'big_profil_size': big_profil_size,
+            'seqLen': seqLen}
 
     return data
 
@@ -367,7 +368,7 @@ def updateSliderRange(file1, file2, ts, data, old_marks, is_open, top_val):
     start_top_range = {'0': '0', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8',
                        '9': '9', '10': '10'}
 
-    while (len(old_marks)-1) < top_val:
+    while (len(old_marks) - 1) < top_val:
         top_val = top_val - 1
 
     if (len(old_marks) < len(top_range)) and (old_marks[str(top_val)] == 'all'):
