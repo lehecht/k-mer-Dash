@@ -17,8 +17,8 @@ def printData(data, k, peak, top):
     process = Processing(data, data, k, peak, top, None)
     printPairwAlignment(process)
     printKMerFrequency(process)
-    printScatterPlot(process)
-    printPCA(process)
+    # printScatterPlot(process)
+    # printPCA(process)
 
 
 # gets data and displays scatterplot
@@ -68,7 +68,8 @@ def printKMerFrequency(process):
         top = len(process.getTopKmer())
         entry_count = top
     else:
-        entry_count = min(top * 2, len(kmer_list))
+        # entry_count = min(top * 2, len(kmer_list))
+        entry_count = len(kmer_list)
     print()
     print('Options:')
     print('k: {k}, peak: {p}, top: {t}, files: {f}'.
