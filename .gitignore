@@ -139,6 +139,12 @@ venv/*
 *.fa
 !Tests/Unit/testdata/*
 
+#example Fasta-Files
+!example*
+
+#tmp-dir
+tmp/*
+
 #Compiled Python-Files
 *.pyc
 
