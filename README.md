@@ -25,7 +25,7 @@ Or downloading the source code from:
 
 #### Dependencies
 The app makes use of external python-libraries, which need to be installed.
-Setting libraries up, use:
+Setting up libraries, use:
 
 ```
 pip3 install -r requirements.txt
@@ -217,7 +217,7 @@ Slider: Set values for their property
 
 #### Features
 
-**Tables:**
+**Tables**
 
 _Export_-Button: Export datatables to csv-file
 
