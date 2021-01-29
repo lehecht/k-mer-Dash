@@ -17,8 +17,8 @@ def printData(data, k, peak, top):
     process = Processing(data, data, k, peak, top, None)
     printPairwAlignment(process)
     printKMerFrequency(process)
-    # printScatterPlot(process)
-    # printPCA(process)
+    printScatterPlot(process)
+    printPCA(process)
 
 
 # gets data and displays scatterplot
