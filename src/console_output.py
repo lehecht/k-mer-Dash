@@ -114,33 +114,34 @@ def printPairwAlignment(process):
 # gets pca data separate for both files and displays it as scatterplot
 # process: object, which contains information for further calculation-processes
 def printPCA(process):
-    try:
-        pca_dfs = KMerPCAData.processData(process)
-        pca_df1 = pca_dfs[0]
-        pca_df2 = pca_dfs[1]
-        top_list1 = pca_dfs[4]
-        top_list2 = pca_dfs[5]
+    pca_dfs = KMerPCAData.processData(process)
+    pca_df1 = pca_dfs[0]
+    pca_df2 = pca_dfs[1]
+    top_list1 = pca_dfs[4]
+    top_list2 = pca_dfs[5]
 
+    if pca_df1 is None and pca_df2 is None:
+        print()
+        print("ERROR: PCA cannot be calculated.")
+
+    else:
         pca_df1 = pca_df1.join(top_list1.Frequency)
         pca_df2 = pca_df2.join(top_list2.Frequency)
 
         current_file_name = pca_dfs[2]
         for p in [pca_df1, pca_df2]:
-            fig = px.scatter(p, x='PC1', y='PC2', hover_name=p.index.tolist(),
-                             color='Frequency',
-                             opacity=0.6,
-                             color_continuous_scale='plasma',
-                             hover_data={"PC1": False, "PC2": False})
-            fig.update_layout(template=ptt.custom_plot_template, xaxis=dict(zeroline=False, showline=True),
-                              yaxis=dict(zeroline=False, showline=True),
-                              title=dict(text="PCA of " + current_file_name, font_size=25))
-            fig.update_xaxes(title_font=dict(size=18))
-            fig.update_yaxes(title_font=dict(size=18))
-            fig.update_traces(marker=dict(size=18, line=dict(width=2,
-                                                             color='DarkSlateGrey')))
-            fig.show()
-            current_file_name = pca_dfs[3]
-
-    except InputValueException as ive:
-        print()
-        print('ERROR: '+ive.args[0])
+            if p is not None:
+                fig = px.scatter(p, x='PC1', y='PC2', hover_name=p.index.tolist(),
+                                 color='Frequency',
+                                 opacity=0.6,
+                                 color_continuous_scale='plasma',
+                                 hover_data={"PC1": False, "PC2": False})
+                fig.update_layout(template=ptt.custom_plot_template, xaxis=dict(zeroline=False, showline=True),
+                                  yaxis=dict(zeroline=False, showline=True),
+                                  title=dict(text="PCA of " + current_file_name, font_size=25))
+                fig.update_xaxes(title_font=dict(size=18))
+                fig.update_yaxes(title_font=dict(size=18))
+                fig.update_traces(marker=dict(size=18, line=dict(width=2,
+                                                                 color='DarkSlateGrey')))
+                fig.show()
+                current_file_name = pca_dfs[3]

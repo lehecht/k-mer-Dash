@@ -60,18 +60,20 @@ class KMerPCAData(Processing):
         top_list_df2 = None
 
         # create dataframe
-        # if len(top_list_file1) is not 0:
         if len(top_list_file1) > 1:
-            top_list_df1 = fillDataFrame(top_list_file1, all_triplets)  # fill remaining data
-            pca_data1 = pca.fit_transform(top_list_df1)
-            pca_df1 = pd.DataFrame(data=pca_data1, columns=['PC1', 'PC2'], index=top_list_df1.index)
+            try:
+                top_list_df1 = fillDataFrame(top_list_file1, all_triplets)  # fill remaining data
+                pca_data1 = pca.fit_transform(top_list_df1)
+                pca_df1 = pd.DataFrame(data=pca_data1, columns=['PC1', 'PC2'], index=top_list_df1.index)
+            except ValueError:
+                pca_df1 = None
 
-        # if len(top_list_file2) is not 0:
         if len(top_list_file2) > 1:
-            top_list_df2 = fillDataFrame(top_list_file2, all_triplets)
-            pca_data2 = pca.fit_transform(top_list_df2)
-            pca_df2 = pd.DataFrame(data=pca_data2, columns=['PC1', 'PC2'], index=top_list_df2.index)
-        else:
-            raise InputValueException('Top value too small for PCA')
+            try:
+                top_list_df2 = fillDataFrame(top_list_file2, all_triplets)
+                pca_data2 = pca.fit_transform(top_list_df2)
+                pca_df2 = pd.DataFrame(data=pca_data2, columns=['PC1', 'PC2'], index=top_list_df2.index)
+            except ValueError:
+                pca_df2 = None
 
         return [pca_df1, pca_df2, file_name1, file_name2, top_list_df1, top_list_df2]
