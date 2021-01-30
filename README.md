@@ -54,6 +54,7 @@ Or download from: [http://www.clustal.org/clustal2/](http://www.clustal.org/clus
 
 ## Output
 Dash application to explore various k-mer visualizations and statistics.
+It visualizes data as diagram (Scatterplot, PCA) and tables (k-mer Frequency-table, Alignment-table).
 
 ## Description
 
@@ -193,6 +194,7 @@ ATTC		1		example2.fa
 
 
 
+
 ### Graphical-User-Interface
 Using app with GUI requires no parameter except for FASTA-Files.
 Port number is optional.
@@ -209,27 +211,27 @@ python3 main.py -f1 example/example1.fa -f2 example/example2.fa
 
 **Menu:**
 
-'_Select-Files_'-Dropdown (coming soon): Select two files of given list of files, for which analysis should be made
+* '_Select-Files_'-Dropdown (coming soon): Select two files of given list of files, for which analysis should be done
 
-Slider: Set values for their property
+* Slider: Set values for their property
 
-'_Highlighted-Feature_'-Dropdown: Change coloring in PCA plots from k-mer-frequency ('Frequency') to thymine-frequency ('#T')
+* '_Highlighted-Feature_'-Dropdown: Change coloring in PCA plots from k-mer-frequency ('Frequency') to thymine-frequency in k-mer ('#T')
 
 #### Features
 
-**Tables**
+Tables:
 
-_Export_-Button: Export datatables to csv-file
+* _Export_-Button: Export tables to csv-file
 
-Frequency-Table-Sorting: Sort by k-mers, frequency or filename
+* Frequency-Table-Sorting: Sort by k-mers, frequency or filename
 
-**PCA:**
+PCA:
 
-Tabs: change view between PCAs
+* Tabs: Change view between PCAs
 
-**Plots:**
+Plots:
 
-Dash-Features: Image-download, Zooming, Scaling, etc...
+* Dash-Features: Image-download, Zooming, Scaling, etc...
 
 ## License
 MIT
