@@ -31,45 +31,45 @@ Setting up libraries, use:
 pip3 install -r requirements.txt
 ```
 
-#### ClustalW
 Additionally **ClustalW** needs to be installed.
 
-Installation via command-line:
+A system wide installation can be accomplished by (debian and ubuntu):
 ```
 sudo apt install clustalw
 ```
-Or download from: [http://www.clustal.org/clustal2/](http://www.clustal.org/clustal2/) 
+Or by downloading from: [http://www.clustal.org/clustal2/](http://www.clustal.org/clustal2/) 
  
 ## Input
-| Input | Description |
+| parameter | Description |
 |-------|---------------------------------------------|
-| Files | FASTA formatted file(s) with sequences of interest|
-| K | Length of generated k-mer |
-| Peak | Highlighted position in sequence |
-| Top | Number of displayed top k-mer frequencies* |
-| Console | Boolean starting program with GUI or on command-line |
-| Port | Custom port (only for GUI) |
+| -f1 FILE1 -f2 FILE2 | FASTA formatted file(s) with sequences of equal length|
+| -k INT | Length of generated k-mer subsequences |
+| -p INT | Highlighted position in sequence, e.g. center of a binding site |
+| -t INT | Number of displayed top k-mer frequencies* |
+| -c STR | Boolean starting program with GUI or on command-line |
+| -pt INT | Custom port (only for GUI) |
 
-\* top value and number of results may differ if there are multiple k-mers with equal frequencies
+\* The top value and number of results may differ if there are multiple k-mers with equal frequencies
 
 ## Output
-Dash application to explore various k-mer visualizations and statistics.
-It visualizes data as diagram (Scatterplot, PCA) and tables (k-mer Frequency-table, Alignment-table).
+On valud input parameters a Dash application is started to explore various k-mer visualizations and statistics.
+It visualizes data as diagrams (Scatterplot, PCA) and tables (k-mer Frequency-table, Alignment-table).
 
 ## Description
 
 ### Command-line
-Using app on command-line requires to set 'console' parameter `-c` on `True`.
-Further required parameter, which need to be set, are `-f1`,`-f2` and `-k`. Others are optional.
+In order to use the application via command-line only requires to set 'console' parameter `-c` on `True`.
+Mandatory parameters are `-f1`,`-f2` and `-k`. All other parameters are optional.
 
 #### Example:
+
+The git project contains failsafe examples of generated fasta file in the *example* folder. An invokation to display the data on the console is listed below:
 
 ```
 python3 main.py -f1 example/example1.fa -f2 example/example2.fa -k 4 -t 5 -c True
 ```
 
-#### Output:
-##### Console
+#### Console Output:
 
 ```
 Alignment of Top-kmere created with ClustalW
@@ -194,9 +194,8 @@ ATTC		1		example2.fa
 
 
 
-
-### Graphical-User-Interface
-Using app with GUI requires no parameter except for FASTA-Files.
+### Graphical-User-Interface Output:
+Starting the application with the interactive user interface requires no parameter except for FASTA-Files (-f1 and -f2).
 Port number is optional.
 
 #### Example:
