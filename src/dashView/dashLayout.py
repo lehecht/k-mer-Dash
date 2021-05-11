@@ -4,6 +4,7 @@ import dash_table
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 import pandas as pd
+import os
 from dash.exceptions import PreventUpdate
 
 from src.processing import Processing
@@ -391,8 +392,8 @@ def updateFile2Dropdown(f1):
 
 def updateFileList(val):
     option = [
-        {'label': file_list[i], 'value': str(i)} if not (str(i) == val)
-        else {'label': file_list[i], 'value': str(i), 'disabled': True}
+        {'label': os.path.basename(file_list[i]), 'value': str(i)} if not (str(i) == val)
+        else {'label': os.path.basename(file_list[i]), 'value': str(i), 'disabled': True}
         for i in range(0, len(file_list))]
 
     return [option]
