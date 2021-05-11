@@ -25,9 +25,9 @@ class Processing:
     def __init__(self, data, selected, k, peak, top, feature):
         if selected is not None:
             self.setting = Setting(data, selected, k, peak, top, feature)
-        elif len(data) >= 2:
-            selected = data[:2]
-            self.setting = Setting(data, selected, k, peak, top, feature)
+        # elif len(data) >= 2:
+        #     selected = data[:2]
+        #     self.setting = Setting(data, selected, k, peak, top, feature)
 
         # checks if file is empty
         if os.stat(selected[0]).st_size is 0 or os.stat(selected[1]).st_size is 0:

@@ -12,14 +12,17 @@ from src.dashView import initializeData
 # selected files, which are processed
 # read-only
 selected = None
+file_list = None
 
 
 # starts dash
 # slc: input data
 # port: port
-def startDash(slc, port):
+def startDash(files, slc, port):
+    global file_list
     global selected
     selected = slc
+    file_list = files
     app.run_server(debug=False, host='0.0.0.0', port=port)
 
 
@@ -89,18 +92,10 @@ app.layout = dbc.Container([
                     html.H6("Selected Files:"),
                     dbc.Select(
                         id="file1",
-                        options=[
-                            {"label": "File 1", "value": "1"},
-                            {"label": "File 2", "value": "2"},
-                        ],
-                        disabled=True),
+                        options=[]),
                     dbc.Select(
                         id="file2",
-                        options=[
-                            {"label": "File 1", "value": "1"},
-                            {"label": "File 2", "value": "2"},
-                        ],
-                        disabled=True),
+                        options=[]),
                     html.Br(),
                     html.Br(),
                     html.Br(),
@@ -356,6 +351,46 @@ def updateData(k, peak, top, pca_feature, data):
             'seqLen': seq_len}
 
     return data
+
+
+# --------------------------------------- File Dropdown Updater --------------------------------------------------------
+@app.callback([
+    dash.dependencies.Output("file1", "value"),
+    dash.dependencies.Output("file2", "value"),
+    dash.dependencies.Input('memory', 'modified_timestamp'),
+])
+def initialSelect(ts):
+    if ts is None:
+        f1 = "0"
+        f2 = "1"
+    else:
+        raise PreventUpdate
+
+    return f1,f2
+
+@app.callback([
+    dash.dependencies.Output("file1", "options"),
+    dash.dependencies.Input("file2", "value"),
+])
+def updateFile1Dropdown(f2):
+    return updateFileList(f2)
+
+
+@app.callback([
+    dash.dependencies.Output("file2", "options"),
+    dash.dependencies.Input("file1", "value"),
+])
+def updateFile2Dropdown(f1):
+    return updateFileList(f1)
+
+
+def updateFileList(val):
+    option = [
+        {'label': file_list[i], 'value': str(i)} if not (str(i) == val)
+        else {'label': file_list[i], 'value': str(i), 'disabled': True}
+        for i in range(0, len(file_list))]
+
+    return [option]
 
 
 # --------------------------------------- Slider Values Updater --------------------------------------------------------
