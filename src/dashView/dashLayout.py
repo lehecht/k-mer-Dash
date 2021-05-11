@@ -56,6 +56,26 @@ def specialSliderRange(min_val, max_val):
     return mark
 
 
+def dropdownRange(min_val, max_val):
+    j = min_val
+    mark = []
+    i = 0
+    while i < 9:
+        if "5" in str(j):
+            j = j * 2
+        else:
+            j = j * 5
+
+        if j <= max_val:
+            mark.append({'label': str(j), 'value': str(i)})
+        else:
+            break
+        i += 1
+    mark_len = len(mark)
+    mark.append({'label': 'all', 'value': str(mark_len)})
+    return mark
+
+
 # ------------------------------------------- Dash-Layout --------------------------------------------------------------
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -109,17 +129,6 @@ app.layout = dbc.Container([
                         marks=markSliderRange(0, 10, False)
                     ),
                     html.Br(),
-                    # ------------------------------------------ top ---------------------------------------------------
-                    html.H6("Top-values:"),
-                    dcc.Slider(
-                        id='top',
-                        min=0,
-                        max=10,
-                        step=1,
-                        value=0,
-                        marks=markSliderRange(0, 10, False)
-                    ),
-                    html.Br(),
                     # ----------------------------------------- Peak ---------------------------------------------------
                     html.H6("Peak-position:"),
                     dcc.Slider(
@@ -130,6 +139,23 @@ app.layout = dbc.Container([
                         value=0,
                         marks=markSliderRange(0, 10, True)
                     ),
+                    html.Br(),
+                    # ------------------------------------------ top ---------------------------------------------------
+                    html.H6("Top-values:"),
+                    # dcc.Slider(
+                    #     id='top',
+                    #     min=0,
+                    #     max=10,
+                    #     step=1,
+                    #     value=0,
+                    #     marks=markSliderRange(0, 10, False)
+                    # ),
+                    dbc.Select(
+                        id='top',
+                        options=[],
+                        value="0"
+                    ),
+                    html.Br(),
                     html.Br(),
                     # -------------------------------- Highlighted Feature ---------------------------------------------
                     html.H6("Highlighted Feature:"),
@@ -253,12 +279,14 @@ def updateData(f1, f2, k, peak, top, pca_feature, data):
         t_slider_max = data['big_profile_size']
 
     # translate top_val from slider to real top value
-    top_range = specialSliderRange(t_slider_min, t_slider_max)
+    top_range = dropdownRange(t_slider_min, t_slider_max)
+
     # if last top-slider was bigger than current one, adapt all value
-    if top >= len(top_range):
-        top = len(top_range) - 1
-    if top in list(top_range.keys()):
-        top = top_range[top]
+    # if top >= len(top_range):
+    #     top = len(top_range) - 1
+    # if top in list(top_range.keys()):
+    if top in [e['value'] for e in top_range]:
+        top = top_range[int(top)]['label']
         if top is 'all':
             top = t_slider_max
         else:
@@ -410,9 +438,9 @@ def updateFileList(val):
         dash.dependencies.Output("peak", "min"),
         dash.dependencies.Output("peak", "max"),
         dash.dependencies.Output("peak", "marks"),
-        dash.dependencies.Output("top", "min"),
-        dash.dependencies.Output("top", "max"),
-        dash.dependencies.Output("top", "marks"),
+        # dash.dependencies.Output("top", "min"),
+        # dash.dependencies.Output("top", "max"),
+        dash.dependencies.Output("top", "options"),
         dash.dependencies.Output("all", "is_open"),
     ],
     [
@@ -420,7 +448,7 @@ def updateFileList(val):
         dash.dependencies.Input("file2", "value"),
         dash.dependencies.Input('memory', 'modified_timestamp'),
         dash.dependencies.State('memory', 'data'),
-        dash.dependencies.State('top', 'marks'),
+        dash.dependencies.State('top', 'options'),
         dash.dependencies.State('all', 'is_open'),
         dash.dependencies.State('top', 'value')
     ],
@@ -447,19 +475,21 @@ def updateSliderRange(file1, file2, ts, data, old_marks, is_open, top_val):
 
     k_range = markSliderRange(k_p_slider_min, k_slider_max, False)
     peak_range = markSliderRange(peak_min, k_p_slider_max, True)
-    top_range = specialSliderRange(t_slider_min, t_slider_max)
+    top_range = dropdownRange(t_slider_min, t_slider_max)
 
     # if last top-value was 'all' and new top-slider is bigger than last, an alert is triggered
-    while (len(old_marks) - 1) < top_val:
-        top_val = top_val - 1
 
-    if (len(old_marks) < len(top_range)) and (old_marks[str(top_val)] == 'all'):
-        is_open = True
+    # while (len(old_marks) - 1) < top_val:
+    #     top_val = top_val - 1
+    #
+    # if (len(old_marks) < len(top_range)) and (old_marks[str(top_val)] == 'all'):
+    #     is_open = True
 
     t_max = len(top_range) - 1
     t_min = 0
 
-    return k_p_slider_min, k_slider_max, k_range, peak_min, k_p_slider_max, peak_range, t_min, t_max, top_range, is_open
+    # return k_p_slider_min, k_slider_max, k_range, peak_min, k_p_slider_max, peak_range, t_min, t_max, top_range, is_open
+    return k_p_slider_min, k_slider_max, k_range, peak_min, k_p_slider_max, peak_range, top_range, is_open
 
 
 # --------------------------------------------- Diagram/Table Updater --------------------------------------------------
