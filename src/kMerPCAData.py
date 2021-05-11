@@ -19,14 +19,17 @@ def fillDataFrame(df, all_triplets):
     for tpl in all_triplets:
         top_list_df[tpl] = 0
 
+
     for i in range(0, len(top_list_df)):
         kmer1 = top_list_df.index.tolist()[i]
 
-        case_insens_kmer1 = top_list_df.index.tolist()[i].upper()
+        case_insens_kmer1 = top_list_df.index.tolist()[i].upper()  # for counting triplets and single nucleotides,
+        # all letters become capital letters
 
         for b in alphabet:
             top_list_df.loc[kmer1, b] = case_insens_kmer1.count(b)
 
+        ########## langsam ##############
         for trpl in all_triplets:
             if trpl in case_insens_kmer1:
                 top_list_df.loc[kmer1, trpl] += 1

@@ -29,6 +29,7 @@ class KMerScatterPlotData(Processing):
         # important for legend in scatterplot
         result_df['highlight'] = "{}-mer".format(k)  # highlights top kmere
 
+        #################### langsam #####################
         for kmer in topKmer.index.tolist():
             result_df.loc[kmer, ['highlight']] = "TOP {}-mer".format(k)  # set highlight-entries on true for max-kmeres
 
