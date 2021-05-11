@@ -45,17 +45,22 @@ def checkFileFormat(file):
 def checkArguments(file_list, f1, f2, c, k):
     if c and (k is None):
         raise InputValueException("k is required in commandline-mode.")
-    if file_list is None and f1 is None and f2 is None:
-        raise InputValueException("files are missing.")
-    elif (file_list is None and (f1 is None or f2 is None)) or len(file_list) == 1:
+    if len(file_list) > 0 and (not (f1 is None) or not (f2 is None)):
+        raise InputValueException("please choose betweeen modes: -fs or -f1/-f2. Don't use both.")
+    elif len(file_list) < 2 and (f1 is None or f2 is None):
         raise InputValueException("at least two files are needed.")
+    elif len(file_list) > len(set(file_list)) or (not f1 is None and (f1 == f2)):
+        raise InputValueException("every file must be unique.")
 
 
 if __name__ == '__main__':
     exit = False
     args = argparser.parse_args()
 
-    file_list = [f.name for f in args.fs]
+    if not args.fs is None:
+        file_list = [f.name for f in args.fs]
+    else:
+        file_list = []
 
     try:
         checkArguments(file_list, args.f1, args.f2, args.console, args.k)
@@ -66,7 +71,7 @@ if __name__ == '__main__':
     if args.f1 is not None and args.f2 is not None:
         files = [args.f1, args.f2]
     else:
-        files = [file_list[0],file_list[1]]
+        files = [file_list[0], file_list[1]]
 
     for file in files:
         try:
@@ -78,6 +83,7 @@ if __name__ == '__main__':
         except InputValueException as ive:
             print(ive.args[0])
             sys.exit(0)
+
     if args.console:
         try:
             printData(files, args.k, args.peak, args.top)
