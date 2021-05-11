@@ -89,7 +89,7 @@ if __name__ == '__main__':
             print(fnf.args[0])
     else:
         try:
-            dashLayout.startDash(file_list,files, args.port)
+            dashLayout.startDash(file_list, args.port)
         except InputValueException as ive:
             print(ive.args[0])
         except FileNotFoundError as fnf:

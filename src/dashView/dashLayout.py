@@ -9,19 +9,16 @@ from dash.exceptions import PreventUpdate
 from src.processing import Processing
 from src.dashView import initializeData
 
-# selected files, which are processed
+# files, which are processed
 # read-only
-selected = None
 file_list = None
 
 
 # starts dash
-# slc: input data
+# file_list: input data
 # port: port
-def startDash(files, slc, port):
+def startDash(files, port):
     global file_list
-    global selected
-    selected = slc
     file_list = files
     app.run_server(debug=False, host='0.0.0.0', port=port)
 
@@ -232,6 +229,8 @@ app.layout = dbc.Container([
 
 @app.callback(
     dash.dependencies.Output('memory', 'data'),
+    dash.dependencies.Input('file1', 'value'),
+    dash.dependencies.Input('file2', 'value'),
     dash.dependencies.Input('k', 'value'),
     dash.dependencies.Input('peak', 'value'),
     dash.dependencies.Input('top', 'value'),
@@ -244,7 +243,7 @@ app.layout = dbc.Container([
 # top: number of best values
 # pca_feature: number of T or kmer-Frequency for pcas
 # data: storage to share data between callbacks
-def updateData(k, peak, top, pca_feature, data):
+def updateData(f1, f2, k, peak, top, pca_feature, data):
     # initial values
     t_slider_min = 5
     if data is None:
@@ -266,6 +265,11 @@ def updateData(k, peak, top, pca_feature, data):
 
     if peak is 0:
         peak = None
+
+    if data is None:
+        selected = [file_list[0], file_list[1]]
+    else:
+        selected = [file_list[int(f1)], file_list[int(f2)]]
 
     new_process = initializeData.initData(selected, selected, k, peak, top, pca_feature)
 
@@ -366,7 +370,8 @@ def initialSelect(ts):
     else:
         raise PreventUpdate
 
-    return f1,f2
+    return f1, f2
+
 
 @app.callback([
     dash.dependencies.Output("file1", "options"),
