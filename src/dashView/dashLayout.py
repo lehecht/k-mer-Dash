@@ -71,8 +71,6 @@ def dropdownRange(min_val, max_val):
         else:
             break
         i += 1
-    mark_len = len(mark)
-    # mark.append({'label': 'all', 'value': str(mark_len)})
     mark.append({'label': 'all', 'value': 'all'})
     return mark
 
@@ -84,17 +82,6 @@ app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.title = "k-Mer Dash"
 
 app.layout = dbc.Container([
-    # ---------------------------------------------- Info-Alert --------------------------------------------------------
-    dbc.Alert(
-        "Top-Slider changed. "
-        "Please note, that current top-value is last 'all'-value. "
-        "It does not need to be exact the present value on the current top-slider. "
-        "To use values of current top-slider, just select any other value.",
-        id="all",
-        is_open=False,
-        duration=30000,
-        color="info"
-    ),
     # ------------------------------------------ Store -----------------------------------------------------------------
     dbc.Spinner(children=[dcc.Store(id='memory', storage_type='memory')],
                 color="primary", fullscreen=True),
@@ -427,37 +414,23 @@ def updateFileList(val):
         dash.dependencies.Output("peak", "min"),
         dash.dependencies.Output("peak", "max"),
         dash.dependencies.Output("peak", "marks"),
-        # dash.dependencies.Output("top", "min"),
-        # dash.dependencies.Output("top", "max"),
-        dash.dependencies.Output("top", "options"),
-        # dash.dependencies.Output("top", "value"),
-        # dash.dependencies.Output("all", "is_open"),
     ],
     [
         dash.dependencies.Input("file1", "value"),
         dash.dependencies.Input("file2", "value"),
         dash.dependencies.Input('memory', 'modified_timestamp'),
         dash.dependencies.State('memory', 'data'),
-        dash.dependencies.State('top', 'options'),
-        # dash.dependencies.State('all', 'is_open'),
-        dash.dependencies.State('top', 'value')
     ],
 )
 # calculates slider ranges (marks)
 # fil1/file2: input file
 # ts: timestamp when data was modified
 # data: storage to share data between callbacks
-# old_marks: last old top-slider dictionary
-# is_open: bool, which shows alert status (hidden/open)
-# top_val: current top-value
-# def updateSliderRange(file1, file2, ts, data, old_marks, is_open, top_val):
-def updateSliderRange(file1, file2, ts, data, top_options, top_val):
+def updateSliderRange(file1, file2, ts, data):
     if ts is None:
         raise PreventUpdate
     k_p_slider_max = data['seqLen']
     k_p_slider_min = 2
-    t_slider_max = data['big_profile_size']
-    t_slider_min = 5
 
     k_slider_max = k_p_slider_max - 1
     peak_min = 0
@@ -466,53 +439,35 @@ def updateSliderRange(file1, file2, ts, data, top_options, top_val):
 
     k_range = markSliderRange(k_p_slider_min, k_slider_max, False)
     peak_range = markSliderRange(peak_min, k_p_slider_max, True)
-    top_range = dropdownRange(t_slider_min, t_slider_max)
 
-    # if last top-value was 'all' and new top-slider is bigger than last, an alert is triggered
-
-    # while (len(top_options) - 1) < int(top_val):
-    #     top_val = int(top_val) - 1
-    #
-    # if (len(old_marks) < len(top_range)) and (old_marks[str(top_val)] == 'all'):
-    #     is_open = True
-
-    # t_max = len(top_range) - 1
-    # t_min = 0
-
-    # problem: nach dem range update wird der default value verwendet, wenn der aktuelle value zu groß ist
-
-    # return k_p_slider_min, k_slider_max, k_range, peak_min, k_p_slider_max, peak_range, t_min, t_max, top_range, is_open
-    return k_p_slider_min, k_slider_max, k_range, peak_min, k_p_slider_max, peak_range, top_range
+    return k_p_slider_min, k_slider_max, k_range, peak_min, k_p_slider_max, peak_range
 
 
-# --------------
+# ------------------------------------------------ Dropdown-Updater ----------------------------------------------------
 @app.callback([
-    dash.dependencies.Output('top', 'value')
+    dash.dependencies.Output('top', 'value'),
+    dash.dependencies.Output('top', 'options')
 ],
     [
-        # dash.dependencies.Input("file1", "value"),
-        # dash.dependencies.Input("file2", "value"),
-        # dash.dependencies.Input('k', 'value'),
-        # dash.dependencies.Input('peak', 'value'),
         dash.dependencies.Input('memory', 'data'),
         dash.dependencies.State('top', 'value'),
     ])
-# def updateDropdown(f1, f2, k, peak, data, top):
-def updateDropdown(data, top):
+def update_top_dropdown(data, top):
+    if data is None:
+        raise PreventUpdate
     t_slider_max = data['big_profile_size']
     t_slider_min = 5
 
     top_range = dropdownRange(t_slider_min, t_slider_max)
 
-    if not top is 'all':
+    if top.isdigit():
         top = int(top)
-        if top > (len(top_range)-2):
+        if top > (len(top_range) - 2):
             top = 'all'
         else:
             top = str(top)
 
-    return [top]
-
+    return top, top_range
 
 
 # --------------------------------------------- Diagram/Table Updater --------------------------------------------------
