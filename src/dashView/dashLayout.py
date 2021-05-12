@@ -143,14 +143,6 @@ app.layout = dbc.Container([
                     html.Br(),
                     # ------------------------------------------ top ---------------------------------------------------
                     html.H6("Top-values:"),
-                    # dcc.Slider(
-                    #     id='top',
-                    #     min=0,
-                    #     max=10,
-                    #     step=1,
-                    #     value=0,
-                    #     marks=markSliderRange(0, 10, False)
-                    # ),
                     dbc.Select(
                         id='top',
                         options=[],
@@ -289,7 +281,6 @@ def updateData(f1, f2, k, peak, top, pca_feature, data):
         else:
             top = None
 
-
     if peak is 0:
         peak = None
 
@@ -313,7 +304,6 @@ def updateData(f1, f2, k, peak, top, pca_feature, data):
                              style_cell={'textAlign': 'center'},
                              export_format="csv",
                              sort_action='native')]
-    print(len(top_k))
 
     # calculate MSA
     try:
@@ -448,7 +438,7 @@ def updateFileList(val):
         dash.dependencies.Input("file2", "value"),
         dash.dependencies.Input('memory', 'modified_timestamp'),
         dash.dependencies.State('memory', 'data'),
-        # dash.dependencies.State('top', 'options'),
+        dash.dependencies.State('top', 'options'),
         # dash.dependencies.State('all', 'is_open'),
         dash.dependencies.State('top', 'value')
     ],
@@ -461,7 +451,7 @@ def updateFileList(val):
 # is_open: bool, which shows alert status (hidden/open)
 # top_val: current top-value
 # def updateSliderRange(file1, file2, ts, data, old_marks, is_open, top_val):
-def updateSliderRange(file1, file2, ts, data, top_val):
+def updateSliderRange(file1, file2, ts, data, top_options, top_val):
     if ts is None:
         raise PreventUpdate
     k_p_slider_max = data['seqLen']
@@ -480,8 +470,8 @@ def updateSliderRange(file1, file2, ts, data, top_val):
 
     # if last top-value was 'all' and new top-slider is bigger than last, an alert is triggered
 
-    # while (len(old_marks) - 1) < top_val:
-    #     top_val = top_val - 1
+    # while (len(top_options) - 1) < int(top_val):
+    #     top_val = int(top_val) - 1
     #
     # if (len(old_marks) < len(top_range)) and (old_marks[str(top_val)] == 'all'):
     #     is_open = True
@@ -489,14 +479,45 @@ def updateSliderRange(file1, file2, ts, data, top_val):
     # t_max = len(top_range) - 1
     # t_min = 0
 
+    # problem: nach dem range update wird der default value verwendet, wenn der aktuelle value zu groß ist
+
     # return k_p_slider_min, k_slider_max, k_range, peak_min, k_p_slider_max, peak_range, t_min, t_max, top_range, is_open
     return k_p_slider_min, k_slider_max, k_range, peak_min, k_p_slider_max, peak_range, top_range
+
+
+# --------------
+@app.callback([
+    dash.dependencies.Output('top', 'value')
+],
+    [
+        # dash.dependencies.Input("file1", "value"),
+        # dash.dependencies.Input("file2", "value"),
+        # dash.dependencies.Input('k', 'value'),
+        # dash.dependencies.Input('peak', 'value'),
+        dash.dependencies.Input('memory', 'data'),
+        dash.dependencies.State('top', 'value'),
+    ])
+# def updateDropdown(f1, f2, k, peak, data, top):
+def updateDropdown(data, top):
+    t_slider_max = data['big_profile_size']
+    t_slider_min = 5
+
+    top_range = dropdownRange(t_slider_min, t_slider_max)
+
+    if not top is 'all':
+        top = int(top)
+        if top > (len(top_range)-2):
+            top = 'all'
+        else:
+            top = str(top)
+
+    return [top]
+
 
 
 # --------------------------------------------- Diagram/Table Updater --------------------------------------------------
 
 # Tables/Diagrams only get updated figures/datatables here
-
 
 @app.callback(dash.dependencies.Output('scatter', 'figure'),
               dash.dependencies.Input('memory', 'modified_timestamp'),
