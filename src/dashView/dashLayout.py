@@ -251,6 +251,9 @@ app.layout = dbc.Container([
 # pca_feature: number of T or kmer-Frequency for pcas
 # data: storage to share data between callbacks
 def updateData(f1, f2, k, peak, top, pca_feature, data):
+
+    msa_restriction = 10000 # nbr of entries
+
     # initial values
     t_slider_min = 5
     if data is None:
@@ -293,11 +296,16 @@ def updateData(f1, f2, k, peak, top, pca_feature, data):
                              sort_action='native')]
 
     # calculate MSA
-    try:
+
+    # restriction for multiple alignment
+    valIsSmall = not (top is None) and top < msa_restriction
+    allIsSmall = top is None and len(top_k) < msa_restriction
+
+    if valIsSmall or allIsSmall:
         algn1, algn2, f1_name, f2_name = initializeData.getAlignmentData(new_process)
-    except ValueError:  # is thrown is there are too many entries
-        algn1 = ['Alignment could not be calculated']
-        algn2 = ['Alignment could not be calculated']
+    else:
+        algn1 = ['Alignment only for top < {}'.format(msa_restriction)]
+        algn2 = ['Alignment only for top < {}'.format(msa_restriction)]
         f1_name = top_k['File'].drop_duplicates().values.tolist()[1]
         f2_name = top_k['File'].drop_duplicates().values.tolist()[0]
 
