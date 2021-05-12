@@ -72,7 +72,8 @@ def dropdownRange(min_val, max_val):
             break
         i += 1
     mark_len = len(mark)
-    mark.append({'label': 'all', 'value': str(mark_len)})
+    # mark.append({'label': 'all', 'value': str(mark_len)})
+    mark.append({'label': 'all', 'value': 'all'})
     return mark
 
 
@@ -281,16 +282,13 @@ def updateData(f1, f2, k, peak, top, pca_feature, data):
     # translate top_val from slider to real top value
     top_range = dropdownRange(t_slider_min, t_slider_max)
 
-    # if last top-slider was bigger than current one, adapt all value
-    # if top >= len(top_range):
-    #     top = len(top_range) - 1
-    # if top in list(top_range.keys()):
     if top in [e['value'] for e in top_range]:
-        top = top_range[int(top)]['label']
-        if top is 'all':
-            top = t_slider_max
-        else:
+        if top.isdigit():
+            top = top_range[int(top)]['label']
             top = int(top)
+        else:
+            top = None
+
 
     if peak is 0:
         peak = None
@@ -315,6 +313,7 @@ def updateData(f1, f2, k, peak, top, pca_feature, data):
                              style_cell={'textAlign': 'center'},
                              export_format="csv",
                              sort_action='native')]
+    print(len(top_k))
 
     # calculate MSA
     try:
@@ -441,15 +440,16 @@ def updateFileList(val):
         # dash.dependencies.Output("top", "min"),
         # dash.dependencies.Output("top", "max"),
         dash.dependencies.Output("top", "options"),
-        dash.dependencies.Output("all", "is_open"),
+        # dash.dependencies.Output("top", "value"),
+        # dash.dependencies.Output("all", "is_open"),
     ],
     [
         dash.dependencies.Input("file1", "value"),
         dash.dependencies.Input("file2", "value"),
         dash.dependencies.Input('memory', 'modified_timestamp'),
         dash.dependencies.State('memory', 'data'),
-        dash.dependencies.State('top', 'options'),
-        dash.dependencies.State('all', 'is_open'),
+        # dash.dependencies.State('top', 'options'),
+        # dash.dependencies.State('all', 'is_open'),
         dash.dependencies.State('top', 'value')
     ],
 )
@@ -460,7 +460,8 @@ def updateFileList(val):
 # old_marks: last old top-slider dictionary
 # is_open: bool, which shows alert status (hidden/open)
 # top_val: current top-value
-def updateSliderRange(file1, file2, ts, data, old_marks, is_open, top_val):
+# def updateSliderRange(file1, file2, ts, data, old_marks, is_open, top_val):
+def updateSliderRange(file1, file2, ts, data, top_val):
     if ts is None:
         raise PreventUpdate
     k_p_slider_max = data['seqLen']
@@ -485,11 +486,11 @@ def updateSliderRange(file1, file2, ts, data, old_marks, is_open, top_val):
     # if (len(old_marks) < len(top_range)) and (old_marks[str(top_val)] == 'all'):
     #     is_open = True
 
-    t_max = len(top_range) - 1
-    t_min = 0
+    # t_max = len(top_range) - 1
+    # t_min = 0
 
     # return k_p_slider_min, k_slider_max, k_range, peak_min, k_p_slider_max, peak_range, t_min, t_max, top_range, is_open
-    return k_p_slider_min, k_slider_max, k_range, peak_min, k_p_slider_max, peak_range, top_range, is_open
+    return k_p_slider_min, k_slider_max, k_range, peak_min, k_p_slider_max, peak_range, top_range
 
 
 # --------------------------------------------- Diagram/Table Updater --------------------------------------------------

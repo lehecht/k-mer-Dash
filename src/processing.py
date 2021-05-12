@@ -51,7 +51,7 @@ class Processing:
 
         # checks if top-value is greater than one of profile lengths
         # if so, top is set on None
-        if (top > len_p1 or top > len_p2) and ((len_p1 is not 0) and (len_p2 is not 0)):
+        if (not top is None) and (top > len_p1 or top > len_p2) and ((len_p1 is not 0) and (len_p2 is not 0)):
             print("INFO: top-value is greater than amount of calculated entries for one or both files.")
             print("All entries will be displayed.")
             self.setting.setTop(None)
