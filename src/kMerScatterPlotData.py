@@ -1,5 +1,6 @@
 from src.processing import Processing
 import pandas as pd
+import time
 
 
 # inherits from process
@@ -26,12 +27,12 @@ class KMerScatterPlotData(Processing):
 
         k = self.getSettings().getK()
 
-        # important for legend in scatterplot
-        result_df['highlight'] = "{}-mer".format(k)  # highlights top kmere
+        test = dict.fromkeys(topKmer.index.tolist(), True)  # set highlight-entries on true for max-kmeres
+        test2 = dict.fromkeys(result_df.index.tolist(), False)
+        test2.update(test)
 
-        #################### langsam #####################
-        for kmer in topKmer.index.tolist():
-            result_df.loc[kmer, ['highlight']] = "TOP {}-mer".format(k)  # set highlight-entries on true for max-kmeres
+        result_df['highlight'] = ["TOP {}-mer".format(k) if test2[kmer] else "{}-mer".format(k) for
+                                  kmer in result_df.index.tolist()]  # save highlight-values for legend
 
         max_score = result_df[fileName1].max() * result_df[fileName2].max()
 
