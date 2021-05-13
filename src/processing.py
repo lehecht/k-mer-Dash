@@ -67,10 +67,9 @@ class Processing:
         self.all_triplets = []
         triplet_comb = list(combinations_with_replacement(['A', 'C', 'G', 'T'], r=3))
 
-        comb = []
         for trip in triplet_comb:
             comb = list(set(permutations(trip)))
-        self.all_triplets.extend([''.join(comb[i]) for i in range(0, len(comb))])
+            self.all_triplets.extend([''.join(comb[i]) for i in range(0, len(comb))])
 
         # abstract method
 
