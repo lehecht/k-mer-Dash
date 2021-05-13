@@ -3,6 +3,7 @@ import os
 from src.inputValueException import InputValueException
 from src.processing import Processing
 import pandas as pd
+import re
 from sklearn.decomposition import PCA
 
 
@@ -19,20 +20,14 @@ def fillDataFrame(df, all_triplets):
     for tpl in all_triplets:
         top_list_df[tpl] = 0
 
+    # counts nucleotides in kmer
+    for b in alphabet:
+        top_list_df[b] = [kmer.upper().count(b) for kmer in top_list_df.index.tolist()]
 
-    for i in range(0, len(top_list_df)):
-        kmer1 = top_list_df.index.tolist()[i]
-
-        case_insens_kmer1 = top_list_df.index.tolist()[i].upper()  # for counting triplets and single nucleotides,
-        # all letters become capital letters
-
-        for b in alphabet:
-            top_list_df.loc[kmer1, b] = case_insens_kmer1.count(b)
-
-        ########## langsam ##############
-        for trpl in all_triplets:
-            if trpl in case_insens_kmer1:
-                top_list_df.loc[kmer1, trpl] += 1
+    # counts triplets in kmer
+    for trpl in all_triplets:
+        top_list_df[trpl] = [sum(1 for _ in re.finditer('(?={})'.format(trpl), kmer.upper())) for kmer in
+                             top_list_df.index.tolist()]
 
     return top_list_df
 
