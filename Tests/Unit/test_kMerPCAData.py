@@ -10,6 +10,8 @@ def test_processData():
     peak = None
     process = KMerPCAData(test_data, None, k, peak, top, None)
 
+    triplets = process.all_triplets
+
     # Executing
     results = KMerPCAData.processData(process)
 
@@ -27,6 +29,7 @@ def test_processData():
     assert file_name2 == "testFile2.fa"
     assert freq1 == [3, 2, 2]
     assert freq2 == [3, 2, 1, 1, 1, 1]
+    assert len(triplets) == 64
 
     # Test2 with peak-position
     # Preparation
