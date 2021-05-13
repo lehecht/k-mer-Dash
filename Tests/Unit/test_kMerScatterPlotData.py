@@ -23,16 +23,27 @@ def test_processData():
     x_a_res_dict = dict(zip(res_kmer_list, res_x_axis))
     y_a_res_dict = dict(zip(res_kmer_list, res_y_axis))
 
+    top_kmer = process.getTopKmer()
+    top_kmer_list = top_kmer.index.tolist()
+
     # Testing
 
     # checks if frequencies are are equal
     for label in labels:
         assert x_a_res_dict[label] == df.loc[label, ['testFile1.fa']].tolist()[0]
         assert y_a_res_dict[label] == df.loc[label, ['testFile2.fa']].tolist()[0]
+
     assert set(labels) == {"AAACC", "AACCC", "ACCCC", "CAACC", "AAAAA", "TTTGG", "TTGGG", "TGGGG", "GTTGG", "GGGGC",
                            "GGGCA"}
     assert file_name1 == "testFile1.fa"
     assert file_name2 == "testFile2.fa"
+
+    for i in range(0, len(df.index)):
+        kmer = df.index.tolist()[i]
+        if kmer in top_kmer_list:
+            assert df['highlight'][i] == "TOP {}-mer".format(k)
+        else:
+            assert df['highlight'][i] == "{}-mer".format(k)
 
     # Test2: with peak position
     # Preparation
@@ -44,10 +55,13 @@ def test_processData():
 
     # Execution
     results2 = sctPlt.processData(process2)
-    df = results2[0]
+    df2 = results2[0]
     labels = results2[1]
     file_name1 = results2[2][0]
     file_name2 = results2[2][1]
+
+    top_kmer2 = process2.getTopKmer()
+    top_kmer_list2 = top_kmer2.index.tolist()
 
     res_kmer_list = ['aAacc', 'Aaccc', 'acccc', 'cAacc', 'aAaaa', 'Aaaaa', 'aaaaa', 'tTtgg', 'Ttggg', 'tgggg', 'gTtgg',
                      'tGggg', 'Ggggc', 'gggca']
@@ -60,8 +74,8 @@ def test_processData():
 
     # checks if frequencies are are equal
     for label in labels:
-        assert x_a_res_dict[label] == df.loc[label, ['testFile1.fa']].tolist()[0]
-        assert y_a_res_dict[label] == df.loc[label, ['testFile2.fa']].tolist()[0]
+        assert x_a_res_dict[label] == df2.loc[label, ['testFile1.fa']].tolist()[0]
+        assert y_a_res_dict[label] == df2.loc[label, ['testFile2.fa']].tolist()[0]
 
     assert set(labels) == {'aAacc', 'Aaccc', 'acccc', 'cAacc', 'aAaaa', 'Aaaaa', 'aaaaa', 'tTtgg', 'Ttggg', 'tgggg',
                            'gTtgg',
@@ -69,3 +83,10 @@ def test_processData():
 
     assert file_name1 == "testFile1.fa"
     assert file_name2 == "testFile2.fa"
+
+    for i in range(0, len(df2.index)):
+        kmer = df2.index.tolist()[i]
+        if kmer in top_kmer_list2:
+            assert df2['highlight'][i] == "TOP {}-mer".format(k)
+        else:
+            assert df2['highlight'][i] == "{}-mer".format(k)
