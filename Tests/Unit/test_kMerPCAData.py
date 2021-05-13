@@ -48,8 +48,6 @@ def test_processData():
     file_name1 = results2[2]
     file_name2 = results2[3]
 
-    print(kmer_list2)
-    print(freq2)
     # Testing
     assert kmer_list1 == ['Aaccc', 'acccc', 'aAacc', 'cAacc', 'aAaaa', 'Aaaaa', 'aaaaa']
     assert kmer_list2 == ['Ttggg', 'tgggg', 'tTtgg', 'gTtgg', 'tGggg', 'Ggggc', 'gggca']
