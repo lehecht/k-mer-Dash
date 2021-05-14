@@ -27,11 +27,11 @@ class KMerScatterPlotData(Processing):
 
         k = self.getSettings().getK()
 
-        test = dict.fromkeys(topKmer.index.tolist(), True)  # set highlight-entries on true for max-kmeres
-        test2 = dict.fromkeys(result_df.index.tolist(), False)
-        test2.update(test)
+        top_kmer_dict = dict.fromkeys(topKmer.index.tolist(), True)  # set highlight-entries on true for max-kmeres
+        all_kmer_dict = dict.fromkeys(result_df.index.tolist(), False)
+        all_kmer_dict.update(top_kmer_dict)
 
-        result_df['highlight'] = ["TOP {}-mer".format(k) if test2[kmer] else "{}-mer".format(k) for
+        result_df['highlight'] = ["TOP {}-mer".format(k) if all_kmer_dict[kmer] else "{}-mer".format(k) for
                                   kmer in result_df.index.tolist()]  # save highlight-values for legend
 
         max_score = result_df[fileName1].max() * result_df[fileName2].max()
