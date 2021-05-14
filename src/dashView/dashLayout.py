@@ -286,6 +286,8 @@ def updateData(f1, f2, k, peak, top, pca_feature, data):
 
     # calculate MSA
 
+
+
     algn1, algn2, f1_name, f2_name = initializeData.getAlignmentData(new_process)
 
     # if cols differ in their length, need to do some adaptions
@@ -301,24 +303,32 @@ def updateData(f1, f2, k, peak, top, pca_feature, data):
                                  style_cell={'textAlign': 'center'},
                                  export_format="csv")]
     elif len(algn1) <= 1 and len(algn2) <= 1:
-        algn1_df = pd.DataFrame(data=[])
-        algn1_df[f1_name] = ''
-        algn1_df[f2_name] = ''
-        msas = [dash_table.DataTable(columns=[{"name": i, "id": i} for i in algn1_df.columns],
-                                     data=algn1_df.to_dict('records'),
-                                     style_table={'overflow-x': 'hidden'},
-                                     style_cell={'textAlign': 'center'},
-                                     export_format="csv")]
+        algn1 = ['No data to align']
+        algn2 = ['No data to align']
+
+        algn1_df = pd.DataFrame(columns=[f1_name], data=algn1)
+        algn2_df = pd.DataFrame(columns=[f2_name], data=algn2)
+        algn1_df = pd.concat([algn1_df, algn2_df], ignore_index=False, axis=1)
+        msas = [
+            dash_table.DataTable(columns=[{"name": i, "id": i} for i in algn1_df.columns],
+                                 data=algn1_df.to_dict('records'),
+                                 style_table={'overflow-x': 'hidden'},
+                                 style_cell={'textAlign': 'center'},
+                                 export_format="csv")]
 
     else:
         if len(algn1) <= 1:
-            algn1_df = pd.DataFrame(algn2)
-            algn1_df.columns = [f2_name]
-            algn1_df[f1_name] = ''
+            algn1 = ['No data to align']
+
+            algn1_df = pd.DataFrame(columns=[f1_name], data=algn1)
+            algn2_df = pd.DataFrame(columns=[f2_name], data=algn2)
+            algn1_df = pd.concat([algn1_df, algn2_df], ignore_index=False, axis=1)
         else:
-            algn1_df = pd.DataFrame(algn1)
-            algn1_df.columns = [f1_name]
-            algn1_df[f2_name] = ''
+            algn2 = ['No data to align']
+
+            algn1_df = pd.DataFrame(columns=[f1_name], data=algn1)
+            algn2_df = pd.DataFrame(columns=[f2_name], data=algn2)
+            algn1_df = pd.concat([algn1_df, algn2_df], ignore_index=False, axis=1)
 
         msas = [dash_table.DataTable(columns=[{"name": i, "id": i} for i in algn1_df.columns],
                                      data=algn1_df.to_dict('records'),
