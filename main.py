@@ -2,9 +2,10 @@ import argparse
 import os
 import subprocess
 import sys
+from pathlib import Path
 
 from src.console_output import printData
-from src.dashView import dashLayout, initializeData
+from src.dashView import dashLayout
 from src.inputValueException import InputValueException
 from src.fileCountException import FileCountException
 
@@ -17,12 +18,14 @@ def checkValue(value):
 
 
 argparser = argparse.ArgumentParser()
-argparser.add_argument('-fs', '--files', dest='fs', type=argparse.FileType('r'), nargs='+')
-
+argparser.add_argument('-fs', '--files', dest='fs', type=argparse.FileType('r'), nargs='+',
+                       help="List of Fasta-Files. Allowed file extensions are \'.fa, .fasta, .fna, .fsa, .ffn\'")
+argparser.add_argument('-d', '--directory', dest='d', action='store',
+                       help="Directory with Fasta-Files. Allowed file extensions are \'.fa, .fasta, .fna, .fsa, .ffn\'")
 argparser.add_argument('-f1', '--file1', dest='f1', action='store',
-                       help="first Fasta-File. Allowed file extensions are \'.fa, .fasta, .fna, .fsa, .ffn\'")
+                       help="single Fasta-File. Allowed file extensions are \'.fa, .fasta, .fna, .fsa, .ffn\'")
 argparser.add_argument('-f2', '--file2', dest='f2', action='store',
-                       help="second Fasta-File. Allowed file extensions are \'.fa, .fasta, .fna, .fsa, .ffn\'")
+                       help="single Fasta-File. Allowed file extensions are \'.fa, .fasta, .fna, .fsa, .ffn\'")
 argparser.add_argument('-k', dest='k', action='store', type=checkValue,
                        help="length of k-Mer. Must be smaller than sequence length. Required in commandline-mode only.")
 argparser.add_argument('-p', '--peak', dest='peak', nargs='?', action='store', type=checkValue,
@@ -53,12 +56,25 @@ def checkArguments(file_list, f1, f2, c, k):
         raise InputValueException("every file must be unique.")
 
 
+def selectAllFastaFiles(dir):
+    file_list = []
+    for ext in [".fa", ".fasta", ".fna", ".fsa", ".ffn"]:
+        file_list.extend(Path(dir).rglob('*{}'.format(ext)))
+    return file_list
+
+
 if __name__ == '__main__':
     exit = False
     args = argparser.parse_args()
 
     if not args.fs is None:
         file_list = [f.name for f in args.fs]
+    elif not args.d is None:
+        if os.path.isdir(args.d):
+            file_list = selectAllFastaFiles(args.d)
+        else:
+            print('{} was not found or does not exist.'.format(args.d))
+            sys.exit(0)
     else:
         file_list = []
 
