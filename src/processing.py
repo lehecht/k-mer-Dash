@@ -37,14 +37,15 @@ class Processing:
         self.profile1 = Profile(calcFrequency(k, peak, selected)[0], selected[0])
         self.profile2 = Profile(calcFrequency(k, peak, selected)[1], selected[1])
 
-        seq1_len = getSeqLength(selected[0])
-        seq2_len = getSeqLength(selected[1])
+        self.seq_len = getSeqLength(selected[0])
+        # seq1_len = getSeqLength(selected[0])
+        # seq2_len = getSeqLength(selected[1])
 
         # smallest sequence length between both files is set as default
-        if seq1_len < seq2_len:
-            self.seq_len = seq1_len
-        else:
-            self.seq_len = seq2_len
+        # if seq1_len < seq2_len:
+        #     self.seq_len = seq1_len
+        # else:
+        #     self.seq_len = seq2_len
 
         len_p1 = len(self.profile1.getProfile())  # dict length
         len_p2 = len(self.profile2.getProfile())

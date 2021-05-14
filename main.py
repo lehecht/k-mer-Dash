@@ -19,7 +19,8 @@ def checkValue(value):
 
 argparser = argparse.ArgumentParser()
 argparser.add_argument('-fs', '--files', dest='fs', type=argparse.FileType('r'), nargs='+',
-                       help="List of Fasta-Files. Allowed file extensions are \'.fa, .fasta, .fna, .fsa, .ffn\'")
+                       help="List of space-separated Fasta-Files. "
+                            "Allowed file extensions are \'.fa, .fasta, .fna, .fsa, .ffn\'")
 argparser.add_argument('-d', '--directory', dest='d', action='store',
                        help="Directory with Fasta-Files. Allowed file extensions are \'.fa, .fasta, .fna, .fsa, .ffn\'")
 argparser.add_argument('-f1', '--file1', dest='f1', action='store',
@@ -63,15 +64,38 @@ def selectAllFastaFiles(dir):
     return file_list
 
 
+def checkTargetLengths(fileList):
+    f = open(fileList[0])
+    target = f.readline()
+    target = f.readline()  # read sequence
+    targetLen = len(target)
+    for file in fileList[1:]:
+        f = open(file)
+        target = f.readline()
+        target = f.readline()  # read sequence
+        if not targetLen == len(target):
+            raise ValueError("Sequence-length must be equal in all files.")
+
+
 if __name__ == '__main__':
     exit = False
     args = argparser.parse_args()
 
     if not args.fs is None:
         file_list = [f.name for f in args.fs]
+        try:
+            checkTargetLengths(file_list)
+        except ValueError as ve:
+            print(ve.args[0])
+            sys.exit(0)
     elif not args.d is None:
         if os.path.isdir(args.d):
             file_list = selectAllFastaFiles(args.d)
+            try:
+                checkTargetLengths(file_list)
+            except ValueError as ve:
+                print(ve.args[0])
+                sys.exit(0)
         else:
             print('{} was not found or does not exist.'.format(args.d))
             sys.exit(0)
