@@ -21,7 +21,7 @@ file_list = None
 def startDash(files, port):
     global file_list
     file_list = files
-    app.run_server(debug=False, host='0.0.0.0', port=port)
+    app.run_server(debug=True, host='0.0.0.0', port=port)
 
 
 # calculates slider ranges
@@ -132,7 +132,12 @@ app.layout = dbc.Container([
                     html.H6("Top-values:"),
                     dbc.Select(
                         id='top',
-                        options=[],
+                        options=[
+                            {'label': '10', 'value': '0'},
+                            {'label': '20', 'value': '1'},
+                            {'label': '50', 'value': '2'},
+                            {'label': '100', 'value': '3'}
+                        ],
                         value="0"
                     ),
                     html.Br(),
@@ -251,25 +256,9 @@ app.layout = dbc.Container([
 # pca_feature: number of T or kmer-Frequency for pcas
 # data: storage to share data between callbacks
 def updateData(f1, f2, k, peak, top, pca_feature, data):
+    top_opt_val = {'0': 10, '1': 20, '2': 50, '3': 100}
 
-    msa_restriction = 10000 # nbr of entries
-
-    # initial values
-    t_slider_min = 5
-    if data is None:
-        t_slider_max = 50
-    else:
-        t_slider_max = data['big_profile_size']
-
-    # translate top_val from slider to real top value
-    top_range = dropdownRange(t_slider_min, t_slider_max)
-
-    if top in [e['value'] for e in top_range]:
-        if top.isdigit():
-            top = top_range[int(top)]['label']
-            top = int(top)
-        else:
-            top = None
+    top = top_opt_val[top]
 
     if peak is 0:
         peak = None
@@ -297,21 +286,11 @@ def updateData(f1, f2, k, peak, top, pca_feature, data):
 
     # calculate MSA
 
-    # restriction for multiple alignment
-    valIsSmall = not (top is None) and top < msa_restriction
-    allIsSmall = top is None and len(top_k) < msa_restriction
-
-    if valIsSmall or allIsSmall:
-        algn1, algn2, f1_name, f2_name = initializeData.getAlignmentData(new_process)
-    else:
-        algn1 = ['Alignment only for top < {}'.format(msa_restriction)]
-        algn2 = ['Alignment only for top < {}'.format(msa_restriction)]
-        f1_name = top_k['File'].drop_duplicates().values.tolist()[1]
-        f2_name = top_k['File'].drop_duplicates().values.tolist()[0]
+    algn1, algn2, f1_name, f2_name = initializeData.getAlignmentData(new_process)
 
     # if cols differ in their length, need to do some adaptions
 
-    if (len(algn1) > 0) and (len(algn2) > 0):
+    if (len(algn1) > 1) and (len(algn2) > 1):
         algn1_df = pd.DataFrame(columns=[f1_name], data=algn1)
         algn2_df = pd.DataFrame(columns=[f2_name], data=algn2)
         algn1_df = pd.concat([algn1_df, algn2_df], ignore_index=False, axis=1)
@@ -321,7 +300,7 @@ def updateData(f1, f2, k, peak, top, pca_feature, data):
                                  style_table={'overflow-x': 'hidden'},
                                  style_cell={'textAlign': 'center'},
                                  export_format="csv")]
-    elif len(algn1) == 0 and len(algn2) == 0:
+    elif len(algn1) <= 1 and len(algn2) <= 1:
         algn1_df = pd.DataFrame(data=[])
         algn1_df[f1_name] = ''
         algn1_df[f2_name] = ''
@@ -332,7 +311,7 @@ def updateData(f1, f2, k, peak, top, pca_feature, data):
                                      export_format="csv")]
 
     else:
-        if len(algn1) == 0:
+        if len(algn1) <= 1:
             algn1_df = pd.DataFrame(algn2)
             algn1_df.columns = [f2_name]
             algn1_df[f1_name] = ''
@@ -356,16 +335,9 @@ def updateData(f1, f2, k, peak, top, pca_feature, data):
     pca_12, file1, file2 = initializeData.getPCA(new_process)
     pcas = [pca_12, file1, file2]
 
-    # maximal slider value before value 'all'
-    # depends on smallest profile because otherwise all entries would be displayed
-
-    big_profile_size = max(
-        [len(new_process.getProfilObj1().getProfile()), len(new_process.getProfilObj2().getProfile())])
-
     seq_len = new_process.getSeqLen()
 
-    data = {'topK': top_k_table, 'msas': msas, 'scatter': scatter, 'pcas': pcas, 'big_profile_size': big_profile_size,
-            'seqLen': seq_len}
+    data = {'topK': top_k_table, 'msas': msas, 'scatter': scatter, 'pcas': pcas, 'seqLen': seq_len}
 
     return data
 
@@ -449,33 +421,6 @@ def updateSliderRange(file1, file2, ts, data):
     peak_range = markSliderRange(peak_min, k_p_slider_max, True)
 
     return k_p_slider_min, k_slider_max, k_range, peak_min, k_p_slider_max, peak_range
-
-
-# ------------------------------------------------ Dropdown-Updater ----------------------------------------------------
-@app.callback([
-    dash.dependencies.Output('top', 'value'),
-    dash.dependencies.Output('top', 'options')
-],
-    [
-        dash.dependencies.Input('memory', 'data'),
-        dash.dependencies.State('top', 'value'),
-    ])
-def update_top_dropdown(data, top):
-    if data is None:
-        raise PreventUpdate
-    t_slider_max = data['big_profile_size']
-    t_slider_min = 5
-
-    top_range = dropdownRange(t_slider_min, t_slider_max)
-
-    if top.isdigit():
-        top = int(top)
-        if top > (len(top_range) - 2):
-            top = 'all'
-        else:
-            top = str(top)
-
-    return top, top_range
 
 
 # --------------------------------------------- Diagram/Table Updater --------------------------------------------------
