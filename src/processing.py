@@ -9,7 +9,7 @@ import os
 # abstract class
 class Processing:
     profile1 = None  # dictionary for kmers and their frequencies for file1
-    profile2 = None  # dictionary for kmers and their frequencies for file1
+    profile2 = None  # dictionary for kmers and their frequencies for file2
     setting = None  # object containing all information, which are needed for calculation
     df = None  # table which contains kmer-frequencies as coordinates (kmer: x:(file1) = fre1,y:(file2)= fre2)
     top_kmer_df = None  # table of top kmers
@@ -22,20 +22,10 @@ class Processing:
     # peak: peak: peak-position, where sequences should be aligned
     # top: number of best values
     # feature: number of T or kmer-Frequency for pcas
+    # cmd: bool, determines if second profile should be created
     def __init__(self, data, selected, k, peak, top, feature,cmd):
         if selected is not None:
             self.setting = Setting(data, selected, k, peak, top, feature)
-        # elif len(data) >= 2:
-        #     selected = data[:2]
-        #     self.setting = Setting(data, selected, k, peak, top, feature)
-
-        # if not cmd:
-        #     # checks if file is empty
-        #     if os.stat(selected[0]).st_size is 0 or os.stat(selected[1]).st_size is 0:
-        #         raise FileCountException('One of the files is empty!')
-        # else:
-        #     if os.stat(selected[0]).st_size is 0:
-        #         raise FileCountException('One of the files is empty!')
 
         # calculates kmer-frequency dictionaries
         self.profile1 = Profile(calcFrequency(k, peak, selected)[0], selected[0])
@@ -43,8 +33,6 @@ class Processing:
             self.profile2 = Profile(calcFrequency(k, peak, selected)[1], selected[1])
 
         self.seq_len = getSeqLength(selected[0])
-        # seq1_len = getSeqLength(selected[0])
-        # seq2_len = getSeqLength(selected[1])
 
         # smallest sequence length between both files is set as default
         # if seq1_len < seq2_len:
@@ -82,16 +70,16 @@ class Processing:
             # calculates top-kmer dataframe
             self.top_kmer_df = calcTopKmer(top, self.profile1, self.profile2)
 
+            # calculates all possible triples from dna-bases
+            self.all_triplets = []
+            triplet_comb = list(combinations_with_replacement(['A', 'C', 'G', 'T'], r=3))
+
+            for trip in triplet_comb:
+                comb = list(set(permutations(trip)))
+                self.all_triplets.extend([''.join(comb[i]) for i in range(0, len(comb))])
+
         else:
             self.top_kmer_df = calcTopKmer(top, self.profile1, None)
-
-        # calculates all possible triples from dna-bases
-        self.all_triplets = []
-        triplet_comb = list(combinations_with_replacement(['A', 'C', 'G', 'T'], r=3))
-
-        for trip in triplet_comb:
-            comb = list(set(permutations(trip)))
-            self.all_triplets.extend([''.join(comb[i]) for i in range(0, len(comb))])
 
         # abstract method
 

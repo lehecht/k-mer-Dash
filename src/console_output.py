@@ -1,4 +1,3 @@
-from src.inputValueException import InputValueException
 from src.processing import Processing
 from src.kMerAlignmentData import KMerAlignmentData
 import math
