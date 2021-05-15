@@ -8,7 +8,7 @@ def test_processData():
     k = 5
     top = 3
     peak = None
-    process = KMerPCAData(test_data, None, k, peak, top, None)
+    process = KMerPCAData(test_data, test_data, k, peak, top, None, False)
 
     triplets = process.all_triplets
 
@@ -36,7 +36,7 @@ def test_processData():
     k = 5
     top = 3
     peak = 2
-    process2 = KMerPCAData(test_data, None, k, peak, top, None)
+    process2 = KMerPCAData(test_data, test_data, k, peak, top, None, False)
 
     # Executing
     results2 = KMerPCAData.processData(process2)
@@ -61,7 +61,7 @@ def test_processData():
     k = 5
     top = 10
     peak = None
-    process3 = KMerPCAData(test_data, None, k, peak, top, None)
+    process3 = KMerPCAData(test_data, test_data, k, peak, top, None, False)
 
     # Executing
     results3 = KMerPCAData.processData(process3)
@@ -102,7 +102,7 @@ def test_processData():
     k = 5
     top = 10
     peak = 3
-    process4 = KMerPCAData(test_data, None, k, peak, top, None)
+    process4 = KMerPCAData(test_data, test_data, k, peak, top, None, False)
 
     # Executing
     results4 = KMerPCAData.processData(process4)

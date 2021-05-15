@@ -8,7 +8,7 @@ def test_processData():
     k = 5
     top = 3
     peak = None
-    process = sctPlt(test_data, None, k, peak, top, None)
+    process = sctPlt(test_data, test_data, k, peak, top, None,False)
 
     # Execution
     results = sctPlt.processData(process)
@@ -51,7 +51,7 @@ def test_processData():
     k = 5
     top = 3
     peak = 2
-    process2 = sctPlt(test_data, None, k, peak, top, None)
+    process2 = sctPlt(test_data, test_data, k, peak, top, None, False)
 
     # Execution
     results2 = sctPlt.processData(process2)
