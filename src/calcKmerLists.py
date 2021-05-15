@@ -22,11 +22,11 @@ def calcFrequency(k, peak, selected):
             seq_length = len(sequence)
             if peak is not None:
                 if seq_length < peak:  # is thrown if peak is greater than sequence length
-                    raise InputValueException('Invalid peak: must be smaller than sequence length or equal')
+                    raise InputValueException('ERROR: Invalid peak. Must be smaller or equal than sequence length')
                 sequence = createPeakPosition(peak, sequence)
             if seq_length <= k:
                 raise InputValueException(  # is thrown if k is greater or equal than sequence length
-                    "Invalid k: must be smaller than sequence length")
+                    "ERROR: Invalid k. Must be smaller than sequence length")
             # kmer frequency counting:
             for i in range(0, (seq_length - k + 1)):
                 if i == 0:

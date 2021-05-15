@@ -80,11 +80,13 @@ class KMerAlignmentData(Processing):
                 else:
                     if sys.platform == 'linux' or sys.platform == 'linux2':
                         raise FileNotFoundError(
-                            'Please install ClustalW with: \'sudo apt install clustalw\'' +
+                            'ERROR: ClustalW not found.'+
+                            '\nPlease install ClustalW with: \'sudo apt install clustalw\'' +
                             '\nFor more information, see: http://www.clustal.org/clustal2/ ')
                     else:
                         raise FileNotFoundError(
-                            'Please install ClustalW. For more information, see: http://www.clustal.org/clustal2/')
+                            'ERROR: ClustalW not found.' +
+                            '\nPlease install ClustalW. For more information, see: http://www.clustal.org/clustal2/')
 
         else:  # if peak position is given, then alignment takes place at position 'peak'
             k = self.getSettings().getK()
