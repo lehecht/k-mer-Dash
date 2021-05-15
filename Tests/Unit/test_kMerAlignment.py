@@ -83,10 +83,6 @@ def test_processData():
     algnm1 = algnm_list[0]
     algnm2 = algnm_list[1]
 
-    print(process4.getTopKmer())
-    print(algnm1)
-    print(algnm2)
-
     # testing
     assert len(algnm1) == 0
     assert len(algnm2) == 3
@@ -94,3 +90,48 @@ def test_processData():
     assert algnm2 == ['----Tttgg', '----Gttgg', '----Tgggg']
     assert f1 == "testFile1.fa"
     assert f2 == "testFile2.fa"
+
+    # Test5 without peak position
+
+    test_data = ["Tests/Unit/testdata/testFile2.fa"]
+
+    # Preparation
+    k = 5
+    top = 3
+    peak = None
+    cmd = True
+    process5 = KMerAlignmentData(test_data, test_data, k, peak, top, None, cmd)
+
+    # execution
+    algnm_list5, f1, f2 = KMerAlignmentData.processData(process5)
+
+    algnm1 = algnm_list5[0]
+
+    algnm1_list = [str(e.seq) for e in algnm1]
+
+    # testing
+    assert len(algnm_list5) == 1
+    assert len(algnm2_list) == 6
+    assert algnm1_list == ['TTTGG---', 'GTTGG---', '-TTGGG--', '--TGGGG-', '--GGGGC-', '---GGGCA']
+    assert f1 == "testFile2.fa"
+    assert f2 is None
+
+    # Test6 with peak position
+    # Preparation
+    k = 5
+    top = 3
+    peak = 2
+    cmd = True
+    process6 = KMerAlignmentData(test_data, test_data, k, peak, top, None, cmd)
+
+    # execution
+    algnm_list6, f1, f2 = KMerAlignmentData.processData(process6)
+
+    algnm1 = algnm_list6[0]
+
+    # testing
+    assert len(algnm_list6) == 1
+    assert len(algnm1) == 5
+    assert algnm1 == ['----Ttggg', '---tTtgg-', '---gTtgg-', '---tGggg-', '----Ggggc']
+    assert f1 == "testFile2.fa"
+    assert f2 is None

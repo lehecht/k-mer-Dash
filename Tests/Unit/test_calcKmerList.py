@@ -142,15 +142,38 @@ def test_calcTopKmer():
     assert max_freq2 == [22, 15, 7, 5, 3, 23, 11, 8, 2, 1]
     assert file_name_list2 == ["file1", "file1", "file1", "file1", "file1", "file2", "file2", "file2", "file2", "file2"]
 
+    # Test3: only one file
+    # Preparation
+    top = 3
+    profile1 = Profile({"AAT": 3, "TAT": 5, "GCC": 7, "CCC": 15, "TAA": 22}, "dir/file1")
+
+    # Execution
+    top_kmer_df = calcTopKmer(top, profile1, None)
+    top_kmer_list = top_kmer_df.index.tolist()
+    max_freq = top_kmer_df["Frequency"].values.tolist()
+    file_name_list = top_kmer_df["File"].values.tolist()
+
+    # Testing
+    assert len(top_kmer_list) == 3
+    assert top_kmer_list == ['TAA', 'CCC', 'GCC']
+    assert max_freq == [22, 15, 7]
+    assert file_name_list == ["file1", "file1", "file1"]
+
 
 def test_createPeakPosition():
     # Test1
     # Preparation
-    peak = 2
+    peak1 = 2
+    peak2 = 1
+    peak3 = 5
     sequence = "ACCGT"
 
     # Execution
-    new_seq = createPeakPosition(peak, sequence)
+    new_seq1 = createPeakPosition(peak1, sequence)
+    new_seq2 = createPeakPosition(peak2, sequence)
+    new_seq3 = createPeakPosition(peak3, sequence)
 
     # Testing
-    assert new_seq == "aCcgt"
+    assert new_seq1 == "aCcgt"
+    assert new_seq2 == "Accgt"
+    assert new_seq3 == "accgT"
