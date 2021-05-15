@@ -1,12 +1,7 @@
 from src.inputValueException import InputValueException
 from src.processing import Processing
-from src.kMerScatterPlotData import KMerScatterPlotData
-from src.kMerPCAData import KMerPCAData
 from src.kMerAlignmentData import KMerAlignmentData
 import math
-import src.layout.plot_theme_templates as ptt
-
-import plotly.express as px
 
 
 # starts preprocess to calculate kmer-frequencies,etc and call print-methods
@@ -15,36 +10,9 @@ import plotly.express as px
 # peak: peak: peak-position, where sequences should be aligned
 # top: number of best values
 def printData(data, k, peak, top):
-    process = Processing(data, data, k, peak, top, None)
+    process = Processing(data, data, k, peak, top, None,True)
     printPairwAlignment(process)
     printKMerFrequency(process)
-    printScatterPlot(process)
-    printPCA(process)
-
-
-# gets data and displays scatterplot
-# process: object, which contains information for further calculation-processes
-def printScatterPlot(process):
-    result = KMerScatterPlotData.processData(process)
-    df = result[0]
-    # list of kmers
-    label = result[1]
-    file_names = result[2]
-
-    fig = px.scatter(df, x=file_names[0], y=file_names[1], hover_name=label,
-                     color='highlight',
-                     color_discrete_map={"TOP {}-mer".format(process.getSettings().getK()): "red",
-                                         "{}-mer".format(process.getSettings().getK()): "black"},
-                     title='Scatterplot of k-Mer occurences (#)',
-                     opacity=0.55,
-                     size="size_score",
-                     hover_data={'highlight': False, file_names[0]: True, file_names[1]: True, 'size_score': False},
-                     )
-    fig.update_layout(dict(template=ptt.custom_plot_template, legend=dict(title=None)),
-                      title=dict(font_size=25))
-    fig.update_xaxes(title="#k-Mer of " + file_names[0], title_font=dict(size=18))
-    fig.update_yaxes(title="#k-Mer of " + file_names[1], title_font=dict(size=18))
-    fig.show()
 
 
 # gets data and prints kmer-frequency table to stdout
@@ -99,7 +67,9 @@ def printPairwAlignment(process):
                 name = f2_name
                 print()
         else:
-            print('Alignment of Top-kmere created with Peak-Position: {}'.format(process.getSettings().getPeak()))
+            peak= process.getSettings().getPeak()
+            k = process.getSettings().getK()
+            print('Alignment of Top-{k}-mer created with Peak-Position: {p}'.format(k=k,p=peak))
             name = f1_name
             for file in alignment_lists:
                 print("File: " + name)
@@ -109,39 +79,3 @@ def printPairwAlignment(process):
                 print()
     except ValueError:
         print("ERROR: Alignment cannot be calculated.")
-
-
-# gets pca data separate for both files and displays it as scatterplot
-# process: object, which contains information for further calculation-processes
-def printPCA(process):
-    pca_dfs = KMerPCAData.processData(process)
-    pca_df1 = pca_dfs[0]
-    pca_df2 = pca_dfs[1]
-    top_list1 = pca_dfs[4]
-    top_list2 = pca_dfs[5]
-
-    if pca_df1 is None and pca_df2 is None:
-        print()
-        print("ERROR: PCA cannot be calculated.")
-
-    else:
-        pca_df1 = pca_df1.join(top_list1.Frequency)
-        pca_df2 = pca_df2.join(top_list2.Frequency)
-
-        current_file_name = pca_dfs[2]
-        for p in [pca_df1, pca_df2]:
-            if p is not None:
-                fig = px.scatter(p, x='PC1', y='PC2', hover_name=p.index.tolist(),
-                                 color='Frequency',
-                                 opacity=0.6,
-                                 color_continuous_scale='plasma',
-                                 hover_data={"PC1": False, "PC2": False})
-                fig.update_layout(template=ptt.custom_plot_template, xaxis=dict(zeroline=False, showline=True),
-                                  yaxis=dict(zeroline=False, showline=True),
-                                  title=dict(text="PCA of " + current_file_name, font_size=25))
-                fig.update_xaxes(title_font=dict(size=18))
-                fig.update_yaxes(title_font=dict(size=18))
-                fig.update_traces(marker=dict(size=18, line=dict(width=2,
-                                                                 color='DarkSlateGrey')))
-                fig.show()
-                current_file_name = pca_dfs[3]

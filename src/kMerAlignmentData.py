@@ -20,14 +20,19 @@ class KMerAlignmentData(Processing):
     def processData(self):  # throws FileNotFoundError
         peak = self.getSettings().getPeak()
         top_kmer_list = self.getTopKmer()
+        profil2 = self.getProfilObj2()
+
         file_name1 = os.path.basename(self.getProfilObj1().getName())
-        file_name2 = os.path.basename(self.getProfilObj2().getName())
-
         top_kmer_f1 = top_kmer_list.query("File==@file_name1")
-        top_kmer_f2 = top_kmer_list.query("File==@file_name2")
-
         top_kmer_f1.sort_values(by="Frequency", ascending=False)
-        top_kmer_f2.sort_values(by="Frequency", ascending=False)
+
+        if not profil2 is None:
+            file_name2 = os.path.basename(self.getProfilObj2().getName())
+            top_kmer_f2 = top_kmer_list.query("File==@file_name2")
+            top_kmer_f2.sort_values(by="Frequency", ascending=False)
+        else:
+            file_name2 = None
+
 
         alignments = []
 
@@ -36,7 +41,12 @@ class KMerAlignmentData(Processing):
                 # directory will be deleted after program exit
                 os.mkdir('tmp')
 
-            for file in [top_kmer_f1, top_kmer_f2]:
+            if not profil2 is None:
+                files = [top_kmer_f1, top_kmer_f2]
+            else:
+                files = [top_kmer_f1]
+
+            for file in files:
 
                 current_file_name = file.iloc[0]["File"]
                 current_file_name = current_file_name.split(".")[0]
@@ -79,7 +89,13 @@ class KMerAlignmentData(Processing):
         else:  # if peak position is given, then alignment takes place at position 'peak'
             k = self.getSettings().getK()
             pattern = '[A-Z]'
-            for file in [top_kmer_f1, top_kmer_f2]:
+
+            if not profil2 is None:
+                files = [top_kmer_f1, top_kmer_f2]
+            else:
+                files = [top_kmer_f1]
+
+            for file in files:
 
                 top_kmer_index = file.index.values.tolist()
                 peak_kmers = list(filter(lambda s: s if len(re.findall(pattern, s)) > 0 else None, top_kmer_index))

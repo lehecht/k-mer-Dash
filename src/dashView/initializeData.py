@@ -14,7 +14,7 @@ import plotly.express as px
 # top: number of best values
 # feature: number of T or kmer-Frequency for pcas
 def initData(data, selected, k, peak, top, feature):
-    process = Processing(data, selected, k, peak, top, feature)
+    process = Processing(data, selected, k, peak, top, feature,False)
     return process
 
 

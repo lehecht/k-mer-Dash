@@ -112,24 +112,29 @@ def createDataFrame(p1, p2, selected):
 # p1/p2: dictionary with kmers and their frequencies
 def calcTopKmer(top, p1, p2):
     profile1 = p1.getProfile().copy()
-    profile2 = p2.getProfile().copy()
-
     file_name1 = os.path.basename(p1.getName())
-    file_name2 = os.path.basename(p2.getName())
-
     profile1 = list(map((lambda e: (e[0], e[1], file_name1)),
                         list(profile1.items())))  # creates list of triples (kmer, frequency, filename)
-    profile2 = list(map((lambda e: (e[0], e[1], file_name2)), list(profile2.items())))
-
     profile1.sort(key=(lambda item: item[1]), reverse=True)
-    profile2.sort(key=(lambda item: item[1]), reverse=True)
+
+    if not p2 is None:
+        profile2 = p2.getProfile().copy()
+        file_name2 = os.path.basename(p2.getName())
+        profile2 = list(map((lambda e: (e[0], e[1], file_name2)), list(profile2.items())))
+        profile2.sort(key=(lambda item: item[1]), reverse=True)
 
     if top is not None:
         profile1_top = profile1[:top]
-        profile2_top = profile2[:top]
+        if not p2 is None:
+            profile2_top = profile2[:top]
+
+        if not p2 is None:
+            profiles = [profile1, profile2]
+        else:
+            profiles = [profile1]
 
         # checks if only last of top values appears several times in profile
-        for p in [profile1, profile2]:
+        for p in profiles:
             dup_kmer_freq = []
             for i in range(top, len(p)):
                 next_kmer_freq = p[i][1]
@@ -144,10 +149,14 @@ def calcTopKmer(top, p1, p2):
 
     else:
         profile1_top = profile1.copy()
-        profile2_top = profile2.copy()
+
+        if not p2 is None:
+            profile2_top = profile2.copy()
 
     all_kmer = profile1_top
-    all_kmer.extend(profile2_top)
+
+    if not p2 is None:
+        all_kmer.extend(profile2_top)
 
     top_kmer = pd.DataFrame(all_kmer, columns=['', 'Frequency', 'File'])
     top_kmer = top_kmer.set_index('')

@@ -22,20 +22,25 @@ class Processing:
     # peak: peak: peak-position, where sequences should be aligned
     # top: number of best values
     # feature: number of T or kmer-Frequency for pcas
-    def __init__(self, data, selected, k, peak, top, feature):
+    def __init__(self, data, selected, k, peak, top, feature,cmd):
         if selected is not None:
             self.setting = Setting(data, selected, k, peak, top, feature)
-        elif len(data) >= 2:
-            selected = data[:2]
-            self.setting = Setting(data, selected, k, peak, top, feature)
+        # elif len(data) >= 2:
+        #     selected = data[:2]
+        #     self.setting = Setting(data, selected, k, peak, top, feature)
 
-        # checks if file is empty
-        if os.stat(selected[0]).st_size is 0 or os.stat(selected[1]).st_size is 0:
-            raise FileCountException('One of the files is empty!')
+        # if not cmd:
+        #     # checks if file is empty
+        #     if os.stat(selected[0]).st_size is 0 or os.stat(selected[1]).st_size is 0:
+        #         raise FileCountException('One of the files is empty!')
+        # else:
+        #     if os.stat(selected[0]).st_size is 0:
+        #         raise FileCountException('One of the files is empty!')
 
         # calculates kmer-frequency dictionaries
         self.profile1 = Profile(calcFrequency(k, peak, selected)[0], selected[0])
-        self.profile2 = Profile(calcFrequency(k, peak, selected)[1], selected[1])
+        if not cmd:
+            self.profile2 = Profile(calcFrequency(k, peak, selected)[1], selected[1])
 
         self.seq_len = getSeqLength(selected[0])
         # seq1_len = getSeqLength(selected[0])
@@ -48,21 +53,37 @@ class Processing:
         #     self.seq_len = seq2_len
 
         len_p1 = len(self.profile1.getProfile())  # dict length
-        len_p2 = len(self.profile2.getProfile())
+        if not cmd:
+            len_p2 = len(self.profile2.getProfile())
 
         # checks if top-value is greater than one of profile lengths
         # if so, top is set on None
-        if (not top is None) and (top > len_p1 or top > len_p2) and ((len_p1 is not 0) and (len_p2 is not 0)):
-            print("INFO: top-value is greater than amount of calculated entries for one or both files.")
-            print("All entries will be displayed.")
-            self.setting.setTop(None)
-            top = None
 
-        # calculates dataframe
-        self.df = createDataFrame(self.profile1, self.profile2, selected)
+        top_value_msg1 = "INFO: top-value is greater than amount of calculated entries for one or more files."
+        top_value_msg2 = "All entries will be displayed."
 
-        # calculates top-kmer dataframe
-        self.top_kmer_df = calcTopKmer(top, self.profile1, self.profile2)
+        if not cmd:
+            if (not top is None) and (top > len_p1 or top > len_p2) and ((len_p1 is not 0) and (len_p2 is not 0)):
+                print(top_value_msg1)
+                print(top_value_msg2)
+                self.setting.setTop(None)
+                top = None
+        else:
+            if (not top is None) and (top > len_p1) and (len_p1 is not 0):
+                print(top_value_msg1)
+                print(top_value_msg2)
+                self.setting.setTop(None)
+                top = None
+
+        if not cmd:
+            # calculates dataframe
+            self.df = createDataFrame(self.profile1, self.profile2, selected)
+
+            # calculates top-kmer dataframe
+            self.top_kmer_df = calcTopKmer(top, self.profile1, self.profile2)
+
+        else:
+            self.top_kmer_df = calcTopKmer(top, self.profile1, None)
 
         # calculates all possible triples from dna-bases
         self.all_triplets = []
