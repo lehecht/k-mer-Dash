@@ -23,10 +23,9 @@ argparser.add_argument('-fs', '--files', dest='fs', type=argparse.FileType('r'),
                             "Allowed file extensions are \'.fa, .fasta, .fna, .fsa, .ffn\'")
 argparser.add_argument('-d', '--directory', dest='d', action='store',
                        help="Directory with Fasta-Files. Allowed file extensions are \'.fa, .fasta, .fna, .fsa, .ffn\'")
-argparser.add_argument('-f1', '--file1', dest='f1', action='store',
-                       help="single Fasta-File. Allowed file extensions are \'.fa, .fasta, .fna, .fsa, .ffn\'")
-argparser.add_argument('-f2', '--file2', dest='f2', action='store',
-                       help="single Fasta-File. Allowed file extensions are \'.fa, .fasta, .fna, .fsa, .ffn\'")
+argparser.add_argument('-f', '--file', dest='f', action='store', type=argparse.FileType('r'),
+                       help="single Fasta-File for commandline-mode. "
+                            "Allowed file extensions are \'.fa, .fasta, .fna, .fsa, .ffn\'")
 argparser.add_argument('-k', dest='k', action='store', type=checkValue,
                        help="length of k-Mer. Must be smaller than sequence length. Required in commandline-mode only.")
 argparser.add_argument('-p', '--peak', dest='peak', nargs='?', action='store', type=checkValue,
@@ -45,22 +44,32 @@ def checkFileFormat(file):
         raise InputValueException(
             "Only Fasta-files with file-extension: \'.fa\', \'.fasta\', \'.fna\', \'.fsa\', \'.ffn\' allowed!")
 
+    if os.stat(file).st_size is 0:
+        raise FileCountException('file(s) is empty.')
 
-def checkArguments(file_list, f1, f2, c, k):
+
+def checkArguments(file_list, f, c, k):
     if c and (k is None):
         raise InputValueException("k is required in commandline-mode.")
-    if len(file_list) > 0 and (not (f1 is None) or not (f2 is None)):
-        raise InputValueException("please choose betweeen modes: -fs or -f1/-f2. Don't use both.")
-    elif len(file_list) < 2 and (f1 is None or f2 is None):
-        raise InputValueException("at least two files are needed.")
-    elif len(file_list) > len(set(file_list)) or (not f1 is None and (f1 == f2)):
+    if len(file_list) > 0 and (not (f is None)):
+        raise InputValueException("please choose either -fs for interactive mode or -f for command-line mode.")
+    elif len(file_list) > len(set(file_list)):
         raise InputValueException("every file must be unique.")
+    elif not f is None and not c:
+        raise InputValueException("interactive mode needs more than one file.")
 
 
 def selectAllFastaFiles(dir):
     file_list = []
     for ext in [".fa", ".fasta", ".fna", ".fsa", ".ffn"]:
         file_list.extend(Path(dir).rglob('*{}'.format(ext)))
+
+    if len(file_list) == 0:
+        raise FileCountException('{} has no Fasta-files with extension: .fa, .fasta, .fna, .fsa, .ffn'.format(dir))
+
+    for f in file_list:
+        if os.stat(f).st_size is 0:
+            raise FileCountException('file(s) is empty.')
     return file_list
 
 
@@ -74,7 +83,7 @@ def checkTargetLengths(fileList):
         target = f.readline()
         target = f.readline()  # read sequence
         if not targetLen == len(target):
-            raise ValueError("Sequence-length must be equal in all files.")
+            raise ValueError("sequence-length must be equal in all files.")
 
 
 if __name__ == '__main__':
@@ -85,16 +94,24 @@ if __name__ == '__main__':
         file_list = [f.name for f in args.fs]
         try:
             checkTargetLengths(file_list)
+            for f in file_list:
+                checkFileFormat(f)
         except ValueError as ve:
             print(ve.args[0])
             sys.exit(0)
+        except FileCountException as fce:
+            print(fce.args[0])
+            sys.exit(0)
     elif not args.d is None:
         if os.path.isdir(args.d):
-            file_list = selectAllFastaFiles(args.d)
             try:
+                file_list = selectAllFastaFiles(args.d)
                 checkTargetLengths(file_list)
             except ValueError as ve:
                 print(ve.args[0])
+                sys.exit(0)
+            except FileCountException as fce:
+                print(fce.args[0])
                 sys.exit(0)
         else:
             print('{} was not found or does not exist.'.format(args.d))
@@ -103,26 +120,32 @@ if __name__ == '__main__':
         file_list = []
 
     try:
-        checkArguments(file_list, args.f1, args.f2, args.console, args.k)
+        checkArguments(file_list, args.f, args.console, args.k)
     except InputValueException as ive:
         print(ive.args[0])
         sys.exit(0)
 
-    if args.f1 is not None and args.f2 is not None:
-        files = [args.f1, args.f2]
+    if args.f is not None:
+        file = args.f.name
+        try:
+            checkFileFormat(file)
+        except FileCountException as fce:
+            print(fce.args[0])
+            sys.exit(0)
+        files = [file]
     else:
         files = [file_list[0], file_list[1]]
 
-    for file in files:
-        try:
-            open(file)
-            checkFileFormat(file)
-        except IOError:
-            print('\'{}\' does not exist'.format(file))
-            sys.exit(0)
-        except InputValueException as ive:
-            print(ive.args[0])
-            sys.exit(0)
+    # for file in files:
+    #     try:
+    #         open(file)
+    #         checkFileFormat(file)
+    #     except IOError:
+    #         print('\'{}\' does not exist'.format(file))
+    #         sys.exit(0)
+    #     except InputValueException as ive:
+    #         print(ive.args[0])
+    #         sys.exit(0)
 
     if args.console:
         try:
