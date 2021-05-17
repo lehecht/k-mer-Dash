@@ -6,6 +6,7 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 import os
 from dash.exceptions import PreventUpdate
+import dash_bio as dashbio
 
 from src.processing import Processing
 from src.dashView import initializeData
@@ -168,11 +169,25 @@ app.layout = dbc.Container([
             # --------------------------------------- ScatterPlot ------------------------------------------------------
             dbc.Col([
                 dbc.Card([
-                    dbc.Spinner(children=[dcc.Graph(figure={}, id="scatter", style={'height': '50vh'})],
-                                color="primary", spinner_style={'position': 'absolute',
-                                                                'top': '50%',
-                                                                'left': '50%'
-                                                                }),
+                    dbc.Spinner(children=[
+                        dcc.Tabs(value="s-tab", children=[
+                            dcc.Tab(label="Scatterplot", value='s-tab', id="s-tab1", children=[
+                                dcc.Graph(figure={}, id="scatter", style={'height': '40vh'})
+                            ]),
+                            dcc.Tab(label="RNA-Structure", value='r-tab', id="s-tab2", children=[
+                                dbc.Card(
+                                    dashbio.FornaContainer(
+                                        id='forna',height='300',width='400'
+                                    ),
+                                className="w-100 p-3"
+                                ),
+                            ]),
+                        ]),
+                    ],
+                        color="primary", spinner_style={'position': 'absolute',
+                                                        'top': '50%',
+                                                        'left': '50%'
+                                                        }),
 
                 ], style={
                     'background': '#f2f2f2', 'height': '50vh'}, outline=True),
@@ -285,8 +300,6 @@ def updateData(f1, f2, k, peak, top, pca_feature, data):
                              sort_action='native')]
 
     # calculate MSA
-
-
 
     algn1, algn2, f1_name, f2_name = initializeData.getAlignmentData(new_process)
 
@@ -431,6 +444,23 @@ def updateSliderRange(file1, file2, ts, data):
     peak_range = markSliderRange(peak_min, k_p_slider_max, True)
 
     return k_p_slider_min, k_slider_max, k_range, peak_min, k_p_slider_max, peak_range
+
+
+# ---------------------- test
+
+@app.callback(
+    dash.dependencies.Output('forna', 'sequences'),
+    [dash.dependencies.Input('memory', 'data')]
+)
+def show_selected_sequences(data):
+    if data is None:
+        raise PreventUpdate
+
+    sequences = [{
+        'sequence': 'AUGGGCCCGGGCCCAAUGGGCCCGGGCCCA',
+        'structure': '.((((((())))))).((((((()))))))'
+    }]
+    return sequences
 
 
 # --------------------------------------------- Diagram/Table Updater --------------------------------------------------
