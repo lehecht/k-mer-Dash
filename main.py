@@ -54,7 +54,8 @@ def checkArguments(file_list, f, c, k, dir, list):
     if c and (k is None):
         raise InputValueException("ERROR: k is required in commandline-mode.")
     if len(file_list) > 0 and (not (f is None)):
-        raise InputValueException("ERROR: please choose either -fs for interactive mode or -f for command-line mode.")
+        raise InputValueException("ERROR: please choose either -fs or -d for interactive mode "
+                                  "or -f for command-line mode.")
     elif len(file_list) > len(set(file_list)):
         raise InputValueException("ERROR: every file must be unique.")
     elif (not f is None or len(file_list) < 2) and not c:
@@ -132,7 +133,7 @@ if __name__ == '__main__':
         file_list = []
 
     try:
-        checkArguments(file_list, args.f, args.console, args.k,args.d,args.fs)
+        checkArguments(file_list, args.f, args.console, args.k, args.d, args.fs)
     except InputValueException as ive:
         print(ive.args[0])
         sys.exit(0)
