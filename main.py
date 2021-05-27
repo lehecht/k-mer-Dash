@@ -3,6 +3,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from Bio import SeqIO
 
 from src.console_output import printData
 from src.dashView import dashLayout
@@ -20,13 +21,23 @@ def checkValue(value):
 
 argparser = argparse.ArgumentParser()
 argparser.add_argument('-fs', '--files', dest='fs', type=argparse.FileType('r'), nargs='+',
-                       help="List of space-separated Fasta-files. "
+                       help="List of space-separated nucleotide Fasta-files. "
                             "Allowed file extensions are \'.fa, .fasta, .fna, .fsa, .ffn\'")
 argparser.add_argument('-d', '--directory', dest='d', action='store',
-                       help="Directory with Fasta-Files. Allowed file extensions are \'.fa, .fasta, .fna, .fsa, .ffn\'")
+                       help="Directory with nucleotide Fasta-Files. Allowed file extensions are "
+                            "\'.fa, .fasta, .fna, .fsa, .ffn\'")
 argparser.add_argument('-f', '--file', dest='f', action='store', type=argparse.FileType('r'),
-                       help="Single Fasta-File for commandline-mode. "
+                       help="Single nucleotide Fasta-File for commandline-mode. "
                             "Allowed file extensions are \'.fa, .fasta, .fna, .fsa, .ffn\'")
+argparser.add_argument('-sfs', '--files_struct', dest='sfs', type=argparse.FileType('r'), nargs='+',
+                       help="List of space-separated Fasta-files for secondary structure. "
+                            "Allowed file extensions are \'.fa, .fasta, .fsa\'")
+argparser.add_argument('-sd', '--directory_struct', dest='sd', action='store',
+                       help="Directory with Fasta-Files for secondary structure. Allowed file extensions are "
+                            "\'.fa, .fasta, .fsa\'")
+argparser.add_argument('-sf', '--file_struct', dest='sf', action='store', type=argparse.FileType('r'),
+                       help="Single nucleotide Fasta-File for commandline-mode. "
+                            "Allowed file extensions are \'.fa, .fasta, .fsa\'")
 argparser.add_argument('-k', dest='k', action='store', type=checkValue,
                        help="Length of k-Mer. Must be smaller than sequence length. Required in commandline-mode only.")
 argparser.add_argument('-p', '--peak', dest='peak', action='store', type=checkValue,
@@ -40,40 +51,74 @@ argparser.add_argument('-pt', '--port', dest='port', default=8088, action='store
                        help="(optional) Port on which dash app runs")
 
 
-def checkFileFormat(file):
+def checkSecFileFormat(file):
+    record = str(list(SeqIO.parse(file, "fasta"))[0].seq)
+
+    if 'A' in record or 'T' in record or 'C' in record or 'G' in record:
+        print(file, record)
+        raise InputValueException("ERROR: Fasta files for secondary structure must only contain element-strings.")
+
+
+def checkFileExtension(file, struct):
     ext = os.path.splitext(file)[1]
-    if ext not in [".fa", ".fasta", ".fna", ".fsa", ".ffn"]:
-        raise InputValueException(
-            "ERROR: only Fasta-files with file-extension: \'.fa\', \'.fasta\', \'.fna\', \'.fsa\', \'.ffn\' allowed!")
+    if struct:
+        ext_list = [".fa", ".fasta", ".fsa"]
+    else:
+        ext_list = [".fa", ".fasta", ".fna", ".fsa", ".ffn"]
+
+    if ext not in ext_list:
+        if struct:
+            msg = "ERROR: only Fasta-files with file-extension: \'.fa\', \'.fasta\', \'.fsa\' allowed!"
+        else:
+            msg = "ERROR: only Fasta-files with file-extension: " \
+                  "\'.fa\', \'.fasta\', \'.fna\', \'.fsa\', \'.ffn\' allowed!"
+
+        raise InputValueException(msg)
 
     if os.stat(file).st_size is 0:
         raise FileCountException('ERROR: file(s) is empty.')
 
 
-def checkArguments(file_list, f, c, k, dir, list):
+def checkArguments(file_list, f, c, k, fasta_dir, fs_list, sfs, sd, sf):
+    if not sfs is None:
+        struct_file_list = sfs
+    else:
+        struct_file_list = sd
+
     if c and (k is None):
         raise InputValueException("ERROR: k is required in commandline-mode.")
-    if len(file_list) > 0 and (not (f is None)):
+    if len(file_list) > 0 and (not f is None):
         raise InputValueException("ERROR: please choose either -fs or -d for interactive mode "
                                   "or -f for command-line mode.")
-    elif len(file_list) > len(set(file_list)):
+    elif len(file_list) > len(set(file_list)) or len(struct_file_list) > len(set(struct_file_list)):
         raise InputValueException("ERROR: every file must be unique.")
     elif (not f is None or len(file_list) < 2) and not c:
         raise InputValueException("ERROR: interactive mode needs at least two files.")
     elif len(file_list) > 0 and c:
         raise InputValueException("ERROR: commandline-mode requires only single Fasta-file. Please use -f option.")
-    elif (not dir is None) and (not list is None):
+    elif (not fasta_dir is None) and (not fs_list is None):
         raise InputValueException("ERROR: please choose either -fs to commit a list of files or -d for a directory.")
+    elif not [sfs, sd, sf].count(None) == 2:
+        raise InputValueException("ERROR: please choose either -sfs, -sd or -sf to commit structural data.")
 
 
-def selectAllFastaFiles(dir):
+def selectAllFastaFiles(dir, struct):
     file_list = []
-    for ext in [".fa", ".fasta", ".fna", ".fsa", ".ffn"]:
-        file_list.extend(Path(dir).rglob('*{}'.format(ext)))
+    if struct:
+        ext_list = [".fa", ".fasta", ".fsa"]
+    else:
+        ext_list = [".fa", ".fasta", ".fna", ".fsa", ".ffn"]
+
+    for ext in ext_list:
+        file_list.extend(Path(dir).glob('*{}'.format(ext)))
 
     if len(file_list) == 0:
-        raise FileCountException(
-            'ERROR: {} has no Fasta-files with extension: .fa, .fasta, .fna, .fsa, .ffn'.format(dir))
+        if struct:
+            msg = 'ERROR: {} has no Fasta-files with extension: .fa, .fasta, .fsa'.format(dir)
+        else:
+            msg = 'ERROR: {} has no Fasta-files with extension: .fa, .fasta, .fna, .fsa, .ffn'.format(dir)
+
+        raise FileCountException(msg)
 
     for f in file_list:
         if os.stat(f).st_size is 0:
@@ -97,17 +142,21 @@ def checkTargetLengths(fileList):
 
 
 if __name__ == '__main__':
-    exit = False
+    # exit = False
     args = argparser.parse_args()
 
     # ------------------------------------------ save files ------------------------------------------------------------
+
+    struct_sfs_list = None
+    struct_sd_list = None
+    struct_sf_list = None
 
     if not args.fs is None:  # if file-list option is used
         file_list = [f.name for f in args.fs]
         try:
             checkTargetLengths(file_list)  # check if all files own sequences with equal lengths
             for f in file_list:
-                checkFileFormat(f)  # check file extension
+                checkFileExtension(f, False)  # check file extension
         except ValueError as ve:
             print(ve.args[0])
             sys.exit(0)
@@ -118,7 +167,7 @@ if __name__ == '__main__':
     elif not args.d is None:  # if directory option is used
         if os.path.isdir(args.d):
             try:
-                file_list = selectAllFastaFiles(args.d)  # select all Fasta-files
+                file_list = selectAllFastaFiles(args.d, False)  # select all Fasta-files
                 checkTargetLengths(file_list)
             except ValueError as ve:
                 print(ve.args[0])
@@ -132,8 +181,48 @@ if __name__ == '__main__':
     else:  # if single file option was used
         file_list = []
 
+    if not args.sfs is None:  # if file-list option is used
+        struct_sfs_list = [f.name for f in args.sfs]
+        try:
+            for f in struct_sfs_list:
+                checkFileExtension(f, True)  # check file extension
+                checkSecFileFormat(f)
+        except ValueError as ve:
+            print(ve.args[0])
+            sys.exit(0)
+        except FileCountException as fce:
+            print(fce.args[0])
+            sys.exit(0)
+        except InputValueException as ive:
+            print(ive.args[0])
+            sys.exit(0)
+
+    if not args.sd is None:  # if directory option is used
+        if os.path.isdir(args.sd):
+            try:
+                struct_sd_list = selectAllFastaFiles(args.sd, True)  # select all Fasta-files
+                for f in struct_sd_list:
+                    checkSecFileFormat(f)
+            except ValueError as ve:
+                print(ve.args[0])
+                sys.exit(0)
+            except FileCountException as fce:
+                print(fce.args[0])
+                sys.exit(0)
+            except InputValueException as ive:
+                print(ive.args[0])
+                sys.exit(0)
+    if not args.sf is None:  # if single file option was used
+        struct_sf_list = [args.sf]
+        try:
+            checkSecFileFormat(args.sf)
+        except InputValueException as ive:
+            print(ive.args[0])
+            sys.exit(0)
+
     try:
-        checkArguments(file_list, args.f, args.console, args.k, args.d, args.fs)
+        checkArguments(file_list, args.f, args.console, args.k, args.d, args.fs, struct_sfs_list, struct_sd_list,
+                       struct_sf_list)
     except InputValueException as ive:
         print(ive.args[0])
         sys.exit(0)
@@ -143,7 +232,7 @@ if __name__ == '__main__':
     if args.f is not None:
         file = args.f.name
         try:
-            checkFileFormat(file)
+            checkFileExtension(file, False)
         except FileCountException as fce:
             print(fce.args[0])
             sys.exit(0)
