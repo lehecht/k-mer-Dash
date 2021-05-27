@@ -90,15 +90,17 @@ def checkArguments(file_list, f, c, k, fasta_dir, fs_list, sfs, sd, sf):
     if len(file_list) > 0 and (not f is None):
         raise InputValueException("ERROR: please choose either -fs or -d for interactive mode "
                                   "or -f for command-line mode.")
-    elif len(file_list) > len(set(file_list)) or len(struct_file_list) > len(set(struct_file_list)):
-        raise InputValueException("ERROR: every file must be unique.")
+    elif len(file_list) > len(set(file_list)):
+        raise InputValueException("ERROR: every nucleotide FASTA-file must be unique.")
+    elif not struct_file_list is None and len(struct_file_list) > len(set(struct_file_list)):
+        raise InputValueException("ERROR: every structural FASTA-file must be unique.")
     elif (not f is None or len(file_list) < 2) and not c:
         raise InputValueException("ERROR: interactive mode needs at least two files.")
     elif len(file_list) > 0 and c:
         raise InputValueException("ERROR: commandline-mode requires only single Fasta-file. Please use -f option.")
     elif (not fasta_dir is None) and (not fs_list is None):
         raise InputValueException("ERROR: please choose either -fs to commit a list of files or -d for a directory.")
-    elif not [sfs, sd, sf].count(None) == 2:
+    elif not [sfs, sd, sf].count(None) > 1:
         raise InputValueException("ERROR: please choose either -sfs, -sd or -sf to commit structural data.")
 
 
