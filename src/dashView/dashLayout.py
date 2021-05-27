@@ -14,14 +14,17 @@ from src.dashView import initializeData
 # files, which are processed
 # read-only
 file_list = None
+struct_data = None
 
 
 # starts dash
 # file_list: input data
 # port: port
-def startDash(files, port):
+def startDash(files, port,secStruct_data):
     global file_list
+    global struct_data
     file_list = files
+    struct_data = secStruct_data
     app.run_server(debug=True, host='0.0.0.0', port=port)
 
 
@@ -283,7 +286,7 @@ def updateData(f1, f2, k, peak, top, pca_feature, data):
     else:
         selected = [file_list[int(f1)], file_list[int(f2)]]
 
-    new_process = initializeData.initData(selected, selected, k, peak, top, pca_feature)
+    new_process = initializeData.initData(selected, selected, k, peak, top, pca_feature,struct_data)
 
     # calculate top-table
     top_k = Processing.getTopKmer(new_process).copy()

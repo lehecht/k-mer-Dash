@@ -23,9 +23,9 @@ class Processing:
     # top: number of best values
     # feature: number of T or kmer-Frequency for pcas
     # cmd: bool, determines if second profile should be created
-    def __init__(self, data, selected, k, peak, top, feature,cmd):
+    def __init__(self, data, selected, k, peak, top, feature, cmd, struct_data):
         if selected is not None:
-            self.setting = Setting(data, selected, k, peak, top, feature)
+            self.setting = Setting(data, selected, k, peak, top, feature,struct_data)
 
         # calculates kmer-frequency dictionaries
         self.profile1 = Profile(calcFrequency(k, peak, selected)[0], selected[0])
@@ -33,12 +33,6 @@ class Processing:
             self.profile2 = Profile(calcFrequency(k, peak, selected)[1], selected[1])
 
         self.seq_len = getSeqLength(selected[0])
-
-        # smallest sequence length between both files is set as default
-        # if seq1_len < seq2_len:
-        #     self.seq_len = seq1_len
-        # else:
-        #     self.seq_len = seq2_len
 
         len_p1 = len(self.profile1.getProfile())  # dict length
         if not cmd:

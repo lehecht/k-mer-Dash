@@ -185,6 +185,7 @@ if __name__ == '__main__':
 
     if not args.sfs is None:  # if file-list option is used
         struct_sfs_list = [f.name for f in args.sfs]
+        struct_list = struct_sfs_list
         try:
             for f in struct_sfs_list:
                 checkFileExtension(f, True)  # check file extension
@@ -203,6 +204,7 @@ if __name__ == '__main__':
         if os.path.isdir(args.sd):
             try:
                 struct_sd_list = selectAllFastaFiles(args.sd, True)  # select all Fasta-files
+                struct_list = struct_sd_list
                 for f in struct_sd_list:
                     checkSecFileFormat(f)
             except ValueError as ve:
@@ -216,6 +218,7 @@ if __name__ == '__main__':
                 sys.exit(0)
     if not args.sf is None:  # if single file option was used
         struct_sf_list = [args.sf]
+        struct_list = struct_sf_list
         try:
             checkSecFileFormat(args.sf)
         except InputValueException as ive:
@@ -255,7 +258,7 @@ if __name__ == '__main__':
             print(fnf.args[0])
     else:
         try:
-            dashLayout.startDash(file_list, args.port)
+            dashLayout.startDash(file_list, args.port,struct_list)
         except InputValueException as ive:
             print(ive.args[0])
         except FileNotFoundError as fnf:

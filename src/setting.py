@@ -7,7 +7,7 @@ class Setting:
     peak = 0  # peak: peak: peak-position, where sequences should be aligned
     top = 0  # top: number of best values
 
-    def __init__(self, data, selected, secStruct_data, k, peak, top, feature):
+    def __init__(self, data, selected, k, peak, top, feature, secStruct_data):
         self.data = data
         self.selected = selected
         self.k = k

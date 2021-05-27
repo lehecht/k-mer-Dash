@@ -9,7 +9,7 @@ import math
 # peak: peak: peak-position, where sequences should be aligned
 # top: number of best values
 def printData(data, k, peak, top):
-    process = Processing(data, data, k, peak, top, None,True)
+    process = Processing(data, data, k, peak, top, None,True,None)
     printPairwAlignment(process)
     printKMerFrequency(process)
 
