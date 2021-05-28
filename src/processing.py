@@ -25,39 +25,24 @@ class Processing:
     # cmd: bool, determines if second profile should be created
     def __init__(self, data, selected, k, peak, top, feature, cmd, struct_data):
         if selected is not None:
-            self.setting = Setting(data, selected, k, peak, top, feature,struct_data)
-
-        # calculates kmer-frequency dictionaries
-        self.profile1 = Profile(calcFrequency(k, peak, selected)[0], selected[0])
-        if not cmd:
-            self.profile2 = Profile(calcFrequency(k, peak, selected)[1], selected[1])
-
-        self.seq_len = getSeqLength(selected[0])
-
-        len_p1 = len(self.profile1.getProfile())  # dict length
-        if not cmd:
-            len_p2 = len(self.profile2.getProfile())
-
-        # checks if top-value is greater than one of profile lengths
-        # if so, top is set on None
+            self.setting = Setting(data, selected, k, peak, top, feature, struct_data)
 
         top_value_msg1 = "INFO: top-value is greater than amount of calculated entries for one or more files."
         top_value_msg2 = "All entries will be displayed."
 
         if not cmd:
+            self.profile1 = Profile(calcFrequency(k, peak, selected)[0], selected[0])
+            self.profile2 = Profile(calcFrequency(k, peak, selected)[1], selected[1])
+
+            len_p1 = len(self.profile1.getProfile())  # dict length
+            len_p2 = len(self.profile2.getProfile())
+
             if (not top is None) and (top > len_p1 or top > len_p2) and ((len_p1 is not 0) and (len_p2 is not 0)):
                 print(top_value_msg1)
                 print(top_value_msg2)
                 self.setting.setTop(None)
                 top = None
-        else:
-            if (not top is None) and (top > len_p1) and (len_p1 is not 0):
-                print(top_value_msg1)
-                print(top_value_msg2)
-                self.setting.setTop(None)
-                top = None
 
-        if not cmd:
             # calculates dataframe
             self.df = createDataFrame(self.profile1, self.profile2, selected)
 
@@ -73,7 +58,19 @@ class Processing:
                 self.all_triplets.extend([''.join(comb[i]) for i in range(0, len(comb))])
 
         else:
+            self.profile1 = Profile(calcFrequency(k, peak, selected)[0], selected[0])
+
+            len_p1 = len(self.profile1.getProfile())  # dict length
+
+            if (not top is None) and (top > len_p1) and (len_p1 is not 0):
+                print(top_value_msg1)
+                print(top_value_msg2)
+                self.setting.setTop(None)
+                top = None
+
             self.top_kmer_df = calcTopKmer(top, self.profile1, None)
+
+        self.seq_len = getSeqLength(selected[0])
 
         # abstract method
 
