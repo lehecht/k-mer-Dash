@@ -3,6 +3,7 @@ import dash_core_components as dcc
 import dash_table
 import dash_html_components as html
 import dash_bootstrap_components as dbc
+import forgi
 import pandas as pd
 import os
 from dash.exceptions import PreventUpdate
@@ -459,10 +460,21 @@ def show_selected_sequences(data):
     if data is None:
         raise PreventUpdate
 
-    sequences = [{
-        'sequence': 'AUGGGCCCGGGCCCAAUGGGCCCGGGCCCA',
-        'structure': '.((((((())))))).((((((()))))))'
-    }]
+    # sequences = [{
+    #     'sequence': 'AUGGGCCCGGGCCCAAUGGGCCCGGGCCCA',
+    #     'structure': '.((((((())))))).((((((()))))))'
+    # }]
+
+    # cg, = forgi.load_rna('/home/lee/Schreibtisch/k-mer-Dash/test2.fa')
+    # test2 = cg.dot_bracket_string()
+    # # test3 = cg.total_length()
+    # print(test2)
+
+    # sequences = [{
+    #     'sequence': test2,
+    #     'structure': '.((((((())))))).((((((()))))))'
+    # }]
+
     return sequences
 
 

@@ -8,9 +8,13 @@ import pandas as pd
 # k: kmer-length
 # peak: peak-position, where sequences should be aligned
 # selected: input files
-def calcFrequency(k, peak, selected):
+def calcFrequency(k, peak, selected, struct):
     profile1 = dict()  # for file1
-    profile2 = dict()  # for file2
+    if not struct:
+        profile2 = dict()  # for file2
+    else:
+        profile2 = [] # saves alphabet of structural fasta-files
+
     kmer = ''
     for file in selected:  # selects data
         if file == selected[0]:  # Name of first File
@@ -28,6 +32,11 @@ def calcFrequency(k, peak, selected):
                 raise InputValueException(  # is thrown if k is greater or equal than sequence length
                     "ERROR: Invalid k. Must be smaller than sequence length")
             # kmer frequency counting:
+            if struct:
+                sequence = sequence.upper()
+                for c in sequence:
+                    if c not in profile2 and not c in "E":
+                        profile2.append(c)
             for i in range(0, (seq_length - k + 1)):
                 if i == 0:
                     kmer = sequence[0:k]  # init first kmer

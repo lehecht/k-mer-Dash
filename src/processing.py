@@ -10,6 +10,8 @@ import os
 class Processing:
     profile1 = None  # dictionary for kmers and their frequencies for file1
     profile2 = None  # dictionary for kmers and their frequencies for file2
+    struct_profile = None
+    struct_alphabet = None
     setting = None  # object containing all information, which are needed for calculation
     df = None  # table which contains kmer-frequencies as coordinates (kmer: x:(file1) = fre1,y:(file2)= fre2)
     top_kmer_df = None  # table of top kmers
@@ -31,8 +33,8 @@ class Processing:
         top_value_msg2 = "All entries will be displayed."
 
         if not cmd:
-            self.profile1 = Profile(calcFrequency(k, peak, selected)[0], selected[0])
-            self.profile2 = Profile(calcFrequency(k, peak, selected)[1], selected[1])
+            self.profile1 = Profile(calcFrequency(k, peak, selected,False)[0], selected[0])
+            self.profile2 = Profile(calcFrequency(k, peak, selected,False)[1], selected[1])
 
             len_p1 = len(self.profile1.getProfile())  # dict length
             len_p2 = len(self.profile2.getProfile())
@@ -57,8 +59,12 @@ class Processing:
                 comb = list(set(permutations(trip)))
                 self.all_triplets.extend([''.join(comb[i]) for i in range(0, len(comb))])
 
+            self.struct_profile, self.struct_alphabet = calcFrequency(k,None,[str(struct_data[0])],True)
+
+
+
         else:
-            self.profile1 = Profile(calcFrequency(k, peak, selected)[0], selected[0])
+            self.profile1 = Profile(calcFrequency(k, peak, selected,False)[0], selected[0])
 
             len_p1 = len(self.profile1.getProfile())  # dict length
 
@@ -83,6 +89,9 @@ class Processing:
     def getProfilObj2(self):
         return self.profile2
 
+    def getStructProfil(self):
+        return self.struct_profile
+
     def getSettings(self):
         return self.setting
 
@@ -97,3 +106,6 @@ class Processing:
 
     def getSeqLen(self):
         return self.seq_len
+
+    def getStructAlphabet(self):
+        return self.struct_alphabet

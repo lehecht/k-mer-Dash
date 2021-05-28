@@ -5,6 +5,8 @@ from src.processing import Processing
 import src.layout.plot_theme_templates as ptt
 import plotly.express as px
 
+from src.secStructure import SecStructure
+
 
 # starts preprocess to calculate kmer-frequencies,etc
 # data: file list
@@ -15,6 +17,7 @@ import plotly.express as px
 # feature: number of T or kmer-Frequency for pcas
 def initData(data, selected, k, peak, top, feature, secStruct_data):
     process = Processing(data, selected, k, peak, top, feature, False, secStruct_data)
+    SecStructure.createTemplate(process)
     return process
 
 
