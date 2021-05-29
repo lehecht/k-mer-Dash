@@ -1,6 +1,7 @@
 from src.kMerAlignmentData import KMerAlignmentData
 from src.kMerPCAData import KMerPCAData
 from src.kMerScatterPlotData import KMerScatterPlotData
+from src.secStructure import SecStructure
 from src.processing import Processing
 import src.layout.plot_theme_templates as ptt
 import plotly.express as px
@@ -19,6 +20,10 @@ def initData(data, selected, k, peak, top, feature, secStruct_data):
     process = Processing(data, selected, k, peak, top, feature, False, secStruct_data)
     SecStructure.createTemplate(process)
     return process
+
+
+def getTemplateSecondaryStructuer(process):
+    return SecStructure.createTemplate(process)
 
 
 # gets alignment data

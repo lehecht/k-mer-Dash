@@ -21,7 +21,7 @@ struct_data = None
 # starts dash
 # file_list: input data
 # port: port
-def startDash(files, port,secStruct_data):
+def startDash(files, port, secStruct_data):
     global file_list
     global struct_data
     file_list = files
@@ -181,11 +181,19 @@ app.layout = dbc.Container([
                             dcc.Tab(label="RNA-Structure", value='r-tab', id="s-tab2", children=[
                                 dbc.Card(
                                     dashbio.FornaContainer(
-                                        id='forna',height='300',width='400'
+                                        id='forna', height='300', width='400'
                                     ),
-                                className="w-100 p-3"
+                                    className="w-100 p-3"
                                 ),
                             ]),
+                            dcc.Tab(label="RNA-Structure", value='r-tab2', id="s-tab3", children=[
+                                dbc.Card(
+                                    dashbio.FornaContainer(
+                                        id='forna2', height='300', width='400'
+                                    ),
+                                    className="w-100 p-3"
+                                ),
+                            ])
                         ]),
                     ],
                         color="primary", spinner_style={'position': 'absolute',
@@ -287,7 +295,7 @@ def updateData(f1, f2, k, peak, top, pca_feature, data):
     else:
         selected = [file_list[int(f1)], file_list[int(f2)]]
 
-    new_process = initializeData.initData(selected, selected, k, peak, top, pca_feature,struct_data)
+    new_process = initializeData.initData(selected, selected, k, peak, top, pca_feature, struct_data)
 
     # calculate top-table
     top_k = Processing.getTopKmer(new_process).copy()
@@ -364,7 +372,11 @@ def updateData(f1, f2, k, peak, top, pca_feature, data):
 
     seq_len = new_process.getSeqLen()
 
-    data = {'topK': top_k_table, 'msas': msas, 'scatter': scatter, 'pcas': pcas, 'seqLen': seq_len}
+    template, db = initializeData.getTemplateSecondaryStructuer(new_process)
+
+    data = {'topK': top_k_table, 'msas': msas, 'scatter': scatter, 'pcas': pcas, 'seqLen': seq_len,
+            'template': template,
+            'db': db}
 
     return data
 
@@ -460,20 +472,10 @@ def show_selected_sequences(data):
     if data is None:
         raise PreventUpdate
 
-    # sequences = [{
-    #     'sequence': 'AUGGGCCCGGGCCCAAUGGGCCCGGGCCCA',
-    #     'structure': '.((((((())))))).((((((()))))))'
-    # }]
-
-    # cg, = forgi.load_rna('/home/lee/Schreibtisch/k-mer-Dash/test2.fa')
-    # test2 = cg.dot_bracket_string()
-    # # test3 = cg.total_length()
-    # print(test2)
-
-    # sequences = [{
-    #     'sequence': test2,
-    #     'structure': '.((((((())))))).((((((()))))))'
-    # }]
+    sequences = [{
+        'sequence': data['template'],
+        'structure': data['db']
+    }]
 
     return sequences
 
