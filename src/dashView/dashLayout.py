@@ -109,6 +109,14 @@ app.layout = dbc.Container([
                         options=[]),
                     html.Br(),
                     html.Br(),
+                    # ------------------------------------- Select Structure Files -------------------------------------
+                    html.H6("Selected Structure Files:"),
+                    dbc.Select(
+                        id="file3",
+                        options=[]),
+                    dbc.Select(
+                        id="file4",
+                        options=[]),
                     html.Br(),
                     html.Br(),
                     # ------------------------------------------- K ----------------------------------------------------
@@ -270,6 +278,8 @@ app.layout = dbc.Container([
     dash.dependencies.Output('memory', 'data'),
     dash.dependencies.Input('file1', 'value'),
     dash.dependencies.Input('file2', 'value'),
+    dash.dependencies.Input('file3', 'value'),
+    dash.dependencies.Input('file4', 'value'),
     dash.dependencies.Input('k', 'value'),
     dash.dependencies.Input('peak', 'value'),
     dash.dependencies.Input('top', 'value'),
@@ -282,7 +292,7 @@ app.layout = dbc.Container([
 # top: number of best values
 # pca_feature: number of T or kmer-Frequency for pcas
 # data: storage to share data between callbacks
-def updateData(f1, f2, k, peak, top, pca_feature, data):
+def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, data):
     top_opt_val = {'0': 10, '1': 20, '2': 50, '3': 100}
 
     top = top_opt_val[top]
@@ -292,10 +302,12 @@ def updateData(f1, f2, k, peak, top, pca_feature, data):
 
     if data is None:
         selected = [file_list[0], file_list[1]]
+        selected_struc = [struct_data[0], struct_data[1]]
     else:
         selected = [file_list[int(f1)], file_list[int(f2)]]
+        selected_struc = [struct_data[int(f3)], struct_data[int(f4)]]
 
-    new_process = initializeData.initData(selected, selected, k, peak, top, pca_feature, struct_data)
+    new_process = initializeData.initData(selected, selected, k, peak, top, pca_feature, selected_struc)
 
     # calculate top-table
     top_k = Processing.getTopKmer(new_process).copy()
@@ -402,7 +414,7 @@ def initialSelect(ts):
     dash.dependencies.Input("file2", "value"),
 ])
 def updateFile1Dropdown(f2):
-    return updateFileList(f2)
+    return updateFileList(f2, False)
 
 
 @app.callback([
@@ -410,16 +422,57 @@ def updateFile1Dropdown(f2):
     dash.dependencies.Input("file1", "value"),
 ])
 def updateFile2Dropdown(f1):
-    return updateFileList(f1)
+    return updateFileList(f1, False)
 
 
-def updateFileList(val):
+def updateFileList(val, struct):
+    if struct:
+        files = struct_data
+    else:
+        files = file_list
+
     option = [
-        {'label': os.path.basename(file_list[i]), 'value': str(i)} if not (str(i) == val)
-        else {'label': os.path.basename(file_list[i]), 'value': str(i), 'disabled': True}
-        for i in range(0, len(file_list))]
+        {'label': os.path.basename(files[i]), 'value': str(i)} if not (str(i) == val)
+        else {'label': os.path.basename(files[i]), 'value': str(i), 'disabled': True}
+        for i in range(0, len(files))]
 
     return [option]
+
+
+# --------------------------------------- Structure File Dropdown Updater ----------------------------------------------
+@app.callback([
+    dash.dependencies.Output("file3", "value"),
+    dash.dependencies.Output("file4", "value"),
+    dash.dependencies.Input('memory', 'modified_timestamp'),
+])
+def initialStructSelect(ts):
+    if ts is None:
+        if struct_data is None:
+            f3 = {"label": "-", "value": "0", "disabled": True}
+            f4 = {"label": "-", "value": "0", "disabled": True}
+        else:
+            f3 = "0"
+            f4 = "1"
+    else:
+        raise PreventUpdate
+
+    return f3, f4
+
+
+@app.callback([
+    dash.dependencies.Output("file3", "options"),
+    dash.dependencies.Input("file4", "value"),
+])
+def updateFile4Dropdown(f4):
+    return updateFileList(f4, True)
+
+
+@app.callback([
+    dash.dependencies.Output("file4", "options"),
+    dash.dependencies.Input("file3", "value"),
+])
+def updateFile3Dropdown(f3):
+    return updateFileList(f3, True)
 
 
 # --------------------------------------- Slider Values Updater --------------------------------------------------------

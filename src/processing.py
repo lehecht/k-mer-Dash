@@ -59,7 +59,8 @@ class Processing:
                 comb = list(set(permutations(trip)))
                 self.all_triplets.extend([''.join(comb[i]) for i in range(0, len(comb))])
 
-            self.struct_profile, self.struct_alphabet = calcFrequency(k,None,[str(struct_data[0])],True)
+            if not struct_data is None:
+                self.struct_profile, self.struct_alphabet = calcFrequency(k,None,[str(struct_data[0])],True)
 
 
 

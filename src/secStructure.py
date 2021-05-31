@@ -8,7 +8,7 @@ class SecStructure(Processing):
 
     def createTemplate(self):
         k = self.getSettings().getK()
-        alphabet = self.getStructAlphabet1()
+        alphabet = self.getStructAlphabet()
 
         hairpin = bool("H" in alphabet)
         multiloop = bool("M" in alphabet)
