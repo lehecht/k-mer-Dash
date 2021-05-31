@@ -218,7 +218,7 @@ if __name__ == '__main__':
                 print(ive.args[0])
                 sys.exit(0)
     if not args.sf is None:  # if single file option was used
-        struct_sf_list = [args.sf]
+        struct_sf_list = [args.sf.name]
         struct_list = struct_sf_list
         try:
             checkSecFileFormat(args.sf)

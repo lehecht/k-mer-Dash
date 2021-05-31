@@ -10,8 +10,10 @@ import os
 class Processing:
     profile1 = None  # dictionary for kmers and their frequencies for file1
     profile2 = None  # dictionary for kmers and their frequencies for file2
-    struct_profile = None
-    struct_alphabet = None
+    struct_profile1 = None
+    struct_profile2 = None
+    struct_alphabet1 = None
+    struct_alphabet2 = None
     setting = None  # object containing all information, which are needed for calculation
     df = None  # table which contains kmer-frequencies as coordinates (kmer: x:(file1) = fre1,y:(file2)= fre2)
     top_kmer_df = None  # table of top kmers
@@ -60,7 +62,10 @@ class Processing:
                 self.all_triplets.extend([''.join(comb[i]) for i in range(0, len(comb))])
 
             if not struct_data is None:
-                self.struct_profile, self.struct_alphabet = calcFrequency(k,None,[str(struct_data[0])],True)
+                self.struct_profile1, self.struct_alphabet1 = calcFrequency(k, None, [str(struct_data[0])], True)
+                if len(struct_data) > 1:
+                    self.struct_profile2, self.struct_alphabet2 = calcFrequency(k, None, [str(struct_data[1])], True)
+
 
 
 
@@ -90,8 +95,11 @@ class Processing:
     def getProfilObj2(self):
         return self.profile2
 
-    def getStructProfil(self):
-        return self.struct_profile
+    def getStructProfil1(self):
+        return self.struct_profile1
+
+    def getStructProfil2(self):
+        return self.struct_profile2
 
     def getSettings(self):
         return self.setting
@@ -108,5 +116,9 @@ class Processing:
     def getSeqLen(self):
         return self.seq_len
 
-    def getStructAlphabet(self):
-        return self.struct_alphabet
+    def getStructAlphabet1(self):
+        return self.struct_alphabet1
+
+    def getStructAlphabet2(self):
+        return self.struct_alphabet2
+

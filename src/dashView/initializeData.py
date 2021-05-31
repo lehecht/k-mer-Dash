@@ -18,12 +18,24 @@ from src.secStructure import SecStructure
 # feature: number of T or kmer-Frequency for pcas
 def initData(data, selected, k, peak, top, feature, secStruct_data):
     process = Processing(data, selected, k, peak, top, feature, False, secStruct_data)
-    SecStructure.createTemplate(process)
     return process
 
 
 def getTemplateSecondaryStructuer(process):
-    return SecStructure.createTemplate(process)
+    alphabet1 = process.getStructAlphabet1()
+
+    if not alphabet1 is None:
+        alphabet2 = process.getStructAlphabet2()
+
+        s1 = SecStructure.createTemplate(process, alphabet1)
+
+        if not alphabet2 is None:
+            s2 = SecStructure.createTemplate(process, alphabet2)
+            return s1, s2
+        else:
+            return s1, None
+    else:
+        return None, None
 
 
 # gets alignment data

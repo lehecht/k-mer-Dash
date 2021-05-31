@@ -6,9 +6,8 @@ class SecStructure(Processing):
     def __init__(self, data, selected, k, peak, top, feature, cmd, secStruct_data):
         super().__init__(data, selected, k, peak, top, feature, cmd, secStruct_data)
 
-    def createTemplate(self):
+    def createTemplate(self,alphabet):
         k = self.getSettings().getK()
-        alphabet = self.getStructAlphabet()
 
         hairpin = bool("H" in alphabet)
         multiloop = bool("M" in alphabet)

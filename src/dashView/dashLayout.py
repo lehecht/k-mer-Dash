@@ -113,10 +113,12 @@ app.layout = dbc.Container([
                     html.H6("Selected Structure Files:"),
                     dbc.Select(
                         id="file3",
-                        options=[]),
+                        options=[{"label": "-", "value": "0"}],
+                        value="0"),
                     dbc.Select(
                         id="file4",
-                        options=[]),
+                        options=[{"label": "-", "value": "0"}],
+                        value="0"),
                     html.Br(),
                     html.Br(),
                     # ------------------------------------------- K ----------------------------------------------------
@@ -186,7 +188,7 @@ app.layout = dbc.Container([
                             dcc.Tab(label="Scatterplot", value='s-tab', id="s-tab1", children=[
                                 dcc.Graph(figure={}, id="scatter", style={'height': '40vh'})
                             ]),
-                            dcc.Tab(label="RNA-Structure", value='r-tab', id="s-tab2", children=[
+                            dcc.Tab(label="RNA-Structure", value='r-tab', id="s-tab2" , children=[
                                 dbc.Card(
                                     dashbio.FornaContainer(
                                         id='forna', height='300', width='400'
@@ -297,15 +299,25 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, data):
 
     top = top_opt_val[top]
 
+    selected_struc = None
+
     if peak is 0:
         peak = None
 
     if data is None:
         selected = [file_list[0], file_list[1]]
-        selected_struc = [struct_data[0], struct_data[1]]
+
+        if not struct_data is None:
+            if len(struct_data) > 1:
+                selected_struc = [struct_data[0], struct_data[1]]
+            else:
+                selected_struc = [struct_data[0]]
     else:
         selected = [file_list[int(f1)], file_list[int(f2)]]
-        selected_struc = [struct_data[int(f3)], struct_data[int(f4)]]
+        if len(struct_data) > 1:
+            selected_struc = [struct_data[int(f3)], struct_data[int(f4)]]
+        else:
+            selected_struc = [struct_data[int(f3)]]
 
     new_process = initializeData.initData(selected, selected, k, peak, top, pca_feature, selected_struc)
 
@@ -384,11 +396,21 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, data):
 
     seq_len = new_process.getSeqLen()
 
-    template, db = initializeData.getTemplateSecondaryStructuer(new_process)
+    struct1, struct2 = initializeData.getTemplateSecondaryStructuer(new_process)
+
+    if not struct1 is None and not struct2 is None:
+        templates = [struct1[0], struct2[0]]
+        dbs = [struct1[1], struct2[1]]
+    elif not struct1 is None:
+        templates = [struct1[0]]
+        dbs = [struct1[1]]
+    else:
+        templates = []
+        dbs = []
 
     data = {'topK': top_k_table, 'msas': msas, 'scatter': scatter, 'pcas': pcas, 'seqLen': seq_len,
-            'template': template,
-            'db': db}
+            'templates': templates,
+            'dbs': dbs}
 
     return data
 
@@ -426,8 +448,10 @@ def updateFile2Dropdown(f1):
 
 
 def updateFileList(val, struct):
-    if struct:
+    if struct and not struct_data is None:
         files = struct_data
+    elif struct and struct_data is None:
+        return [{"label": "-", "value": "0"}]
     else:
         files = file_list
 
@@ -446,13 +470,9 @@ def updateFileList(val, struct):
     dash.dependencies.Input('memory', 'modified_timestamp'),
 ])
 def initialStructSelect(ts):
-    if ts is None:
-        if struct_data is None:
-            f3 = {"label": "-", "value": "0", "disabled": True}
-            f4 = {"label": "-", "value": "0", "disabled": True}
-        else:
-            f3 = "0"
-            f4 = "1"
+    if ts is None and not struct_data is None:
+        f3 = "0"
+        f4 = "1"
     else:
         raise PreventUpdate
 
@@ -472,7 +492,10 @@ def updateFile4Dropdown(f4):
     dash.dependencies.Input("file3", "value"),
 ])
 def updateFile3Dropdown(f3):
-    return updateFileList(f3, True)
+    if not struct_data is None and len(struct_data) > 1:
+        return updateFileList(f3, True)
+    else:
+        raise PreventUpdate
 
 
 # --------------------------------------- Slider Values Updater --------------------------------------------------------
@@ -515,22 +538,56 @@ def updateSliderRange(file1, file2, ts, data):
     return k_p_slider_min, k_slider_max, k_range, peak_min, k_p_slider_max, peak_range
 
 
-# ---------------------- test
+# ----------------------------------------- Forna-Container Update -----------------------------------------------------
 
 @app.callback(
     dash.dependencies.Output('forna', 'sequences'),
+    dash.dependencies.Output('s-tab2', 'disabled'),
+    dash.dependencies.Output('forna2', 'sequences'),
+    dash.dependencies.Output('s-tab3', 'disabled'),
     [dash.dependencies.Input('memory', 'data')]
 )
 def show_selected_sequences(data):
     if data is None:
         raise PreventUpdate
 
-    sequences = [{
-        'sequence': data['template'],
-        'structure': data['db']
-    }]
+    template_list = data['templates']
+    dotbracket_list = data['dbs']
+    disable_t1 = False
+    disable_t2 = False
 
-    return sequences
+    if not struct_data is None:
+
+        template1 = [{
+            'sequence': template_list[0],
+            'structure': dotbracket_list[0]
+        }]
+
+        if len(template_list) > 1:
+            template2 = [{
+                'sequence': template_list[1],
+                'structure': dotbracket_list[1]
+            }]
+        else:
+            template2 = [{
+                'sequence': "",
+                'structure': ""
+            }]
+            disable_t2 = True
+
+    else:
+        template1 = [{
+            'sequence': "",
+            'structure': ""
+        }]
+        template2 = [{
+            'sequence': "",
+            'structure': ""
+        }]
+        disable_t1 = True
+        disable_t2 = True
+
+    return template1, disable_t1, template2, disable_t2
 
 
 # --------------------------------------------- Diagram/Table Updater --------------------------------------------------
