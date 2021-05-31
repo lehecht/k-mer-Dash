@@ -27,13 +27,13 @@ def getTemplateSecondaryStructuer(process):
 
     if not structProfile1 is None:
         alphabet1 = structProfile1.getAlphabet()
-        alphabet2 = structProfile2.getAlphabet()
 
         s1 = SecStructure.createTemplate(process, alphabet1)
         structProfile1.setTemplate(s1[0])
         structProfile1.setDotbracket(s1[1])
 
         if not structProfile2 is None:
+            alphabet2 = structProfile2.getAlphabet()
             s2 = SecStructure.createTemplate(process, alphabet2)
             structProfile2.setTemplate(s2[0])
             structProfile2.setDotbracket(s2[1])
@@ -44,7 +44,7 @@ def getTemplateSecondaryStructuer(process):
             color1, color2 = SecStructure.createHeatMapColoring(process)
             return s1, None, color1, None
     else:
-        return None, None,None, None
+        return None, None, None, None
 
 
 # gets alignment data

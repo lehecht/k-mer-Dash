@@ -61,20 +61,25 @@ class SecStructure(Processing):
     def createHeatMapColoring(self):
         k = self.getSettings().getK()
 
-        template1 = self.getStructProfil1().getTemplate()
-        template2 = self.getStructProfil2().getTemplate()
+        struct_template1 = self.getStructProfil1()
+        struct_template2 = self.getStructProfil2()
+
+        template1 = struct_template1.getTemplate()
 
         struct_kmer_list1 = self.getStructProfil1().getProfile()
-        struct_kmer_list2 = self.getStructProfil2().getProfile()
-
         template1_sTree = STree.STree(template1)
-        template2_sTree = STree.STree(template2)
 
-        color_hm1 = {str(i): 0 for i in range(0, len(template1))}
-        color_hm2 = {str(i): 0 for i in range(0, len(template2))}
-
+        color_hm1 = {str(i): 0 for i in range(1, len(template1) + 1)}
         color_hm1, not_matched_kmer1 = createColorVector(k, template1_sTree, struct_kmer_list1, color_hm1)
-        color_hm2, not_matched_kmer2 = createColorVector(k, template1_sTree, struct_kmer_list1, color_hm1)
+
+        if not struct_template2 is None:
+            template2 = struct_template2.getTemplate()
+            struct_kmer_list2 = self.getStructProfil2().getProfile()
+            template2_sTree = STree.STree(template2)
+            color_hm2 = {str(i): 0 for i in range(1, len(template2) + 1)}
+            color_hm2, not_matched_kmer2 = createColorVector(k, template2_sTree, struct_kmer_list2, color_hm2)
+        else:
+            color_hm2 = None
 
         return color_hm1, color_hm2
 
@@ -86,9 +91,12 @@ def createColorVector(k, tree, kmer_list, color_hm):
         idx = tree.find(kmer)
         if idx >= 0:
             for i in range(0, k):
-                color_hm[str(idx + i)] += 1
+                color_hm[str(idx + i + 1)] += kmer_list[kmer]
         else:
             not_matched_kmer.append(kmer)
+    max_key = max(color_hm, key=lambda key: color_hm[key])
+    max_val = color_hm[max_key]
+    color_hm = {x: (y / max_val) * 400 for x, y in color_hm.items()}
 
     return color_hm, not_matched_kmer
 

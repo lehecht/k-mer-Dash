@@ -199,7 +199,7 @@ app.layout = dbc.Container([
                             dcc.Tab(label="RNA-Structure", value='r-tab2', id="s-tab3", children=[
                                 dbc.Card(
                                     dashbio.FornaContainer(
-                                        id='forna2', height='300', width='400'
+                                        id='forna2', height='300', width='400',colorScheme='custom'
                                     ),
                                     className="w-100 p-3"
                                 ),
@@ -396,7 +396,7 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, data):
 
     seq_len = new_process.getSeqLen()
 
-    struct1, struct2 = initializeData.getTemplateSecondaryStructuer(new_process)
+    struct1, struct2, color1, color2 = initializeData.getTemplateSecondaryStructuer(new_process)
 
     if not struct1 is None and not struct2 is None:
         templates = [struct1[0], struct2[0]]
@@ -409,8 +409,7 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, data):
         dbs = []
 
     data = {'topK': top_k_table, 'msas': msas, 'scatter': scatter, 'pcas': pcas, 'seqLen': seq_len,
-            'templates': templates,
-            'dbs': dbs}
+            'templates': templates, 'dbs': dbs, 'colors': [color1, color2]}
 
     return data
 
@@ -545,7 +544,7 @@ def updateSliderRange(file1, file2, ts, data):
     dash.dependencies.Output('forna', 'customColors'),
     dash.dependencies.Output('s-tab2', 'disabled'),
     dash.dependencies.Output('forna2', 'sequences'),
-    # dash.dependencies.Output('forna2', 'customColors'),
+    dash.dependencies.Output('forna2', 'customColors'),
     dash.dependencies.Output('s-tab3', 'disabled'),
     [dash.dependencies.Input('memory', 'data')]
 )
@@ -557,17 +556,21 @@ def show_selected_sequences(data):
     dotbracket_list = data['dbs']
     disable_t1 = False
     disable_t2 = False
+    color1 = data['colors'][0]
+    color2 = data['colors'][1]
 
-    custom_colors = {
-        'domain': [0, 100],
-        'range': ['red','rgb(50, 0, 255)'],
-        'colorValues': {
-            'template1': {"1":10,"2":50,"3":100,"4":250,"5":500,"6":0}
-
-        }
-    }
+    custom_colors = None
 
     if not struct_data is None:
+
+        custom_colors = {
+            'domain': [0, 500],
+            'range': ['rgb(50, 0, 255)', 'red'],
+            'colorValues': {
+                'template1': color1,
+                'template2': color2,
+            }
+        }
 
         template1 = [{
             'sequence': template_list[0],
@@ -600,7 +603,7 @@ def show_selected_sequences(data):
         disable_t1 = True
         disable_t2 = True
 
-    return template1, custom_colors, disable_t1, template2, disable_t2
+    return template1, custom_colors, disable_t1, template2, custom_colors, disable_t2
 
 
 # --------------------------------------------- Diagram/Table Updater --------------------------------------------------
