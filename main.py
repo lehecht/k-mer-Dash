@@ -152,6 +152,7 @@ if __name__ == '__main__':
     struct_sfs_list = None
     struct_sd_list = None
     struct_sf_list = None
+    struct_list = None
 
     if not args.fs is None:  # if file-list option is used
         file_list = [f.name for f in args.fs]
