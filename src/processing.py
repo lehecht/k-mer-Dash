@@ -2,6 +2,7 @@ from src.setting import *
 from src.fileCountException import *
 from src.calcKmerLists import *
 from src.profile import Profile
+from src.structProfile import StructProfile
 from itertools import combinations_with_replacement, permutations
 import os
 
@@ -12,8 +13,8 @@ class Processing:
     profile2 = None  # dictionary for kmers and their frequencies for file2
     struct_profile1 = None
     struct_profile2 = None
-    struct_alphabet1 = None
-    struct_alphabet2 = None
+    # struct_alphabet1 = None
+    # struct_alphabet2 = None
     setting = None  # object containing all information, which are needed for calculation
     df = None  # table which contains kmer-frequencies as coordinates (kmer: x:(file1) = fre1,y:(file2)= fre2)
     top_kmer_df = None  # table of top kmers
@@ -62,9 +63,12 @@ class Processing:
                 self.all_triplets.extend([''.join(comb[i]) for i in range(0, len(comb))])
 
             if not struct_data is None:
-                self.struct_profile1, self.struct_alphabet1 = calcFrequency(k, None, [str(struct_data[0])], True)
+                # self.struct_profile1, self.struct_alphabet1 = calcFrequency(k, None, [str(struct_data[0])], True)
+                struct_kmer_list1, struct_alphabet1 = calcFrequency(k, None, [str(struct_data[0])], True)
+                self.struct_profile1 = StructProfile(struct_kmer_list1,str(struct_data[0]),struct_alphabet1)
                 if len(struct_data) > 1:
-                    self.struct_profile2, self.struct_alphabet2 = calcFrequency(k, None, [str(struct_data[1])], True)
+                    struct_kmer_list2, struct_alphabet2 = calcFrequency(k, None, [str(struct_data[1])], True)
+                    self.struct_profile2 = StructProfile(struct_kmer_list2, str(struct_data[1]), struct_alphabet2)
 
 
 
@@ -116,9 +120,9 @@ class Processing:
     def getSeqLen(self):
         return self.seq_len
 
-    def getStructAlphabet1(self):
-        return self.struct_alphabet1
-
-    def getStructAlphabet2(self):
-        return self.struct_alphabet2
-
+    # def getStructAlphabet1(self):
+    #     return self.struct_alphabet1
+    #
+    # def getStructAlphabet2(self):
+    #     return self.struct_alphabet2
+    #

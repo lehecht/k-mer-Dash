@@ -188,10 +188,10 @@ app.layout = dbc.Container([
                             dcc.Tab(label="Scatterplot", value='s-tab', id="s-tab1", children=[
                                 dcc.Graph(figure={}, id="scatter", style={'height': '40vh'})
                             ]),
-                            dcc.Tab(label="RNA-Structure", value='r-tab', id="s-tab2" , children=[
+                            dcc.Tab(label="RNA-Structure", value='r-tab', id="s-tab2", children=[
                                 dbc.Card(
                                     dashbio.FornaContainer(
-                                        id='forna', height='300', width='400'
+                                        id='forna', height='300', width='400', colorScheme='custom'
                                     ),
                                     className="w-100 p-3"
                                 ),
@@ -542,8 +542,10 @@ def updateSliderRange(file1, file2, ts, data):
 
 @app.callback(
     dash.dependencies.Output('forna', 'sequences'),
+    dash.dependencies.Output('forna', 'customColors'),
     dash.dependencies.Output('s-tab2', 'disabled'),
     dash.dependencies.Output('forna2', 'sequences'),
+    # dash.dependencies.Output('forna2', 'customColors'),
     dash.dependencies.Output('s-tab3', 'disabled'),
     [dash.dependencies.Input('memory', 'data')]
 )
@@ -556,17 +558,28 @@ def show_selected_sequences(data):
     disable_t1 = False
     disable_t2 = False
 
+    custom_colors = {
+        'domain': [0, 100],
+        'range': ['red','rgb(50, 0, 255)'],
+        'colorValues': {
+            'template1': {"1":10,"2":50,"3":100,"4":250,"5":500,"6":0}
+
+        }
+    }
+
     if not struct_data is None:
 
         template1 = [{
             'sequence': template_list[0],
-            'structure': dotbracket_list[0]
+            'structure': dotbracket_list[0],
+            'options': {'name': 'template1'}
         }]
 
         if len(template_list) > 1:
             template2 = [{
                 'sequence': template_list[1],
-                'structure': dotbracket_list[1]
+                'structure': dotbracket_list[1],
+                'options': {'name': 'template2'}
             }]
         else:
             template2 = [{
@@ -587,7 +600,7 @@ def show_selected_sequences(data):
         disable_t1 = True
         disable_t2 = True
 
-    return template1, disable_t1, template2, disable_t2
+    return template1, custom_colors, disable_t1, template2, disable_t2
 
 
 # --------------------------------------------- Diagram/Table Updater --------------------------------------------------

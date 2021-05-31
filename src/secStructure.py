@@ -1,4 +1,5 @@
 from src.processing import Processing
+from suffix_trees import STree
 
 
 class SecStructure(Processing):
@@ -6,7 +7,7 @@ class SecStructure(Processing):
     def __init__(self, data, selected, k, peak, top, feature, cmd, secStruct_data):
         super().__init__(data, selected, k, peak, top, feature, cmd, secStruct_data)
 
-    def createTemplate(self,alphabet):
+    def createTemplate(self, alphabet):
         k = self.getSettings().getK()
 
         hairpin = bool("H" in alphabet)
@@ -56,6 +57,40 @@ class SecStructure(Processing):
         dotbracket_string = ''.join(dotbracket_string)
 
         return template, dotbracket_string
+
+    def createHeatMapColoring(self):
+        k = self.getSettings().getK()
+
+        template1 = self.getStructProfil1().getTemplate()
+        template2 = self.getStructProfil2().getTemplate()
+
+        struct_kmer_list1 = self.getStructProfil1().getProfile()
+        struct_kmer_list2 = self.getStructProfil2().getProfile()
+
+        template1_sTree = STree.STree(template1)
+        template2_sTree = STree.STree(template2)
+
+        color_hm1 = {str(i): 0 for i in range(0, len(template1))}
+        color_hm2 = {str(i): 0 for i in range(0, len(template2))}
+
+        color_hm1, not_matched_kmer1 = createColorVector(k, template1_sTree, struct_kmer_list1, color_hm1)
+        color_hm2, not_matched_kmer2 = createColorVector(k, template1_sTree, struct_kmer_list1, color_hm1)
+
+        return color_hm1, color_hm2
+
+
+def createColorVector(k, tree, kmer_list, color_hm):
+    not_matched_kmer = []
+
+    for kmer in kmer_list:
+        idx = tree.find(kmer)
+        if idx >= 0:
+            for i in range(0, k):
+                color_hm[str(idx + i)] += 1
+        else:
+            not_matched_kmer.append(kmer)
+
+    return color_hm, not_matched_kmer
 
 
 def helpAddIBloop(k, template, internalloop, bulge, lead):

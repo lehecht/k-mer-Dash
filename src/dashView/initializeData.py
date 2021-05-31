@@ -22,20 +22,29 @@ def initData(data, selected, k, peak, top, feature, secStruct_data):
 
 
 def getTemplateSecondaryStructuer(process):
-    alphabet1 = process.getStructAlphabet1()
+    structProfile1 = process.getStructProfil1()
+    structProfile2 = process.getStructProfil2()
 
-    if not alphabet1 is None:
-        alphabet2 = process.getStructAlphabet2()
+    if not structProfile1 is None:
+        alphabet1 = structProfile1.getAlphabet()
+        alphabet2 = structProfile2.getAlphabet()
 
         s1 = SecStructure.createTemplate(process, alphabet1)
+        structProfile1.setTemplate(s1[0])
+        structProfile1.setDotbracket(s1[1])
 
-        if not alphabet2 is None:
+        if not structProfile2 is None:
             s2 = SecStructure.createTemplate(process, alphabet2)
-            return s1, s2
+            structProfile2.setTemplate(s2[0])
+            structProfile2.setDotbracket(s2[1])
+            color1, color2 = SecStructure.createHeatMapColoring(process)
+
+            return s1, s2, color1, color2
         else:
-            return s1, None
+            color1, color2 = SecStructure.createHeatMapColoring(process)
+            return s1, None, color1, None
     else:
-        return None, None
+        return None, None,None, None
 
 
 # gets alignment data
