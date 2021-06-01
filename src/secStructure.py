@@ -1,5 +1,6 @@
 from src.processing import Processing
 from suffix_trees import STree
+import math
 
 
 class SecStructure(Processing):
@@ -64,24 +65,27 @@ class SecStructure(Processing):
         struct_template1 = self.getStructProfil1()
         struct_template2 = self.getStructProfil2()
 
+        color_domain_max1 = None
+        color_domain_max2 = None
+
         template1 = struct_template1.getTemplate()
 
         struct_kmer_list1 = self.getStructProfil1().getProfile()
         template1_sTree = STree.STree(template1)
 
         color_hm1 = {str(i): 0 for i in range(1, len(template1) + 1)}
-        color_hm1, not_matched_kmer1 = createColorVector(k, template1_sTree, struct_kmer_list1, color_hm1)
+        color_hm1, not_matched_kmer1, color_domain_max1 = createColorVector(k, template1_sTree, struct_kmer_list1, color_hm1)
 
         if not struct_template2 is None:
             template2 = struct_template2.getTemplate()
             struct_kmer_list2 = self.getStructProfil2().getProfile()
             template2_sTree = STree.STree(template2)
             color_hm2 = {str(i): 0 for i in range(1, len(template2) + 1)}
-            color_hm2, not_matched_kmer2 = createColorVector(k, template2_sTree, struct_kmer_list2, color_hm2)
+            color_hm2, not_matched_kmer2,color_domain_max2 = createColorVector(k, template2_sTree, struct_kmer_list2, color_hm2)
         else:
             color_hm2 = None
 
-        return color_hm1, color_hm2
+        return color_hm1, color_hm2, color_domain_max1, color_domain_max2
 
 
 def createColorVector(k, tree, kmer_list, color_hm):
@@ -94,11 +98,11 @@ def createColorVector(k, tree, kmer_list, color_hm):
                 color_hm[str(idx + i + 1)] += kmer_list[kmer]
         else:
             not_matched_kmer.append(kmer)
-    max_key = max(color_hm, key=lambda key: color_hm[key])
-    max_val = color_hm[max_key]
-    color_hm = {x: (y / max_val) * 400 for x, y in color_hm.items()}
+    color_hm = {x: round(math.log(y)) if y > 0 else y for x, y in color_hm.items()}
+    max_val = max(color_hm.values())
+    color_domain_max = round(max_val,-1)
 
-    return color_hm, not_matched_kmer
+    return color_hm, not_matched_kmer, color_domain_max
 
 
 def helpAddIBloop(k, template, internalloop, bulge, lead):

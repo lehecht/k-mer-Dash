@@ -37,14 +37,14 @@ def getTemplateSecondaryStructuer(process):
             s2 = SecStructure.createTemplate(process, alphabet2)
             structProfile2.setTemplate(s2[0])
             structProfile2.setDotbracket(s2[1])
-            color1, color2 = SecStructure.createHeatMapColoring(process)
+            color1, color2, color_domain_max1, color_domain_max2 = SecStructure.createHeatMapColoring(process)
 
-            return s1, s2, color1, color2
+            return s1, s2, color1, color2, color_domain_max1, color_domain_max2
         else:
-            color1, color2 = SecStructure.createHeatMapColoring(process)
-            return s1, None, color1, None
+            color1, color2, color_domain_max1, color_domain_max2 = SecStructure.createHeatMapColoring(process)
+            return s1, None, color1, None, color_domain_max1, None
     else:
-        return None, None, None, None
+        return None, None, None, None, None, None
 
 
 # gets alignment data
