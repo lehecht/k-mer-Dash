@@ -16,48 +16,72 @@ class SecStructure(Processing):
         bulge = bool("B" in alphabet)
         internalloop = bool("I" in alphabet)
 
+        result = list()
+        result.append(k * "E")
+
+
         template = list()
-        template.append(k * "E")
+        # template.append(k * "E")
 
         dotbracket_string = list()
 
-        template = helpAddIBloop(k, template, internalloop, bulge, True)
+        result_dotbracket_string = list()
+        result_dotbracket_string.extend(element2dotbracket(result, k, 0, k, True))
 
-        if hairpin:
-            hp = [k * "S", k * "H"]
-            template.extend(hp)
-        else:
-            template.append(k * "S")
+        # for i in reversed(range(3,k+1)):
+        for i in reversed(range(1,k+1)):
+            # print(i)
+            template = helpAddIBloop(i, template, internalloop, bulge, True)
 
-        l1 = len(template) - 1
-        dotbracket_string.extend(element2dotbracket(template, k, 0, l1, True))
+            if hairpin and i > 2:
+                hp = [i * "S", i * "H"]
+                template.extend(hp)
+            else:
+                template.append(i * "S")
 
-        template = helpAddIBloop(k, template, internalloop, bulge, False)
+            l1 = len(template) - 1
+            dotbracket_string.extend(element2dotbracket(template, i, 0, l1, True))
 
-        if multiloop and hairpin:
-            template.extend([k * "S", k * "M"])
+            template = helpAddIBloop(i, template, internalloop, bulge, False)
 
-            l2 = len(template) - 1
-            dotbracket_string.extend(element2dotbracket(template, k, l1 + 1, l2, False))
+            if multiloop and hairpin and i > 1:
+                template.extend([i * "S", i * "M"])
 
-            hp = [k * "S", k * "H"]
-            template.extend(hp)
+                l2 = len(template) - 1
+                dotbracket_string.extend(element2dotbracket(template, i, l1 + 1, l2, False))
 
-            l3 = len(template) - 1
-            dotbracket_string.extend(element2dotbracket(template, k, l2 + 1, l3, True))
-        else:
-            l2 = len(template) - 1
-            dotbracket_string.extend(element2dotbracket(template, k, l1 + 1, l2, False))
+                # hp = [i * "S", i * "H"]
+                # template.extend(hp)
+                #
+                # l3 = len(template) - 1
+                # dotbracket_string.extend(element2dotbracket(template, i, l2 + 1, l3, True))
+            else:
+                l2 = len(template) - 1
+                dotbracket_string.extend(element2dotbracket(template, i, l1 + 1, l2, False))
 
-        template.extend([k * "S", k * "E"])
+            result.extend(template)
+            result_dotbracket_string.extend(dotbracket_string)
 
-        l3 = len(template) - 2
-        dotbracket_string.extend(element2dotbracket(template, k, l3, len(template) - 1, False))
+            template = []
+            dotbracket_string = []
 
-        template = ''.join(template)
-        dotbracket_string = ''.join(dotbracket_string)
+        l3 = len(result)
+        result.append("S")
+        result_dotbracket_string.extend(element2dotbracket(result, 1, l3, len(result) - 1, False))
 
-        return template, dotbracket_string
+
+
+        l4 = len(result)
+        result.append(k * "E")
+        result_dotbracket_string.extend(element2dotbracket(result, k, l4, len(result) - 1, False))
+
+        result = ''.join(result)
+        result_dotbracket_string = ''.join(result_dotbracket_string)
+
+        # print(result)
+        # print(result_dotbracket_string)
+
+        return result, result_dotbracket_string
 
     def createHeatMapColoring(self):
         k = self.getSettings().getK()
@@ -85,7 +109,13 @@ class SecStructure(Processing):
         else:
             color_hm2 = None
 
+        # print(not_matched_kmer1)
+        # print()
+        # print(not_matched_kmer2)
+
         return color_hm1, color_hm2, color_domain_max1, color_domain_max2
+
+
 
 
 def createColorVector(k, tree, kmer_list, color_hm):
