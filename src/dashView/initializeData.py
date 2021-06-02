@@ -25,23 +25,74 @@ def getTemplateSecondaryStructuer(process):
     structProfile1 = process.getStructProfil1()
     structProfile2 = process.getStructProfil2()
 
+    single_template = True
+
     if not structProfile1 is None:
         alphabet1 = structProfile1.getAlphabet()
 
+        struct_template1 = process.getStructProfil1()
+
         s1 = SecStructure.createTemplate(process, alphabet1)
-        structProfile1.setTemplate(s1[0])
-        structProfile1.setDotbracket(s1[1])
+
+        if isinstance(s1[0], str):
+            structProfile1.setTemplate(s1[0])
+            structProfile1.setDotbracket(s1[1])
+            color1, color_domain_max1, not_matched = SecStructure.createHeatMapColoring(process, s1[0])
+        else:
+            color1 = []
+            color_domain_max1 = []
+            not_matched = []
+            single_template = False
+            structProfile1.setDictTemplate(s1[0])
+            structProfile1.setDictDotbracket(s1[1])
+
+            for template in s1[0]:
+                color, color_domain_max, not_matched = SecStructure.createHeatMapColoring(process, template,
+                                                                                          not_matched)
+                color1.append(color)
+                color_domain_max1.append(color_domain_max)
+            print(len(not_matched))
 
         if not structProfile2 is None:
             alphabet2 = structProfile2.getAlphabet()
             s2 = SecStructure.createTemplate(process, alphabet2)
-            structProfile2.setTemplate(s2[0])
-            structProfile2.setDotbracket(s2[1])
-            color1, color2, color_domain_max1, color_domain_max2 = SecStructure.createHeatMapColoring(process)
+
+            if single_template:
+                structProfile2.setTemplate(s2[0])
+                structProfile2.setDotbracket(s2[1])
+                color2, color_domain_max2, not_matched = SecStructure.createHeatMapColoring(process, s2[0])
+            else:
+                color2 = []
+                color_domain_max2 = []
+                not_matched = []
+                structProfile2.setDictTemplate(s2[0])
+                structProfile2.setDictDotbracket(s2[1])
+
+                for template in s1[0]:
+                    color, color_domain_max, not_matched = SecStructure.createHeatMapColoring(process, template,
+                                                                                              not_matched)
+                    color2.append(color)
+                    color_domain_max2.append(color_domain_max)
 
             return s1, s2, color1, color2, color_domain_max1, color_domain_max2
         else:
-            color1, color2, color_domain_max1, color_domain_max2 = SecStructure.createHeatMapColoring(process)
+            if isinstance(s1[0], str):
+                structProfile1.setTemplate(s1[0])
+                structProfile1.setDotbracket(s1[1])
+                color1, color_domain_max1, not_matched = SecStructure.createHeatMapColoring(process, s1[0])
+            else:
+                color1 = []
+                color_domain_max1 = []
+                not_matched = []
+                structProfile1.setDictTemplate(s1[0])
+                structProfile1.setDictDotbracket(s1[1])
+
+                for template in s1[0]:
+                    color, color_domain_max, not_matched = SecStructure.createHeatMapColoring(process, template,
+                                                                                              not_matched)
+                    color1.append(color)
+                    color_domain_max1.append(color_domain_max)
+
             return s1, None, color1, None, color_domain_max1, None
     else:
         return None, None, None, None, None, None
