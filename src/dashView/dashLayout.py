@@ -188,7 +188,7 @@ app.layout = dbc.Container([
                             dcc.Tab(label="Scatterplot", value='s-tab', id="s-tab1", children=[
                                 dcc.Graph(figure={}, id="scatter", style={'height': '40vh'})
                             ]),
-                            dcc.Tab(label="RNA-Structure", value='r-tab', id="s-tab2", children=[
+                            dcc.Tab(value='r-tab', id="s-tab2", children=[
                                 dbc.Card(
                                     dashbio.FornaContainer(
                                         id='forna', height='300', width='400', colorScheme='custom'
@@ -196,7 +196,7 @@ app.layout = dbc.Container([
                                     className="w-100 p-3"
                                 ),
                             ]),
-                            dcc.Tab(label="RNA-Structure", value='r-tab2', id="s-tab3", children=[
+                            dcc.Tab(value='r-tab2', id="s-tab3", children=[
                                 dbc.Card(
                                     dashbio.FornaContainer(
                                         id='forna2', height='300', width='400', colorScheme='custom'
@@ -544,13 +544,18 @@ def updateSliderRange(file1, file2, ts, data):
 @app.callback(
     dash.dependencies.Output('forna', 'sequences'),
     dash.dependencies.Output('forna', 'customColors'),
+    dash.dependencies.Output('s-tab2', 'label'),
     dash.dependencies.Output('s-tab2', 'disabled'),
     dash.dependencies.Output('forna2', 'sequences'),
     dash.dependencies.Output('forna2', 'customColors'),
+    dash.dependencies.Output('s-tab3', 'label'),
     dash.dependencies.Output('s-tab3', 'disabled'),
-    [dash.dependencies.Input('memory', 'data')]
+    [dash.dependencies.Input('memory', 'data'),
+     dash.dependencies.Input('file3', 'value'),
+     dash.dependencies.Input('file4', 'value')
+     ]
 )
-def show_selected_sequences(data):
+def show_selected_sequences(data, f3, f4):
     if data is None:
         raise PreventUpdate
 
@@ -565,8 +570,13 @@ def show_selected_sequences(data):
     custom_colors = None
     custom_colors2 = None
 
+    tab1_label = "RNA-Structure Heatmap 1"
+    tab2_label = "RNA-Structure Heatmap 2"
+
     if not struct_data is None:
         color1 = data['colors'][0]
+
+        tab1_label = os.path.basename(struct_data[int(f3)]) + " Structure Heatmap"
 
         custom_colors = {
             'domain': [0, color_domain_max1],
@@ -584,6 +594,8 @@ def show_selected_sequences(data):
 
         if len(template_list) > 1:
             color2 = data['colors'][1]
+
+            tab2_label = os.path.basename(struct_data[int(f4)]) + " Structure Heatmap"
 
             custom_colors2 = {
                 'domain': [0, color_domain_max2],
@@ -617,7 +629,7 @@ def show_selected_sequences(data):
         disable_t1 = True
         disable_t2 = True
 
-    return template1, custom_colors, disable_t1, template2, custom_colors2, disable_t2
+    return template1, custom_colors, tab1_label, disable_t1, template2, custom_colors2, tab2_label, disable_t2
 
 
 # --------------------------------------------- Diagram/Table Updater --------------------------------------------------
