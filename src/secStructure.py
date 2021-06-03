@@ -11,8 +11,6 @@ class SecStructure(Processing):
     def createTemplate(self, alphabet):
         k = self.getSettings().getK()
 
-        alphabet = ['H', 'B', 'I']
-
         hairpin = bool("H" in alphabet)
         multiloop = bool("M" in alphabet)
         bulge = bool("B" in alphabet)
