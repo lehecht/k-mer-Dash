@@ -11,28 +11,16 @@ class SecStructure(Processing):
     def createTemplate(self, alphabet):
         k = self.getSettings().getK()
 
-        alphabet = ['H', 'B']
+        alphabet = ['H', 'B', 'I']
 
         hairpin = bool("H" in alphabet)
         multiloop = bool("M" in alphabet)
         bulge = bool("B" in alphabet)
         internalloop = bool("I" in alphabet)
 
-        # result = list()
-        # result.append(k * "E")
-        #
-        # template = list()
-        # # template.append(k * "E")
-        #
-        # dotbracket_string = list()
-        #
-        # result_dotbracket_string = list()
-        # result_dotbracket_string.extend(element2dotbracket(result, k, 0, k, True))
-
         template2dotstring = list()
         dotstring2template = list()
 
-        # for i in reversed(range(3,k+1)):
         if multiloop:
             result = list()
             result.append(k * "E")
@@ -64,10 +52,8 @@ class SecStructure(Processing):
                 result = list()
                 result.append(i * "E")
 
-                template = list()
-                # template.append(k * "E")
-
-                dotbracket_string = list()
+                # template = list()
+                # dotbracket_string = list()
 
                 result_dotbracket_string = list()
                 result_dotbracket_string.extend(element2dotbracket(result, i, 0, i, True))
@@ -89,78 +75,16 @@ class SecStructure(Processing):
                 result = ''.join(result)
                 result_dotbracket_string = ''.join(result_dotbracket_string)
 
-                # template2dotstring[result] = result_dotbracket_string
-                # dotstring2template[result_dotbracket_string] = result
                 template2dotstring.append(result)
                 dotstring2template.append(result_dotbracket_string)
 
-            # print(template2dotstring)
-            # print(dotstring2template)
-
             return template2dotstring, dotstring2template
 
-            # print(i)
-            # template = helpAddIBloop(i, template, internalloop, bulge, True)
-            #
-            # if hairpin and i > 2:
-            #     hp = [i * "S", i * "H"]
-            #     template.extend(hp)
-            # else:
-            #     template.append(i * "S")
-            #
-            # l1 = len(template) - 1
-            # dotbracket_string.extend(element2dotbracket(template, i, 0, l1, True))
-            #
-            # template = helpAddIBloop(i, template, internalloop, bulge, False)
-            #
-            # if multiloop and hairpin and i > 1:
-            #     template.extend([i * "S", i * "M"])
-            #
-            #     l2 = len(template) - 1
-            #     dotbracket_string.extend(element2dotbracket(template, i, l1 + 1, l2, False))
-            #
-            #     # hp = [i * "S", i * "H"]
-            #     # template.extend(hp)
-            #     #
-            #     # l3 = len(template) - 1
-            #     # dotbracket_string.extend(element2dotbracket(template, i, l2 + 1, l3, True))
-            # else:
-            #     l2 = len(template) - 1
-            #     dotbracket_string.extend(element2dotbracket(template, i, l1 + 1, l2, False))
-
-            # result.extend(template)
-            # result_dotbracket_string.extend(dotbracket_string)
-
-            # template = []
-            # dotbracket_string = []
-
-        # l3 = len(result)
-        # result.append("S")
-        # result_dotbracket_string.extend(element2dotbracket(result, 1, l3, len(result) - 1, False))
-        #
-        # l4 = len(result)
-        # result.append(k * "E")
-        # result_dotbracket_string.extend(element2dotbracket(result, k, l4, len(result) - 1, False))
-        #
-        # result = ''.join(result)
-        # result_dotbracket_string = ''.join(result_dotbracket_string)
-
-        # print(result)
-        # print(result_dotbracket_string)
-
-        # return result, result_dotbracket_string
-
-    def createHeatMapColoring(self, template1, not_matched=[]):
+    def createHeatMapColoring(self, template1, struct_kmer_list1, not_matched=None):
+        if not_matched is None:
+            not_matched = []
         k = self.getSettings().getK()
 
-        # struct_template1 = self.getStructProfil1()
-        # struct_template2 = self.getStructProfil2()
-
-        # color_domain_max1 = None
-        # color_domain_max2 = None
-        struct_kmer_list1 = self.getStructProfil1().getProfile()
-
-        # template1 = struct_template1.getTemplate()
         if len(not_matched) > 0:
             struct_kmer_list1 = {kmer: struct_kmer_list1[kmer] for kmer in not_matched}
 
@@ -169,22 +93,6 @@ class SecStructure(Processing):
         color_hm1 = {str(i): 0 for i in range(1, len(template1) + 1)}
         color_hm1, not_matched_kmer1, color_domain_max1 = createColorVector(k, template1_sTree, struct_kmer_list1,
                                                                             color_hm1)
-
-        # if not struct_template2 is None:
-        #     template2 = struct_template2.getTemplate()
-        #     struct_kmer_list2 = self.getStructProfil2().getProfile()
-        #     template2_sTree = STree.STree(template2)
-        #     color_hm2 = {str(i): 0 for i in range(1, len(template2) + 1)}
-        #     color_hm2, not_matched_kmer2, color_domain_max2 = createColorVector(k, template2_sTree, struct_kmer_list2,
-        #                                                                         color_hm2)
-        # else:
-        #     color_hm2 = None
-
-        # print(not_matched_kmer1)
-        # print()
-        # print(not_matched_kmer2)
-
-        # return color_hm1, color_hm2, color_domain_max1, color_domain_max2
         return color_hm1, color_domain_max1, not_matched_kmer1
 
 
@@ -199,8 +107,10 @@ def createColorVector(k, tree, kmer_list, color_hm):
         else:
             not_matched_kmer.append(kmer)
 
+    # print(color_hm)
     color_hm = {x: round(math.log(y, 2)) if y > 0 else y for x, y in color_hm.items()}
     max_val = max(color_hm.values())
+    # print(color_hm, max_val)
     color_domain_max = round(max_val, -1)
 
     return color_hm, not_matched_kmer, color_domain_max

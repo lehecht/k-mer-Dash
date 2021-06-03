@@ -598,9 +598,7 @@ def show_selected_sequences(data, f3, f4):
             templates = list()
             name_color = dict()
 
-            # color_domain_max = round(sum(color_domain_max1) / len(color_domain_max1))
-            print(color_domain_max1)
-            color_domain_max = min(color_domain_max1)
+            color_domain_max = max(color_domain_max1)
 
             for i in range(0, len(template_list[0])):
                 template = template_list[0][i]
@@ -649,7 +647,7 @@ def show_selected_sequences(data, f3, f4):
                 templates = list()
                 name_color = dict()
 
-                color_domain_max = round(sum(color_domain_max2) / len(color_domain_max2))
+                color_domain_max = max(color_domain_max2)
 
                 for i in range(0, len(template_list[1])):
                     template = template_list[1][i]
