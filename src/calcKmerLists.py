@@ -42,9 +42,9 @@ def calcFrequency(k, peak, selected, struct):
                     kmer = sequence[0:k]  # init first kmer
                 else:
                     kmer = ''.join([kmer[1:], sequence[k + i - 1]])
-                try:
+                if not profile.get(kmer) is None:
                     profile[kmer] += 1
-                except KeyError:
+                else:
                     profile[kmer] = 1
     return [profile1, profile2]
 
