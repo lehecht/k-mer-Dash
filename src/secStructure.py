@@ -9,7 +9,7 @@ class SecStructure(Processing):
         super().__init__(data, selected, k, peak, top, feature, cmd, secStruct_data)
 
     def createTemplate(self, alphabet):
-        k = self.getSettings().getK()
+        k = 3
 
         hairpin = bool("H" in alphabet)
         multiloop = bool("M" in alphabet)
@@ -19,69 +19,36 @@ class SecStructure(Processing):
         template2dotstring = list()
         dotstring2template = list()
 
-        if multiloop:
-            result = list()
-            result.append(k * "E")
+        result = list()
+        result.append(k * "E")
 
-            result_dotbracket_string = list()
-            result_dotbracket_string.extend(element2dotbracket(result, k, 0, k, True))
+        result_dotbracket_string = list()
+        result_dotbracket_string.extend(element2dotbracket(result, k, 0, k, True))
 
-            for i in reversed(range(1, k + 1)):
-                template, dotbracket_string = createIntermediateTemplate(i, hairpin, multiloop,
-                                                                         internalloop, bulge)
+        template, dotbracket_string = createIntermediateTemplate(k, hairpin, multiloop,
+                                                                 internalloop, bulge)
 
-                result.extend(template)
-                result_dotbracket_string.extend(dotbracket_string)
+        result.extend(template)
+        result_dotbracket_string.extend(dotbracket_string)
 
-            l3 = len(result)
-            result.append("S")
-            result_dotbracket_string.extend(element2dotbracket(result, 1, l3, len(result) - 1, False))
+        l3 = len(result)
+        result.append(k * "S")
+        result_dotbracket_string.extend(element2dotbracket(result, k, l3, len(result) - 1, False))
 
-            l4 = len(result)
-            result.append(k * "E")
-            result_dotbracket_string.extend(element2dotbracket(result, k, l4, len(result) - 1, False))
+        l4 = len(result)
+        result.append(k * "E")
+        result_dotbracket_string.extend(element2dotbracket(result, k, l4, len(result) - 1, False))
 
-            result = ''.join(result)
-            result_dotbracket_string = ''.join(result_dotbracket_string)
+        result = ''.join(result)
+        result_dotbracket_string = ''.join(result_dotbracket_string)
 
-            return result, result_dotbracket_string
-        else:
-            for i in reversed(range(1, k + 1)):
-                result = list()
-                result.append(i * "E")
-
-                # template = list()
-                # dotbracket_string = list()
-
-                result_dotbracket_string = list()
-                result_dotbracket_string.extend(element2dotbracket(result, i, 0, i, True))
-
-                template, dotbracket_string = createIntermediateTemplate(i, hairpin, multiloop,
-                                                                         internalloop, bulge)
-
-                result.extend(template)
-                result_dotbracket_string.extend(dotbracket_string)
-
-                l3 = len(result)
-                result.append(i * "S")
-                result_dotbracket_string.extend(element2dotbracket(result, i, l3, len(result) - 1, False))
-
-                l4 = len(result)
-                result.append(i * "E")
-                result_dotbracket_string.extend(element2dotbracket(result, i, l4, len(result) - 1, False))
-
-                result = ''.join(result)
-                result_dotbracket_string = ''.join(result_dotbracket_string)
-
-                template2dotstring.append(result)
-                dotstring2template.append(result_dotbracket_string)
-
-            return template2dotstring, dotstring2template
+        return result, result_dotbracket_string
 
     def createHeatMapColoring(self, template1, struct_kmer_list1, not_matched=None):
+
         if not_matched is None:
             not_matched = []
-        k = self.getSettings().getK()
+        k = 2
 
         if len(not_matched) > 0:
             struct_kmer_list1 = {kmer: struct_kmer_list1[kmer] for kmer in not_matched}
@@ -120,11 +87,8 @@ def createIntermediateTemplate(i, hairpin, multiloop, internalloop, bulge):
 
     template = helpAddIBloop(i, template, internalloop, bulge, True)
 
-    if hairpin and i > 2:
-        hp = [i * "S", i * "H"]
-        template.extend(hp)
-    else:
-        template.append(i * "S")
+    hp = [i * "S", i * "H"]
+    template.extend(hp)
 
     l1 = len(template) - 1
     dotbracket_string.extend(element2dotbracket(template, i, 0, l1, True))
@@ -136,6 +100,12 @@ def createIntermediateTemplate(i, hairpin, multiloop, internalloop, bulge):
 
         l2 = len(template) - 1
         dotbracket_string.extend(element2dotbracket(template, i, l1 + 1, l2, False))
+
+        hp = [i * "S", i * "H"]
+        template.extend(hp)
+
+        l3 = len(template) - 1
+        dotbracket_string.extend(element2dotbracket(template, i, l2 + 1, l3, True))
 
     else:
         l2 = len(template) - 1
@@ -162,10 +132,10 @@ def helpAddIBloop(k, template, internalloop, bulge, lead):
     return template
 
 
-def element2dotbracket(template, k, i, j, lead):
+def element2dotbracket(template, k, i, j, open_bracket):
     db_sublist = template[i: j + 1]
 
-    if lead:
+    if open_bracket:
         db_sublist = [k * "." if e in [k * "E", k * "I", k * "M", k * "B", k * "H"] else k * "(" for e in db_sublist]
     else:
         db_sublist = [k * "." if e in [k * "E", k * "I", k * "M", k * "H"] else k * ")" for e in db_sublist]

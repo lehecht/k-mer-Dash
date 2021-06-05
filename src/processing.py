@@ -36,8 +36,8 @@ class Processing:
         top_value_msg2 = "All entries will be displayed."
 
         if not cmd:
-            self.profile1 = Profile(calcFrequency(k, peak, selected,False)[0], selected[0])
-            self.profile2 = Profile(calcFrequency(k, peak, selected,False)[1], selected[1])
+            self.profile1 = Profile(calcFrequency(k, peak, selected, False)[0], selected[0])
+            self.profile2 = Profile(calcFrequency(k, peak, selected, False)[1], selected[1])
 
             len_p1 = len(self.profile1.getProfile())  # dict length
             len_p2 = len(self.profile2.getProfile())
@@ -63,18 +63,16 @@ class Processing:
                 self.all_triplets.extend([''.join(comb[i]) for i in range(0, len(comb))])
 
             if not struct_data is None:
-                # self.struct_profile1, self.struct_alphabet1 = calcFrequency(k, None, [str(struct_data[0])], True)
-                struct_kmer_list1, struct_alphabet1 = calcFrequency(k, None, [str(struct_data[0])], True)
-                self.struct_profile1 = StructProfile(struct_kmer_list1,str(struct_data[0]),struct_alphabet1)
+                struct_kmer_list1, struct_alphabet1 = calcFrequency(2, None, [str(struct_data[0])], True)
+                # test, struct_alphabet1 = calcFrequency(2, None, [str(struct_data[0])], True)
+                # test = dict(filter(lambda x: len(set(x[0]))==2, test.items()))
+                self.struct_profile1 = StructProfile(struct_kmer_list1, str(struct_data[0]), struct_alphabet1)
                 if len(struct_data) > 1:
-                    struct_kmer_list2, struct_alphabet2 = calcFrequency(k, None, [str(struct_data[1])], True)
+                    struct_kmer_list2, struct_alphabet2 = calcFrequency(2, None, [str(struct_data[1])], True)
                     self.struct_profile2 = StructProfile(struct_kmer_list2, str(struct_data[1]), struct_alphabet2)
 
-
-
-
         else:
-            self.profile1 = Profile(calcFrequency(k, peak, selected,False)[0], selected[0])
+            self.profile1 = Profile(calcFrequency(k, peak, selected, False)[0], selected[0])
 
             len_p1 = len(self.profile1.getProfile())  # dict length
 
