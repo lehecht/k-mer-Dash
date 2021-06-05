@@ -574,102 +574,48 @@ def show_selected_sequences(data, f3, f4):
     tab2_label = "RNA-Structure Heatmap 2"
 
     if not struct_data is None:
+        color_domain1 = [i for i in range(0, color_domain_max1, round(color_domain_max1 / 4))]
+        color_domain1.append(color_domain_max1)
 
         color1 = data['colors'][0]
 
         tab1_label = os.path.basename(struct_data[int(f3)]) + " Structure Heatmap"
 
-        if isinstance(template_list[0], str):
-
-            custom_colors = {
-                'domain': [0, color_domain_max1],
-                'range': ['rgb(50, 0, 255)', 'red'],
-                'colorValues': {
-                    'template1': color1,
-                }
+        custom_colors = {
+            'domain': color_domain1,
+            'range': ['rgb(0, 0, 255)','rgb(173, 0, 206)','rgb(255, 0, 0)','rgb(238, 140, 0)','rgb(255, 255, 0)'],
+            'colorValues': {
+                'template1': color1,
             }
+        }
 
-            template1 = [{
-                'sequence': template_list[0],
-                'structure': dotbracket_list[0],
-                'options': {'name': 'template1'}
-            }]
-        else:
-            templates = list()
-            name_color = dict()
+        template1 = [{
+            'sequence': template_list[0],
+            'structure': dotbracket_list[0],
+            'options': {'name': 'template1'}
+        }]
 
-            color_domain_max = max(color_domain_max1)
-
-            for i in range(0, len(template_list[0])):
-                template = template_list[0][i]
-                dotbracket_string = dotbracket_list[0][i]
-
-                color = color1[i]
-                sequence_name = 'template' + str(i)
-
-                templates.append({
-                    'sequence': template,
-                    'structure': dotbracket_string,
-                    'options': {'name': sequence_name}
-                })
-
-                name_color[sequence_name] = color
-
-            custom_colors = {
-                'domain': [0, color_domain_max],
-                'range': ['rgb(50, 0, 255)', 'red'],
-                'colorValues': name_color
-            }
-            template1 = templates
-
-        if len(template_list) > 1: # more than one structure file committed
+        if len(template_list) > 1:  # more than one structure file committed
+            color_domain2 = [i for i in range(0, color_domain_max2, round(color_domain_max2 / 4))]
+            color_domain2.append(color_domain_max2)
             color2 = data['colors'][1]
 
             tab2_label = os.path.basename(struct_data[int(f4)]) + " Structure Heatmap"
 
-            if isinstance(template_list[1], str):
-
-                custom_colors2 = {
-                    'domain': [0, color_domain_max2],
-                    'range': ['rgb(50, 0, 255)', 'red'],
-                    'colorValues': {
-                        'template2': color2,
-                    }
+            custom_colors2 = {
+                'domain': color_domain2,
+                'range': ['rgb(0, 0, 255)', 'rgb(173, 0, 206)', 'rgb(255, 0, 0)', 'rgb(238, 140, 0)',
+                          'rgb(255, 255, 0)'],
+                'colorValues': {
+                    'template2': color2,
                 }
+            }
 
-                template2 = [{
-                    'sequence': template_list[1],
-                    'structure': dotbracket_list[1],
-                    'options': {'name': 'template2'}
-                }]
-
-            else:
-                templates = list()
-                name_color = dict()
-
-                color_domain_max = max(color_domain_max2)
-
-                for i in range(0, len(template_list[1])):
-                    template = template_list[1][i]
-                    dotbracket_string = dotbracket_list[1][i]
-
-                    color = color2[i]
-                    sequence_name = 'template' + str(i)
-
-                    templates.append({
-                        'sequence': template,
-                        'structure': dotbracket_string,
-                        'options': {'name': sequence_name}
-                    })
-
-                    name_color[sequence_name] = color
-
-                custom_colors2 = {
-                    'domain': [0, color_domain_max],
-                    'range': ['rgb(50, 0, 255)', 'red'],
-                    'colorValues': name_color
-                }
-                template2 = templates
+            template2 = [{
+                'sequence': template_list[1],
+                'structure': dotbracket_list[1],
+                'options': {'name': 'template2'}
+            }]
 
         else:
             template2 = [{
