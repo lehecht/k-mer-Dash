@@ -41,45 +41,6 @@ def markSliderRange(min_val, max_val, peak):
     return mark
 
 
-# calculation of slider ranges in steps [50, 100, 500, 1000,...,all]
-def specialSliderRange(min_val, max_val):
-    j = min_val
-    mark = {}
-    i = 0
-    while i < 9:
-        if "5" in str(j):
-            j = j * 2
-        else:
-            j = j * 5
-
-        if j <= max_val:
-            mark[i] = str(j)
-        else:
-            break
-        i += 1
-    mark[i] = 'all'
-    return mark
-
-
-def dropdownRange(min_val, max_val):
-    j = min_val
-    mark = []
-    i = 0
-    while i < 9:
-        if "5" in str(j):
-            j = j * 2
-        else:
-            j = j * 5
-
-        if j <= max_val:
-            mark.append({'label': str(j), 'value': str(i)})
-        else:
-            break
-        i += 1
-    mark.append({'label': 'all', 'value': 'all'})
-    return mark
-
-
 # ------------------------------------------- Dash-Layout --------------------------------------------------------------
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -119,14 +80,8 @@ app.layout = dbc.Container([
                         options=[{"label": "-", "value": "0"}],
                         value="0"),
                     html.Br(),
-                    html.Br(),
-
-                    dcc.Checklist(
-                        id="sec_peak",
-                        # options=[
-                        #     {'label': 'show only peak positions', 'value': 'peaking','disabled':True},
-                        # ],
-                    ),
+                    # html.Br(),
+                    # html.Br(),
                     html.Br(),
                     # ------------------------------------------- K ----------------------------------------------------
                     html.H6("K-mer length:"),
@@ -176,7 +131,48 @@ app.layout = dbc.Container([
                     ),
                     html.Br(),
                     html.Br(),
-                    html.Br(),
+                    dbc.ButtonGroup(
+                        [dbc.Button("Extended options", id="opt_btn_open"), dbc.Button("Export PDF", id="ex_btn")],
+                        size="md",
+                        className="mr-1",
+                    ),
+                    dbc.Modal(
+                        [
+                            dbc.ModalHeader("Options for structural data visualization"),
+                            dbc.ModalBody(children=[
+                                dcc.Checklist(
+                                    id="sec_peak",
+                                ),
+                                html.Br(),
+                                html.Div("Normalization:",style={'font-weight':'bold','padding-bottom':'10px'}),
+                                # html.Br(),
+                                dcc.RadioItems(
+                                    id="db",
+                                    options=[
+                                        {'label': 'none', 'value': 'none'},
+                                        {'label': 'use A.thaliana database', 'value': 'at_db'},
+                                        {'label': 'enter custom k-mer counts', 'value': 'custom_vals'}
+                                    ],
+                                    value='none',
+                                    labelStyle={'display': 'block'}
+                                ),
+                                html.Div(id="norm_input", style={'display': 'block'}),
+
+                            ]),
+                            dbc.ModalFooter(children=[
+                                dbc.ButtonGroup(
+                                    [dbc.Button("Apply", id="opt_btn_apply"),
+                                     dbc.Button("Close", id="opt_btn_close")],
+                                    className="mr-1",
+                                )
+                            ]
+                            ),
+
+                        ],
+                        id="ex_options",
+                        backdrop='static',
+                        centered=True
+                    ),
 
                 ], style={
                     'height': '100vh',
@@ -423,8 +419,8 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, sec_peak, data):
         dbs = []
 
     data = {'topK': top_k_table, 'msas': msas, 'scatter': scatter, 'pcas': pcas, 'seqLen': seq_len,
-            'templates': templates, 'dbs': dbs, 'colors': [color1,color2],
-            'color_max': [color_domain_max1, color_domain_max2],'color_scale':color_scale}
+            'templates': templates, 'dbs': dbs, 'colors': [color1, color2],
+            'color_max': [color_domain_max1, color_domain_max2], 'color_scale': color_scale}
 
     return data
 
@@ -668,6 +664,86 @@ def show_selected_sequences(data, f3, f4):
         disable_t2 = True
 
     return template1, custom_colors, tab1_label, disable_t1, template2, custom_colors2, tab2_label, disable_t2
+
+
+# -------------------------------------------- Modals Updater ----------------------------------------------------------
+
+@app.callback(dash.dependencies.Output('ex_options', 'is_open'),
+              dash.dependencies.Input('memory', 'modified_timestamp'),
+              dash.dependencies.Input('opt_btn_open', 'n_clicks'),
+              dash.dependencies.Input('opt_btn_close', 'n_clicks'),
+              dash.dependencies.Input('opt_btn_apply', 'n_clicks'),
+              dash.dependencies.State('ex_options', 'is_open'))
+# ts: timestamp when data was modified
+# data: storage to share data between callbacks
+def updateExtendedOptionModal(ts, btn_open, btn_close, btn_apply, is_open):
+    if ts is None:
+        raise PreventUpdate
+    if btn_open or btn_close or btn_apply:
+        return not is_open
+    else:
+        return is_open
+
+
+@app.callback(dash.dependencies.Output('norm_input', 'children'),
+              dash.dependencies.Input('memory', 'modified_timestamp'),
+              dash.dependencies.Input('db', 'value'))
+def showNormInputFields(ts, radio_val):
+    if ts is None:
+        raise PreventUpdate
+
+    if radio_val == 'custom_vals':
+        input_field = [
+            html.Table(children=[
+                html.Tr(children=[
+                    html.Td(children=[
+                        html.Div("EE"),
+                        dbc.Input(id="EE", type="number", style={'width': '100px'}, max=1, min=0, step=0.05)], ),
+                    html.Td(children=[
+                        html.Div("ES"),
+                        dbc.Input(id="ES", type="number", style={'width': '100px'}, max=1, min=0, step=0.05)], ),
+                    html.Td(children=[
+                        html.Div("SS"),
+                        dbc.Input(id="SS", type="number", style={'width': '100px'}, max=1, min=0, step=0.05)], )
+                ]),
+                html.Tr(children=[
+                    html.Td(children=[
+                        html.Div("SI"),
+                        dbc.Input(id="SI", type="number", style={'width': '100px'}, max=1, min=0, step=0.05), ], ),
+                    html.Td(children=[
+                        html.Div("IS"),
+                        dbc.Input(id="IS", type="number", style={'width': '100px'}, max=1, min=0, step=0.05), ], ),
+                    html.Td(children=[
+                        html.Div("II"),
+                        dbc.Input(id="II", type="number", style={'width': '100px'}, max=1, min=0, step=0.05), ], )
+                ]),
+                html.Tr(children=[
+                    html.Td(children=[
+                        html.Div("SH"),
+                        dbc.Input(id="SH", type="number", style={'width': '100px'}, max=1, min=0, step=0.05), ], ),
+                    html.Td(children=[
+                        html.Div("HS"),
+                        dbc.Input(id="HS", type="number", style={'width': '100px'}, max=1, min=0, step=0.05), ], ),
+                    html.Td(children=[
+                        html.Div("SM"),
+                        dbc.Input(id="SM", type="number", style={'width': '100px'}, max=1, min=0, step=0.05), ], )
+                ]),
+                html.Tr(children=[
+                    html.Td(children=[
+                        html.Div("MS"),
+                        dbc.Input(id="MS", type="number", style={'width': '100px'}, max=1, min=0, step=0.05), ], ),
+                    html.Td(children=[
+                        html.Div("SE"),
+                        dbc.Input(id="SE", type="number", style={'width': '100px'}, max=1, min=0, step=0.05), ], ),
+
+                ]),
+            ], style={'width': '100%'}
+            )
+
+        ]
+        return input_field
+    else:
+        return []
 
 
 # --------------------------------------------- Diagram/Table Updater --------------------------------------------------
