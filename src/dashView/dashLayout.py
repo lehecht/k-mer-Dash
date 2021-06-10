@@ -123,9 +123,9 @@ app.layout = dbc.Container([
 
                     dcc.Checklist(
                         id="sec_peak",
-                        options=[
-                            {'label': 'show only peak positions', 'value': 'peaking'},
-                        ],
+                        # options=[
+                        #     {'label': 'show only peak positions', 'value': 'peaking','disabled':True},
+                        # ],
                     ),
                     html.Br(),
                     # ------------------------------------------- K ----------------------------------------------------
@@ -551,6 +551,19 @@ def updateSliderRange(file1, file2, ts, data):
 
     return k_p_slider_min, k_slider_max, k_range, peak_min, k_p_slider_max, peak_range
 
+# ----------------------------------------- Checkbox-Updater -----------------------------------------------------------
+@app.callback([
+    dash.dependencies.Output("sec_peak", "options"),
+    dash.dependencies.Input('memory', 'modified_timestamp'),
+])
+def updateFile3Dropdown(ts):
+    if ts is None:
+        raise PreventUpdate
+
+    if struct_data is None:
+        return [[{'label': 'show only peak positions', 'value': 'peaking','disabled':True}]]
+    else:
+        return [[{'label': 'show only peak positions', 'value': 'peaking','disabled':False}]]
 
 # ----------------------------------------- Forna-Container Update -----------------------------------------------------
 
