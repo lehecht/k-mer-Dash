@@ -13,8 +13,8 @@ import re
 # implements processData for multiple alignments
 class KMerAlignmentData(Processing):
 
-    def __init__(self, data, selected, k, peak, top, feature,cmd,secStruct_data):
-        super().__init__(data, selected, k, peak, top, feature,cmd,secStruct_data)
+    def __init__(self, data, selected, k, peak, top, feature,cmd,secStruct_data,no_sec_peak):
+        super().__init__(data, selected, k, peak, top, feature,cmd,secStruct_data,no_sec_peak)
 
     # calculates multiple alignments for both files via clustalw
     def processData(self):  # throws FileNotFoundError

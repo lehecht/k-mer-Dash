@@ -44,7 +44,6 @@ def getTemplateSecondaryStructuer(process):
             color1, color_domain_max1, not_matched = SecStructure.createHeatMapColoring(process, s1[0],
                                                                                         structProfile1_profil,
                                                                                         no_seq_peak)
-            print(color1)
         else:
             color1 = []
             color_domain_max1 = []

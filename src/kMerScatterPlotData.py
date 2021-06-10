@@ -7,8 +7,8 @@ import time
 # implements processData for scatterplot of frequencies
 class KMerScatterPlotData(Processing):
 
-    def __init__(self, data, selected, k, peak, top, feature, cmd, secStruct_data):
-        super().__init__(data, selected, k, peak, top, feature, cmd, secStruct_data)
+    def __init__(self, data, selected, k, peak, top, feature, cmd, secStruct_data,no_sec_peak):
+        super().__init__(data, selected, k, peak, top, feature, cmd, secStruct_data,no_sec_peak)
 
     # processes data to display kmers according their frequency later
     def processData(self):
