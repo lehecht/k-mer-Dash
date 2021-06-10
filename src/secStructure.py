@@ -1,3 +1,5 @@
+import re
+
 from src.processing import Processing
 from suffix_trees import STree
 import math
@@ -44,7 +46,7 @@ class SecStructure(Processing):
 
         return result, result_dotbracket_string
 
-    def createHeatMapColoring(self, template1, struct_kmer_list1, not_matched=None):
+    def createHeatMapColoring(self, template1, struct_kmer_list1,no_sec_peak, not_matched=None,):
 
         if not_matched is None:
             not_matched = []
@@ -57,18 +59,24 @@ class SecStructure(Processing):
 
         color_hm1 = {str(i): 0 for i in range(1, len(template1) + 1)}
         color_hm1, not_matched_kmer1, color_domain_max1 = createColorVector(k, template1_sTree, struct_kmer_list1,
-                                                                            color_hm1)
+                                                                            color_hm1,no_sec_peak)
         return color_hm1, color_domain_max1, not_matched_kmer1
 
 
-def createColorVector(k, tree, kmer_list, color_hm):
+def createColorVector(k, tree, kmer_list, color_hm,no_sec_peak):
     not_matched_kmer = []
 
     for kmer in kmer_list:
-        idx = tree.find(kmer)
+        idx = tree.find(kmer.upper())
         if idx >= 0:
-            for i in range(0, k):
-                color_hm[str(idx + i + 1)] += kmer_list[kmer]
+            if no_sec_peak == 0:
+                for match in re.finditer('[A-Z]', kmer):
+                    if match.group() == 1:
+                        idx += 1
+                color_hm[str(idx + 1)] += kmer_list[kmer]
+            else:
+                for i in range(0, k):
+                    color_hm[str(idx + i + 1)] += kmer_list[kmer]
         else:
             not_matched_kmer.append(kmer)
 

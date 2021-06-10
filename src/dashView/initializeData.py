@@ -16,8 +16,8 @@ from src.secStructure import SecStructure
 # peak: peak: peak-position, where sequences should be aligned
 # top: number of best values
 # feature: number of T or kmer-Frequency for pcas
-def initData(data, selected, k, peak, top, feature, secStruct_data):
-    process = Processing(data, selected, k, peak, top, feature, False, secStruct_data)
+def initData(data, selected, k, peak, top, feature, secStruct_data, no_sec_peak):
+    process = Processing(data, selected, k, peak, top, feature, False, secStruct_data, no_sec_peak)
     return process
 
 
@@ -27,10 +27,10 @@ def getTemplateSecondaryStructuer(process):
 
     single_template = True
 
+    no_seq_peak = process.getNoSecPeak()
+
     if not structProfile1 is None:
         alphabet1 = structProfile1.getAlphabet()
-
-        struct_template1 = process.getStructProfil1()
 
         s1 = SecStructure.createTemplate(process, alphabet1)
 
@@ -40,7 +40,8 @@ def getTemplateSecondaryStructuer(process):
             structProfile1.setTemplate(s1[0])
             structProfile1.setDotbracket(s1[1])
             color1, color_domain_max1, not_matched = SecStructure.createHeatMapColoring(process, s1[0],
-                                                                                        structProfile1_profil)
+                                                                                        structProfile1_profil,
+                                                                                        no_seq_peak)
         else:
             color1 = []
             color_domain_max1 = []
@@ -52,6 +53,7 @@ def getTemplateSecondaryStructuer(process):
             for template in s1[0]:
                 color, color_domain_max, not_matched = SecStructure.createHeatMapColoring(process, template,
                                                                                           structProfile1_profil,
+                                                                                          no_seq_peak,
                                                                                           not_matched)
                 color1.append(color)
                 color_domain_max1.append(color_domain_max)
@@ -65,7 +67,8 @@ def getTemplateSecondaryStructuer(process):
                 structProfile2.setTemplate(s2[0])
                 structProfile2.setDotbracket(s2[1])
                 color2, color_domain_max2, not_matched = SecStructure.createHeatMapColoring(process, s2[0],
-                                                                                            structProfile2_profil)
+                                                                                            structProfile2_profil,
+                                                                                            no_seq_peak)
             else:
                 color2 = []
                 color_domain_max2 = []
@@ -76,6 +79,7 @@ def getTemplateSecondaryStructuer(process):
                 for template in s2[0]:
                     color, color_domain_max, not_matched = SecStructure.createHeatMapColoring(process, template,
                                                                                               structProfile2_profil,
+                                                                                              no_seq_peak,
                                                                                               not_matched)
                     color2.append(color)
                     color_domain_max2.append(color_domain_max)
@@ -86,7 +90,8 @@ def getTemplateSecondaryStructuer(process):
                 structProfile1.setTemplate(s1[0])
                 structProfile1.setDotbracket(s1[1])
                 color1, color_domain_max1, not_matched = SecStructure.createHeatMapColoring(process, s1[0],
-                                                                                            structProfile1_profil)
+                                                                                            structProfile1_profil,
+                                                                                            no_seq_peak)
             else:
                 color1 = []
                 color_domain_max1 = []
@@ -97,6 +102,7 @@ def getTemplateSecondaryStructuer(process):
                 for template in s1[0]:
                     color, color_domain_max, not_matched = SecStructure.createHeatMapColoring(process, template,
                                                                                               structProfile1_profil,
+                                                                                              no_seq_peak,
                                                                                               not_matched)
                     color1.append(color)
                     color_domain_max1.append(color_domain_max)

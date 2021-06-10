@@ -2,15 +2,16 @@ from Bio import SeqIO
 from src.inputValueException import InputValueException
 import os
 import pandas as pd
+import re
 
 
 # calculates kmer frequencies
 # k: kmer-length
 # peak: peak-position, where sequences should be aligned
 # selected: input files
-def calcFrequency(k, peak, selected, struct):
+def calcFrequency(k, peak, selected, no_sec_peak):
     profile1 = dict()  # for file1
-    if not struct:
+    if no_sec_peak == -1:
         profile2 = dict()  # for file2
     else:
         profile2 = [] # saves alphabet of structural fasta-files
@@ -32,16 +33,20 @@ def calcFrequency(k, peak, selected, struct):
                 raise InputValueException(  # is thrown if k is greater or equal than sequence length
                     "ERROR: Invalid k. Must be smaller than sequence length")
             # kmer frequency counting:
-            if struct:
-                sequence = sequence.upper()
+            if not (no_sec_peak is -1):
+                if no_sec_peak is 1:
+                    sequence = sequence.upper()
                 for c in sequence:
-                    if c not in profile2 and not c in "E":
+                    # if c not in profile2 and not ((c in "E") or (c in "e")):
+                    if c not in profile2:
                         profile2.append(c)
             for i in range(0, (seq_length - k + 1)):
                 if i == 0:
                     kmer = sequence[0:k]  # init first kmer
                 else:
                     kmer = ''.join([kmer[1:], sequence[k + i - 1]])
+                if no_sec_peak is 0 and not re.findall('[A-Z]', kmer):
+                    continue
                 if not profile.get(kmer) is None:
                     profile[kmer] += 1
                 else:

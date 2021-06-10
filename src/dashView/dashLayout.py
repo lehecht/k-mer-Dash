@@ -98,7 +98,6 @@ app.layout = dbc.Container([
                 dbc.CardBody([
                     html.H3("Menu"),
                     html.Br(),
-                    html.Br(),
                     # ------------------------------------- Select File1 And File 2 ------------------------------------
                     html.H6("Selected Files:"),
                     dbc.Select(
@@ -120,6 +119,14 @@ app.layout = dbc.Container([
                         options=[{"label": "-", "value": "0"}],
                         value="0"),
                     html.Br(),
+                    html.Br(),
+
+                    dcc.Checklist(
+                        id="sec_peak",
+                        options=[
+                            {'label': 'show only peak positions', 'value': 'peaking'},
+                        ],
+                    ),
                     html.Br(),
                     # ------------------------------------------- K ----------------------------------------------------
                     html.H6("K-mer length:"),
@@ -286,6 +293,7 @@ app.layout = dbc.Container([
     dash.dependencies.Input('peak', 'value'),
     dash.dependencies.Input('top', 'value'),
     dash.dependencies.Input('Feature', 'value'),
+    dash.dependencies.Input('sec_peak', 'value'),
     dash.dependencies.State('memory', 'data'),
 )
 # calculates new data for tables/diagrams
@@ -294,7 +302,7 @@ app.layout = dbc.Container([
 # top: number of best values
 # pca_feature: number of T or kmer-Frequency for pcas
 # data: storage to share data between callbacks
-def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, data):
+def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, sec_peak, data):
     top_opt_val = {'0': 10, '1': 20, '2': 50, '3': 100}
 
     top = top_opt_val[top]
@@ -303,6 +311,11 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, data):
 
     if peak is 0:
         peak = None
+
+    if sec_peak == ['peaking']:
+        no_sec_peak = 0
+    else:
+        no_sec_peak = 1
 
     if data is None:
         selected = [file_list[0], file_list[1]]
@@ -319,7 +332,7 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, data):
         else:
             selected_struc = [struct_data[int(f3)]]
 
-    new_process = initializeData.initData(selected, selected, k, peak, top, pca_feature, selected_struc)
+    new_process = initializeData.initData(selected, selected, k, peak, top, pca_feature, selected_struc, no_sec_peak)
 
     # calculate top-table
     top_k = Processing.getTopKmer(new_process).copy()
@@ -552,7 +565,7 @@ def updateSliderRange(file1, file2, ts, data):
     dash.dependencies.Output('s-tab3', 'disabled'),
     [dash.dependencies.Input('memory', 'data'),
      dash.dependencies.Input('file3', 'value'),
-     dash.dependencies.Input('file4', 'value')
+     dash.dependencies.Input('file4', 'value'),
      ]
 )
 def show_selected_sequences(data, f3, f4):
@@ -583,7 +596,7 @@ def show_selected_sequences(data, f3, f4):
 
         custom_colors = {
             'domain': color_domain1,
-            'range': ['rgb(0, 0, 255)','rgb(173, 0, 206)','rgb(255, 0, 0)','rgb(238, 140, 0)','rgb(255, 255, 0)'],
+            'range': ['rgb(0, 0, 255)', 'rgb(173, 0, 206)', 'rgb(255, 0, 0)', 'rgb(238, 140, 0)', 'rgb(255, 255, 0)'],
             'colorValues': {
                 'template1': color1,
             }

@@ -13,6 +13,7 @@ class Processing:
     profile2 = None  # dictionary for kmers and their frequencies for file2
     struct_profile1 = None
     struct_profile2 = None
+    no_sec_peak = -1
     # struct_alphabet1 = None
     # struct_alphabet2 = None
     setting = None  # object containing all information, which are needed for calculation
@@ -28,7 +29,7 @@ class Processing:
     # top: number of best values
     # feature: number of T or kmer-Frequency for pcas
     # cmd: bool, determines if second profile should be created
-    def __init__(self, data, selected, k, peak, top, feature, cmd, struct_data):
+    def __init__(self, data, selected, k, peak, top, feature, cmd, struct_data,no_sec_peak):
         if selected is not None:
             self.setting = Setting(data, selected, k, peak, top, feature, struct_data)
 
@@ -36,8 +37,8 @@ class Processing:
         top_value_msg2 = "All entries will be displayed."
 
         if not cmd:
-            self.profile1 = Profile(calcFrequency(k, peak, selected, False)[0], selected[0])
-            self.profile2 = Profile(calcFrequency(k, peak, selected, False)[1], selected[1])
+            self.profile1 = Profile(calcFrequency(k, peak, selected, -1)[0], selected[0])
+            self.profile2 = Profile(calcFrequency(k, peak, selected, -1)[1], selected[1])
 
             len_p1 = len(self.profile1.getProfile())  # dict length
             len_p2 = len(self.profile2.getProfile())
@@ -63,12 +64,13 @@ class Processing:
                 self.all_triplets.extend([''.join(comb[i]) for i in range(0, len(comb))])
 
             if not struct_data is None:
-                struct_kmer_list1, struct_alphabet1 = calcFrequency(2, None, [str(struct_data[0])], True)
-                # test, struct_alphabet1 = calcFrequency(2, None, [str(struct_data[0])], True)
-                # test = dict(filter(lambda x: len(set(x[0]))==2, test.items()))
+                self.no_sec_peak = no_sec_peak
+                struct_kmer_list1, struct_alphabet1 = calcFrequency(2, None, [str(struct_data[0])], no_sec_peak)
+                print(struct_kmer_list1)
+                print(struct_alphabet1)
                 self.struct_profile1 = StructProfile(struct_kmer_list1, str(struct_data[0]), struct_alphabet1)
                 if len(struct_data) > 1:
-                    struct_kmer_list2, struct_alphabet2 = calcFrequency(2, None, [str(struct_data[1])], True)
+                    struct_kmer_list2, struct_alphabet2 = calcFrequency(2, None, [str(struct_data[1])], no_sec_peak)
                     self.struct_profile2 = StructProfile(struct_kmer_list2, str(struct_data[1]), struct_alphabet2)
 
         else:
@@ -118,9 +120,5 @@ class Processing:
     def getSeqLen(self):
         return self.seq_len
 
-    # def getStructAlphabet1(self):
-    #     return self.struct_alphabet1
-    #
-    # def getStructAlphabet2(self):
-    #     return self.struct_alphabet2
-    #
+    def getNoSecPeak(self):
+        return self.no_sec_peak
