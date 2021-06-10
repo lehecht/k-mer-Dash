@@ -10,11 +10,12 @@ def test_calcFrequency():
     # Preparation
     k = 5
     peak = None
+    no_sec_peak = -1
     expected_result_p1 = {"AAACC": 1, "AACCC": 2, "ACCCC": 2, "CAACC": 1, "AAAAA": 3}
     expected_result_p2 = {"TTTGG": 1, "TTGGG": 2, "TGGGG": 3, "GTTGG": 1, "GGGGC": 1, "GGGCA": 1}
 
     # Execution
-    profiles = calcFrequency(k, peak, testData)
+    profiles = calcFrequency(k, peak, testData,no_sec_peak)
     p1 = profiles[0]
     p2 = profiles[1]
 
@@ -26,11 +27,12 @@ def test_calcFrequency():
 
     # Test2: with peak-pos
     peak = 4
+    no_sec_peak = -1
     expected_result_p1_peak = {"aaaCc": 1, "aaCcc": 2, "aCccc": 2, "caaCc": 1, "aaaAa": 1, "aaAaa": 1, 'aAaaa': 1}
     expected_result_p2_peak = {"tttGg": 1, "ttGgg": 2, "tGggg": 2, "gttGg": 1, "tggGg": 1, "ggGgc": 1, "gGgca": 1}
 
     # Execution
-    profiles = calcFrequency(k, peak, testData)
+    profiles = calcFrequency(k, peak, testData,no_sec_peak)
     p1 = profiles[0]
     p2 = profiles[1]
 
@@ -47,9 +49,10 @@ def test_calcFrequency_peak():  # tests if InputValueException is thrown if peak
     # Preparation
     k = 5
     peak = 999
+    no_sec_peak = -1
 
     # Execution
-    calcFrequency(k, peak, testData)  # raises InputValueException
+    calcFrequency(k, peak, testData,no_sec_peak)  # raises InputValueException
 
 
 @pytest.mark.xfail(raises=InputValueException)
@@ -57,9 +60,10 @@ def test_calcFrequency_k():  # tests if InputValueException is thrown if k => se
     # Test1: k > sequence length
     # Preparation
     k = 7
+    no_sec_peak = -1
 
     # Execution
-    calcFrequency(k, None, testData)  # raises InputValueException
+    calcFrequency(k, None, testData,no_sec_peak)  # raises InputValueException
 
 
 def test_createDataFrame():

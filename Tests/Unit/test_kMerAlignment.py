@@ -9,7 +9,9 @@ def test_processData():
     k = 5
     top = 3
     peak = None
-    process = KMerAlignmentData(test_data, test_data, k, peak, top, None, False)
+    no_sec_peak = -1
+    struct_data = None
+    process = KMerAlignmentData(test_data, test_data, k, peak, top, None, False, struct_data, no_sec_peak)
 
     # execution
     algnm_list, f1, f2 = KMerAlignmentData.processData(process)
@@ -33,7 +35,9 @@ def test_processData():
     k = 5
     top = 3
     peak = 2
-    process2 = KMerAlignmentData(test_data, test_data, k, peak, top, None, False)
+    no_sec_peak = -1
+    struct_data = None
+    process2 = KMerAlignmentData(test_data, test_data, k, peak, top, None, False, struct_data, no_sec_peak)
 
     # execution
     algnm_list, f1, f2 = KMerAlignmentData.processData(process2)
@@ -54,7 +58,9 @@ def test_processData():
     k = 5
     top = 3
     peak = 7
-    process3 = KMerAlignmentData(test_data, test_data, k, peak, top, None, False)
+    no_sec_peak = -1
+    struct_data = None
+    process3 = KMerAlignmentData(test_data, test_data, k, peak, top, None, False, struct_data, no_sec_peak)
 
     # execution
     algnm_list, f1, f2 = KMerAlignmentData.processData(process3)
@@ -75,7 +81,9 @@ def test_processData():
     k = 5
     top = 3
     peak = 1
-    process4 = KMerAlignmentData(test_data, test_data, k, peak, top, None, False)
+    no_sec_peak = -1
+    struct_data = None
+    process4 = KMerAlignmentData(test_data, test_data, k, peak, top, None, False, struct_data, no_sec_peak)
 
     # execution
     algnm_list, f1, f2 = KMerAlignmentData.processData(process4)
@@ -99,8 +107,10 @@ def test_processData():
     k = 5
     top = 3
     peak = None
+    no_sec_peak = -1
+    struct_data = None
     cmd = True
-    process5 = KMerAlignmentData(test_data, test_data, k, peak, top, None, cmd)
+    process5 = KMerAlignmentData(test_data, test_data, k, peak, top, None, cmd, struct_data, no_sec_peak)
 
     # execution
     algnm_list5, f1, f2 = KMerAlignmentData.processData(process5)
@@ -111,7 +121,6 @@ def test_processData():
 
     # testing
     assert len(algnm_list5) == 1
-    assert len(algnm2_list) == 6
     assert algnm1_list == ['TTTGG---', 'GTTGG---', '-TTGGG--', '--TGGGG-', '--GGGGC-', '---GGGCA']
     assert f1 == "testFile2.fa"
     assert f2 is None
@@ -122,7 +131,9 @@ def test_processData():
     top = 3
     peak = 2
     cmd = True
-    process6 = KMerAlignmentData(test_data, test_data, k, peak, top, None, cmd)
+    no_sec_peak = -1
+    struct_data = None
+    process6 = KMerAlignmentData(test_data, test_data, k, peak, top, None, cmd, struct_data, no_sec_peak)
 
     # execution
     algnm_list6, f1, f2 = KMerAlignmentData.processData(process6)

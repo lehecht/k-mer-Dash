@@ -8,7 +8,10 @@ def test_processData():
     k = 5
     top = 3
     peak = None
-    process = KMerPCAData(test_data, test_data, k, peak, top, None, False)
+    cmd = False
+    no_sec_peak = -1
+    struct_data = None
+    process = KMerPCAData(test_data, test_data, k, peak, top, None, cmd, struct_data, no_sec_peak)
 
     triplets = process.all_triplets
 
@@ -36,7 +39,10 @@ def test_processData():
     k = 5
     top = 3
     peak = 2
-    process2 = KMerPCAData(test_data, test_data, k, peak, top, None, False)
+    cmd = False
+    no_sec_peak = -1
+    struct_data = None
+    process2 = KMerPCAData(test_data, test_data, k, peak, top, None, cmd, struct_data, no_sec_peak)
 
     # Executing
     results2 = KMerPCAData.processData(process2)
@@ -61,7 +67,10 @@ def test_processData():
     k = 5
     top = 10
     peak = None
-    process3 = KMerPCAData(test_data, test_data, k, peak, top, None, False)
+    cmd = False
+    no_sec_peak = -1
+    struct_data = None
+    process3 = KMerPCAData(test_data, test_data, k, peak, top, None, cmd, struct_data, no_sec_peak)
 
     # Executing
     results3 = KMerPCAData.processData(process3)
@@ -102,7 +111,10 @@ def test_processData():
     k = 5
     top = 10
     peak = 3
-    process4 = KMerPCAData(test_data, test_data, k, peak, top, None, False)
+    cmd = False
+    no_sec_peak = -1
+    struct_data = None
+    process4 = KMerPCAData(test_data, test_data, k, peak, top, None, cmd, struct_data, no_sec_peak)
 
     # Executing
     results4 = KMerPCAData.processData(process4)
@@ -119,9 +131,6 @@ def test_processData():
 
     trip_count1 = freq1.loc[:, "AAA":"TTT"]
     trip_count2 = freq2.loc[:, "AAA":"TTT"]
-
-    print(kmer_list1)
-    print(kmer_list2)
 
     # Testing
     assert kmer_list1 == ['aAccc', 'Acccc', 'aaAcc', 'caAcc', 'aaAaa', 'aAaaa', 'Aaaaa']
