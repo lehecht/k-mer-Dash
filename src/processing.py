@@ -66,8 +66,6 @@ class Processing:
             if not struct_data is None:
                 self.no_sec_peak = no_sec_peak
                 struct_kmer_list1, struct_alphabet1 = calcFrequency(2, None, [str(struct_data[0])], no_sec_peak)
-                print(struct_kmer_list1)
-                print(struct_alphabet1)
                 self.struct_profile1 = StructProfile(struct_kmer_list1, str(struct_data[0]), struct_alphabet1)
                 if len(struct_data) > 1:
                     struct_kmer_list2, struct_alphabet2 = calcFrequency(2, None, [str(struct_data[1])], no_sec_peak)

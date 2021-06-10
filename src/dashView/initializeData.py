@@ -22,6 +22,8 @@ def initData(data, selected, k, peak, top, feature, secStruct_data, no_sec_peak)
 
 
 def getTemplateSecondaryStructuer(process):
+    color_scale = px.colors.sequential.Viridis
+
     structProfile1 = process.getStructProfil1()
     structProfile2 = process.getStructProfil2()
 
@@ -42,6 +44,7 @@ def getTemplateSecondaryStructuer(process):
             color1, color_domain_max1, not_matched = SecStructure.createHeatMapColoring(process, s1[0],
                                                                                         structProfile1_profil,
                                                                                         no_seq_peak)
+            print(color1)
         else:
             color1 = []
             color_domain_max1 = []
@@ -84,7 +87,7 @@ def getTemplateSecondaryStructuer(process):
                     color2.append(color)
                     color_domain_max2.append(color_domain_max)
 
-            return s1, s2, color1, color2, color_domain_max1, color_domain_max2
+            return s1, s2, color1, color2, color_domain_max1, color_domain_max2, color_scale
         else:
             if isinstance(s1[0], str):
                 structProfile1.setTemplate(s1[0])
@@ -107,9 +110,9 @@ def getTemplateSecondaryStructuer(process):
                     color1.append(color)
                     color_domain_max1.append(color_domain_max)
 
-            return s1, None, color1, None, color_domain_max1, None
+            return s1, None, color1, None, color_domain_max1, None,color_scale
     else:
-        return None, None, None, None, None, None
+        return None, None, None, None, None, None, None
 
 
 # gets alignment data

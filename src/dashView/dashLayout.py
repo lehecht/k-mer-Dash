@@ -409,7 +409,7 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, sec_peak, data):
 
     seq_len = new_process.getSeqLen()
 
-    struct1, struct2, color1, color2, color_domain_max1, color_domain_max2 = initializeData.getTemplateSecondaryStructuer(
+    struct1, struct2, color1, color2, color_domain_max1, color_domain_max2, color_scale = initializeData.getTemplateSecondaryStructuer(
         new_process)
 
     if not struct1 is None and not struct2 is None:
@@ -423,8 +423,8 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, sec_peak, data):
         dbs = []
 
     data = {'topK': top_k_table, 'msas': msas, 'scatter': scatter, 'pcas': pcas, 'seqLen': seq_len,
-            'templates': templates, 'dbs': dbs, 'colors': [color1, color2],
-            'color_max': [color_domain_max1, color_domain_max2]}
+            'templates': templates, 'dbs': dbs, 'colors': [color1,color2],
+            'color_max': [color_domain_max1, color_domain_max2],'color_scale':color_scale}
 
     return data
 
@@ -551,6 +551,7 @@ def updateSliderRange(file1, file2, ts, data):
 
     return k_p_slider_min, k_slider_max, k_range, peak_min, k_p_slider_max, peak_range
 
+
 # ----------------------------------------- Checkbox-Updater -----------------------------------------------------------
 @app.callback([
     dash.dependencies.Output("sec_peak", "options"),
@@ -561,9 +562,10 @@ def updateFile3Dropdown(ts):
         raise PreventUpdate
 
     if struct_data is None:
-        return [[{'label': 'show only peak positions', 'value': 'peaking','disabled':True}]]
+        return [[{'label': 'show only peak positions', 'value': 'peaking', 'disabled': True}]]
     else:
-        return [[{'label': 'show only peak positions', 'value': 'peaking','disabled':False}]]
+        return [[{'label': 'show only peak positions', 'value': 'peaking', 'disabled': False}]]
+
 
 # ----------------------------------------- Forna-Container Update -----------------------------------------------------
 
@@ -590,6 +592,8 @@ def show_selected_sequences(data, f3, f4):
     color_domain_max1 = data['color_max'][0]
     color_domain_max2 = data['color_max'][1]
 
+    color_range = data['color_scale']
+
     disable_t1 = False
     disable_t2 = False
 
@@ -600,8 +604,9 @@ def show_selected_sequences(data, f3, f4):
     tab2_label = "RNA-Structure Heatmap 2"
 
     if not struct_data is None:
-        color_domain1 = [i for i in range(0, color_domain_max1, round(color_domain_max1 / 4))]
+        color_domain1 = [i for i in range(0, color_domain_max1, round(color_domain_max1 / len(color_range)))]
         color_domain1.append(color_domain_max1)
+        color_domain1 = list(set(color_domain1))
 
         color1 = data['colors'][0]
 
@@ -609,7 +614,7 @@ def show_selected_sequences(data, f3, f4):
 
         custom_colors = {
             'domain': color_domain1,
-            'range': ['rgb(0, 0, 255)', 'rgb(173, 0, 206)', 'rgb(255, 0, 0)', 'rgb(238, 140, 0)', 'rgb(255, 255, 0)'],
+            'range': color_range,
             'colorValues': {
                 'template1': color1,
             }
@@ -622,16 +627,16 @@ def show_selected_sequences(data, f3, f4):
         }]
 
         if len(template_list) > 1:  # more than one structure file committed
-            color_domain2 = [i for i in range(0, color_domain_max2, round(color_domain_max2 / 4))]
+            color_domain2 = [i for i in range(0, color_domain_max2, round(color_domain_max2 / len(color_range)))]
             color_domain2.append(color_domain_max2)
+            color_domain2 = list(set(color_domain2))
             color2 = data['colors'][1]
 
             tab2_label = os.path.basename(struct_data[int(f4)]) + " Structure Heatmap"
 
             custom_colors2 = {
                 'domain': color_domain2,
-                'range': ['rgb(0, 0, 255)', 'rgb(173, 0, 206)', 'rgb(255, 0, 0)', 'rgb(238, 140, 0)',
-                          'rgb(255, 255, 0)'],
+                'range': color_range,
                 'colorValues': {
                     'template2': color2,
                 }
