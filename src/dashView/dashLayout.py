@@ -144,19 +144,107 @@ app.layout = dbc.Container([
                                     id="sec_peak",
                                 ),
                                 html.Br(),
-                                html.Div("Normalization:",style={'font-weight':'bold','padding-bottom':'10px'}),
-                                # html.Br(),
+                                html.Div("Normalization:", style={'font-weight': 'bold', 'padding-bottom': '10px'}),
+                                html.Div("ERROR: sum of custom rates should be equal to 1", id="error",
+                                         style={'font-weight': 'bold', 'color': 'red',
+                                                'padding-bottom': '10px'}, hidden=True),
+                                html.Div("ERROR: only numerical values between zero and one allowed", id="error_type",
+                                         style={'font-weight': 'bold', 'color': 'red',
+                                                'padding-bottom': '10px'}, hidden=True),
                                 dcc.RadioItems(
                                     id="db",
                                     options=[
                                         {'label': 'none', 'value': 'none'},
                                         {'label': 'use A.thaliana database', 'value': 'at_db'},
-                                        {'label': 'enter custom k-mer counts', 'value': 'custom_vals'}
+                                        {'label': 'enter custom k-mer rates', 'value': 'custom_vals'}
                                     ],
                                     value='none',
                                     labelStyle={'display': 'block'}
                                 ),
-                                html.Div(id="norm_input", style={'display': 'block'}),
+                                html.Div(id="norm_input", children=[
+                                    html.Table(children=[
+                                        html.Tr(children=[
+                                            html.Td(children=[
+                                                html.Div("EE"),
+                                                dbc.Input(id="EE", type="number", style={'width': '100px'}, max=1,
+                                                          min=0, step=0.0001, value=0)], ),
+                                            html.Td(children=[
+                                                html.Div("ES"),
+                                                dbc.Input(id="ES", type="number", style={'width': '100px'}, max=1,
+                                                          min=0, step=0.0001, value=0)], ),
+                                            html.Td(children=[
+                                                html.Div("SS"),
+                                                dbc.Input(id="SS", type="number", style={'width': '100px'}, max=1,
+                                                          min=0, step=0.0001, value=0)], )
+                                        ]),
+                                        html.Tr(children=[
+                                            html.Td(children=[
+                                                html.Div("SI"),
+                                                dbc.Input(id="SI", type="number", style={'width': '100px'}, max=1,
+                                                          min=0, step=0.0001, value=0), ], ),
+                                            html.Td(children=[
+                                                html.Div("IS"),
+                                                dbc.Input(id="IS", type="number", style={'width': '100px'}, max=1,
+                                                          min=0, step=0.0001, value=0), ], ),
+                                            html.Td(children=[
+                                                html.Div("II"),
+                                                dbc.Input(id="II", type="number", style={'width': '100px'}, max=1,
+                                                          min=0, step=0.0001, value=0), ], )
+                                        ]),
+                                        html.Tr(children=[
+                                            html.Td(children=[
+                                                html.Div("SH"),
+                                                dbc.Input(id="SH", type="number", style={'width': '100px'}, max=1,
+                                                          min=0, step=0.0001, value=0), ], ),
+                                            html.Td(children=[
+                                                html.Div("HS"),
+                                                dbc.Input(id="HS", type="number", style={'width': '100px'}, max=1,
+                                                          min=0, step=0.0001, value=0), ], ),
+                                            html.Td(children=[
+                                                html.Div("HH"),
+                                                dbc.Input(id="HH", type="number", style={'width': '100px'}, max=1,
+                                                          min=0, step=0.0001, value=0), ], )
+                                        ]),
+                                        html.Tr(children=[
+                                            html.Td(children=[
+                                                html.Div("SM"),
+                                                dbc.Input(id="SM", type="number", style={'width': '100px'}, max=1,
+                                                          min=0, step=0.0001, value=0), ], ),
+                                            html.Td(children=[
+                                                html.Div("MS"),
+                                                dbc.Input(id="MS", type="number", style={'width': '100px'}, max=1,
+                                                          min=0, step=0.0001, value=0), ], ),
+                                            html.Td(children=[
+                                                html.Div("SE"),
+                                                dbc.Input(id="SE", type="number", style={'width': '100px'}, max=1,
+                                                          min=0, step=0.0001, value=0), ], ),
+
+                                        ]),
+                                        html.Tr(children=[
+                                            html.Td(children=[
+                                                html.Div("BB"),
+                                                dbc.Input(id="BB", type="number", style={'width': '100px'}, max=1,
+                                                          min=0, step=0.0001, value=0), ], ),
+                                            html.Td(children=[
+                                                html.Div("BS"),
+                                                dbc.Input(id="BS", type="number", style={'width': '100px'}, max=1,
+                                                          min=0, step=0.0001, value=0), ], ),
+                                            html.Td(children=[
+                                                html.Div("SB"),
+                                                dbc.Input(id="SB", type="number", style={'width': '100px'}, max=1,
+                                                          min=0, step=0.0001, value=0), ], ),
+
+                                        ]),
+                                        html.Tr(children=[
+                                            html.Td(children=[
+                                                html.Div("MM"),
+                                                dbc.Input(id="MM", type="number", style={'width': '100px'}, max=1,
+                                                          min=0, step=0.0001, value=0), ], ),
+
+                                        ])
+                                    ], style={'width': '100%'}
+                                    )
+                                ], style={'display': 'block'}, hidden=True),
 
                             ]),
                             dbc.ModalFooter(children=[
@@ -280,17 +368,37 @@ app.layout = dbc.Container([
 # ------------------------------------ Store Callback ------------------------------------------------------------------
 
 @app.callback(
-    dash.dependencies.Output('memory', 'data'),
-    dash.dependencies.Input('file1', 'value'),
-    dash.dependencies.Input('file2', 'value'),
-    dash.dependencies.Input('file3', 'value'),
-    dash.dependencies.Input('file4', 'value'),
-    dash.dependencies.Input('k', 'value'),
-    dash.dependencies.Input('peak', 'value'),
-    dash.dependencies.Input('top', 'value'),
-    dash.dependencies.Input('Feature', 'value'),
-    dash.dependencies.Input('sec_peak', 'value'),
-    dash.dependencies.State('memory', 'data'),
+    [dash.dependencies.Output('memory', 'data'),
+     dash.dependencies.Output('error', 'hidden'),
+     dash.dependencies.Output('error_type', 'hidden')
+     ],
+    [dash.dependencies.Input('file1', 'value'),
+     dash.dependencies.Input('file2', 'value'),
+     dash.dependencies.Input('file3', 'value'),
+     dash.dependencies.Input('file4', 'value'),
+     dash.dependencies.Input('k', 'value'),
+     dash.dependencies.Input('peak', 'value'),
+     dash.dependencies.Input('top', 'value'),
+     dash.dependencies.Input('Feature', 'value'),
+     dash.dependencies.Input('sec_peak', 'value'),
+     dash.dependencies.Input('opt_btn_apply', 'n_clicks'),
+     dash.dependencies.State('EE', 'value'),
+     dash.dependencies.State('SS', 'value'),
+     dash.dependencies.State('II', 'value'),
+     dash.dependencies.State('MM', 'value'),
+     dash.dependencies.State('BB', 'value'),
+     dash.dependencies.State('SI', 'value'),
+     dash.dependencies.State('IS', 'value'),
+     dash.dependencies.State('SM', 'value'),
+     dash.dependencies.State('MS', 'value'),
+     dash.dependencies.State('ES', 'value'),
+     dash.dependencies.State('SE', 'value'),
+     dash.dependencies.State('HH', 'value'),
+     dash.dependencies.State('HS', 'value'),
+     dash.dependencies.State('SH', 'value'),
+     dash.dependencies.State('SB', 'value'),
+     dash.dependencies.State('BS', 'value'),
+     dash.dependencies.State('memory', 'data')]
 )
 # calculates new data for tables/diagrams
 # k: kmer length
@@ -298,7 +406,24 @@ app.layout = dbc.Container([
 # top: number of best values
 # pca_feature: number of T or kmer-Frequency for pcas
 # data: storage to share data between callbacks
-def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, sec_peak, data):
+def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, sec_peak, apply_options_btn, ee, ss, ii, mm, bb, su, i_s, sm,
+               ms, es, se, hh, hs, sh, sb, bs, data):
+    hide_error_msg = True
+    hide_error_type_msg = True
+
+    if apply_options_btn:
+        input = [ee, ss, ii, mm, bb, su, i_s, sm, ms, es, se, hh, hs, sh, sb, bs]
+        if None in input:
+            hide_error_type_msg = False
+            return data, hide_error_msg, hide_error_type_msg
+
+        check_sum = ee + ss + ii + mm + bb + su + i_s + sm + ms + es + se + hh + hs + sh + sb + bs
+        if not (check_sum == 1):
+            hide_error_msg = False
+            return data, hide_error_msg, hide_error_type_msg
+        else:
+            return data, hide_error_msg, hide_error_type_msg
+
     top_opt_val = {'0': 10, '1': 20, '2': 50, '3': 100}
 
     top = top_opt_val[top]
@@ -314,6 +439,7 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, sec_peak, data):
         no_sec_peak = 1
 
     if data is None:
+        data = dict()
         selected = [file_list[0], file_list[1]]
 
         if not struct_data is None:
@@ -420,9 +546,9 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, sec_peak, data):
 
     data = {'topK': top_k_table, 'msas': msas, 'scatter': scatter, 'pcas': pcas, 'seqLen': seq_len,
             'templates': templates, 'dbs': dbs, 'colors': [color1, color2],
-            'color_max': [color_domain_max1, color_domain_max2], 'color_scale': color_scale}
+            'color_max': [color_domain_max1, color_domain_max2], 'color_scale': color_scale, "rates": []}
 
-    return data
+    return data, hide_error_msg, hide_error_type_msg
 
 
 # --------------------------------------- File Dropdown Updater --------------------------------------------------------
@@ -668,82 +794,63 @@ def show_selected_sequences(data, f3, f4):
 
 # -------------------------------------------- Modals Updater ----------------------------------------------------------
 
-@app.callback(dash.dependencies.Output('ex_options', 'is_open'),
-              dash.dependencies.Input('memory', 'modified_timestamp'),
-              dash.dependencies.Input('opt_btn_open', 'n_clicks'),
-              dash.dependencies.Input('opt_btn_close', 'n_clicks'),
-              dash.dependencies.Input('opt_btn_apply', 'n_clicks'),
-              dash.dependencies.State('ex_options', 'is_open'))
+@app.callback([dash.dependencies.Output('ex_options', 'is_open'),
+               dash.dependencies.Output('norm_input', 'hidden'),
+               # dash.dependencies.Output('error', 'hidden'),
+               ],
+              [dash.dependencies.Input('memory', 'modified_timestamp'),
+               dash.dependencies.Input('opt_btn_open', 'n_clicks'),
+               dash.dependencies.Input('opt_btn_close', 'n_clicks'),
+               # dash.dependencies.Input('opt_btn_apply', 'n_clicks'),
+               # dash.dependencies.Input('EE', 'value'),
+               # dash.dependencies.Input('SS', 'value'),
+               # dash.dependencies.Input('II', 'value'),
+               # dash.dependencies.Input('MM', 'value'),
+               # dash.dependencies.Input('BB', 'value'),
+               # dash.dependencies.Input('SI', 'value'),
+               # dash.dependencies.Input('IS', 'value'),
+               # dash.dependencies.Input('SM', 'value'),
+               # dash.dependencies.Input('MS', 'value'),
+               # dash.dependencies.Input('ES', 'value'),
+               # dash.dependencies.Input('SE', 'value'),
+               # dash.dependencies.Input('HH', 'value'),
+               # dash.dependencies.Input('HS', 'value'),
+               # dash.dependencies.Input('SH', 'value'),
+               # dash.dependencies.Input('SB', 'value'),
+               # dash.dependencies.Input('BS', 'value'),
+               dash.dependencies.Input('db', 'value'),
+               dash.dependencies.State('ex_options', 'is_open'),
+               ])
 # ts: timestamp when data was modified
 # data: storage to share data between callbacks
-def updateExtendedOptionModal(ts, btn_open, btn_close, btn_apply, is_open):
-    if ts is None:
-        raise PreventUpdate
-    if btn_open or btn_close or btn_apply:
-        return not is_open
-    else:
-        return is_open
-
-
-@app.callback(dash.dependencies.Output('norm_input', 'children'),
-              dash.dependencies.Input('memory', 'modified_timestamp'),
-              dash.dependencies.Input('db', 'value'))
-def showNormInputFields(ts, radio_val):
+def updateExtendedOptionModal(ts, btn_open, btn_close,
+                              # btn_apply, ee, ss, ii, mm, bb, su, i_s, sm, ms, es, se, hh, hs,
+                              # sh, sb, bs,
+                              norm_val, is_open):
     if ts is None:
         raise PreventUpdate
 
-    if radio_val == 'custom_vals':
-        input_field = [
-            html.Table(children=[
-                html.Tr(children=[
-                    html.Td(children=[
-                        html.Div("EE"),
-                        dbc.Input(id="EE", type="number", style={'width': '100px'}, max=1, min=0, step=0.05)], ),
-                    html.Td(children=[
-                        html.Div("ES"),
-                        dbc.Input(id="ES", type="number", style={'width': '100px'}, max=1, min=0, step=0.05)], ),
-                    html.Td(children=[
-                        html.Div("SS"),
-                        dbc.Input(id="SS", type="number", style={'width': '100px'}, max=1, min=0, step=0.05)], )
-                ]),
-                html.Tr(children=[
-                    html.Td(children=[
-                        html.Div("SI"),
-                        dbc.Input(id="SI", type="number", style={'width': '100px'}, max=1, min=0, step=0.05), ], ),
-                    html.Td(children=[
-                        html.Div("IS"),
-                        dbc.Input(id="IS", type="number", style={'width': '100px'}, max=1, min=0, step=0.05), ], ),
-                    html.Td(children=[
-                        html.Div("II"),
-                        dbc.Input(id="II", type="number", style={'width': '100px'}, max=1, min=0, step=0.05), ], )
-                ]),
-                html.Tr(children=[
-                    html.Td(children=[
-                        html.Div("SH"),
-                        dbc.Input(id="SH", type="number", style={'width': '100px'}, max=1, min=0, step=0.05), ], ),
-                    html.Td(children=[
-                        html.Div("HS"),
-                        dbc.Input(id="HS", type="number", style={'width': '100px'}, max=1, min=0, step=0.05), ], ),
-                    html.Td(children=[
-                        html.Div("SM"),
-                        dbc.Input(id="SM", type="number", style={'width': '100px'}, max=1, min=0, step=0.05), ], )
-                ]),
-                html.Tr(children=[
-                    html.Td(children=[
-                        html.Div("MS"),
-                        dbc.Input(id="MS", type="number", style={'width': '100px'}, max=1, min=0, step=0.05), ], ),
-                    html.Td(children=[
-                        html.Div("SE"),
-                        dbc.Input(id="SE", type="number", style={'width': '100px'}, max=1, min=0, step=0.05), ], ),
-
-                ]),
-            ], style={'width': '100%'}
-            )
-
-        ]
-        return input_field
+    if norm_val == 'custom_vals':
+        show_table = False
     else:
-        return []
+        show_table = True
+
+    hide_error_msg = True
+
+    ctx = dash.callback_context
+    btn_id = ctx.triggered[0]['prop_id'].split('.')[0]
+
+    if btn_id == 'opt_btn_open' or btn_id == 'opt_btn_close':
+        return [not is_open, show_table]
+    # elif btn_id == 'opt_btn_apply':
+    #     check_sum = ee + ss + ii + mm + bb + su + i_s + sm + ms + es + se + hh + hs + sh + sb + bs
+    #     if not (check_sum == 1):
+    #         hide_error_msg = False
+    #         return [is_open, show_table, hide_error_msg]
+    #     else:
+    #         return [not is_open, show_table, hide_error_msg]
+    else:
+        return [is_open, show_table]
 
 
 # --------------------------------------------- Diagram/Table Updater --------------------------------------------------
