@@ -240,6 +240,11 @@ app.layout = dbc.Container([
                                                 html.Div("MM"),
                                                 dbc.Input(id="MM", type="number", style={'width': '100px'}, max=1,
                                                           min=0, step=0.0001, value=0), ], ),
+                                            html.Td(children=[]),
+                                            html.Td(children=[
+                                                html.Br(),
+                                                dbc.Button("Reset", id="opt_btn_reset",
+                                                           style={'margin': 'auto'})]),
 
                                         ])
                                     ], style={'width': '100%'}
@@ -252,7 +257,8 @@ app.layout = dbc.Container([
                                     [dbc.Button("Apply", id="opt_btn_apply"),
                                      dbc.Button("Close", id="opt_btn_close")],
                                     className="mr-1",
-                                )
+                                ),
+
                             ]
                             ),
 
@@ -382,22 +388,22 @@ app.layout = dbc.Container([
      dash.dependencies.Input('Feature', 'value'),
      dash.dependencies.Input('sec_peak', 'value'),
      dash.dependencies.Input('opt_btn_apply', 'n_clicks'),
-     dash.dependencies.Input('EE', 'value'),
-     dash.dependencies.Input('SS', 'value'),
-     dash.dependencies.Input('II', 'value'),
-     dash.dependencies.Input('MM', 'value'),
-     dash.dependencies.Input('BB', 'value'),
-     dash.dependencies.Input('SI', 'value'),
-     dash.dependencies.Input('IS', 'value'),
-     dash.dependencies.Input('SM', 'value'),
-     dash.dependencies.Input('MS', 'value'),
-     dash.dependencies.Input('ES', 'value'),
-     dash.dependencies.Input('SE', 'value'),
-     dash.dependencies.Input('HH', 'value'),
-     dash.dependencies.Input('HS', 'value'),
-     dash.dependencies.Input('SH', 'value'),
-     dash.dependencies.Input('SB', 'value'),
-     dash.dependencies.Input('BS', 'value'),
+     dash.dependencies.State('EE', 'value'),
+     dash.dependencies.State('SS', 'value'),
+     dash.dependencies.State('II', 'value'),
+     dash.dependencies.State('MM', 'value'),
+     dash.dependencies.State('BB', 'value'),
+     dash.dependencies.State('SI', 'value'),
+     dash.dependencies.State('IS', 'value'),
+     dash.dependencies.State('SM', 'value'),
+     dash.dependencies.State('MS', 'value'),
+     dash.dependencies.State('ES', 'value'),
+     dash.dependencies.State('SE', 'value'),
+     dash.dependencies.State('HH', 'value'),
+     dash.dependencies.State('HS', 'value'),
+     dash.dependencies.State('SH', 'value'),
+     dash.dependencies.State('SB', 'value'),
+     dash.dependencies.State('BS', 'value'),
      dash.dependencies.State('memory', 'data')]
 )
 # calculates new data for tables/diagrams
@@ -406,28 +412,26 @@ app.layout = dbc.Container([
 # top: number of best values
 # pca_feature: number of T or kmer-Frequency for pcas
 # data: storage to share data between callbacks
-def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, sec_peak, apply_options_btn, ee, ss, ii, mm, bb, su, Is, sm,
-               ms, es, se, hh, hs, sh, sb, bs, data):
+def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, sec_peak, apply_options_btn,
+               ee, ss, ii, mm, bb, si, Is, sm, ms, es, se, hh, hs, sh, sb, bs, data):
     hide_error_msg = True
     hide_error_type_msg = True
 
-    input = [ee, ss, ii, mm, bb, su, Is, sm, ms, es, se, hh, hs, sh, sb, bs]
+    normalization_vector = None
 
-    if apply_options_btn:
-        if None in input:
+    if apply_options_btn and not data is None:
+        custom_rates = [ee, ss, ii, mm, bb, si, Is, sm, ms, es, se, hh, hs, sh, sb, bs]
+        labels = ["EE", "SS", "II", "MM", "BB", "SI", "IS", "SM", "MS", "ES", "SE", "HH", "HS", "SH", "SB", "BS"]
+
+        if None in custom_rates:
             hide_error_type_msg = False
             return data, hide_error_msg, hide_error_type_msg
-
-        check_sum = ee + ss + ii + mm + bb + su + Is + sm + ms + es + se + hh + hs + sh + sb + bs
+        check_sum = round(sum(custom_rates), 1)
         if not (check_sum == 1):
             hide_error_msg = False
             return data, hide_error_msg, hide_error_type_msg
-        else:
-            return data, hide_error_msg, hide_error_type_msg
 
-    # normalization_vector = {"{}".format(x):x for x in input}
-
-    # print(input)
+        normalization_vector = dict(zip(labels, custom_rates))
 
     top_opt_val = {'0': 10, '1': 20, '2': 50, '3': 100}
 
@@ -536,7 +540,7 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, sec_peak, apply_option
     seq_len = new_process.getSeqLen()
 
     struct1, struct2, color1, color2, color_domain_max1, color_domain_max2, color_scale = initializeData.getTemplateSecondaryStructure(
-        new_process)
+        new_process, normalization_vector)
 
     if not struct1 is None and not struct2 is None:
         templates = [struct1[0], struct2[0]]
@@ -552,7 +556,7 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, sec_peak, apply_option
             'templates': templates, 'dbs': dbs, 'colors': [color1, color2],
             'color_max': [color_domain_max1, color_domain_max2], 'color_scale': color_scale}
 
-    return data, hide_error_msg, hide_error_type_msg
+    return data, dash.no_update, dash.no_update
 
 
 # --------------------------------------- File Dropdown Updater --------------------------------------------------------
@@ -800,16 +804,37 @@ def show_selected_sequences(data, f3, f4):
 
 @app.callback([dash.dependencies.Output('ex_options', 'is_open'),
                dash.dependencies.Output('norm_input', 'hidden'),
+               dash.dependencies.Output('EE', 'value'),
+               dash.dependencies.Output('SS', 'value'),
+               dash.dependencies.Output('II', 'value'),
+               dash.dependencies.Output('MM', 'value'),
+               dash.dependencies.Output('BB', 'value'),
+               dash.dependencies.Output('SI', 'value'),
+               dash.dependencies.Output('IS', 'value'),
+               dash.dependencies.Output('SM', 'value'),
+               dash.dependencies.Output('MS', 'value'),
+               dash.dependencies.Output('ES', 'value'),
+               dash.dependencies.Output('SE', 'value'),
+               dash.dependencies.Output('HH', 'value'),
+               dash.dependencies.Output('HS', 'value'),
+               dash.dependencies.Output('SH', 'value'),
+               dash.dependencies.Output('SB', 'value'),
+               dash.dependencies.Output('BS', 'value'),
+
                ],
               [dash.dependencies.Input('memory', 'modified_timestamp'),
                dash.dependencies.Input('opt_btn_open', 'n_clicks'),
                dash.dependencies.Input('opt_btn_close', 'n_clicks'),
+               dash.dependencies.Input('opt_btn_apply', 'n_clicks'),
+               dash.dependencies.Input('opt_btn_reset', 'n_clicks'),
                dash.dependencies.Input('db', 'value'),
+               dash.dependencies.Input('error', 'hidden'),
+               dash.dependencies.Input('error_type', 'hidden'),
                dash.dependencies.State('ex_options', 'is_open'),
                ])
 # ts: timestamp when data was modified
 # data: storage to share data between callbacks
-def updateExtendedOptionModal(ts, btn_open, btn_close, norm_val, is_open):
+def updateExtendedOptionModal(ts, btn_open, btn_close, btn_apply, btn_reset, norm_val, error1, error2, is_open):
     if ts is None:
         raise PreventUpdate
 
@@ -821,10 +846,28 @@ def updateExtendedOptionModal(ts, btn_open, btn_close, norm_val, is_open):
     else:
         show_table = True
 
+    no_update = [dash.no_update for i in range(0, 16)]
     if btn_id == "opt_btn_open" or btn_id == "opt_btn_close":
-        return [not is_open, show_table]
+        res = [not is_open, show_table]
+        res.extend(no_update)
+        return res
+    elif btn_id == 'opt_btn_apply':
+        if not error1 or not error2:
+            res = [is_open, show_table]
+            res.extend(no_update)
+            return res
+        else:
+            res = [not is_open, show_table]
+            res.extend(no_update)
+            return res
     else:
-        return [is_open, show_table]
+        res = [is_open, show_table]
+        if btn_id == "opt_btn_reset":
+            zeros = [0 for i in range(0, 16)]
+            res.extend(zeros)
+        else:
+            res.extend(no_update)
+        return res
 
 
 # --------------------------------------------- Diagram/Table Updater --------------------------------------------------

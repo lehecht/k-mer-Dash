@@ -7,8 +7,8 @@ import math
 
 class SecStructure(Processing):
 
-    def __init__(self, data, selected, k, peak, top, feature, cmd, secStruct_data,no_sec_peak):
-        super().__init__(data, selected, k, peak, top, feature, cmd, secStruct_data,no_sec_peak)
+    def __init__(self, data, selected, k, peak, top, feature, cmd, secStruct_data, no_sec_peak):
+        super().__init__(data, selected, k, peak, top, feature, cmd, secStruct_data, no_sec_peak)
 
     def createTemplate(self, alphabet):
         k = 3
@@ -46,7 +46,9 @@ class SecStructure(Processing):
 
         return result, result_dotbracket_string
 
-    def createHeatMapColoring(self, template1, struct_kmer_list1,no_sec_peak, not_matched=None,):
+    def createHeatMapColoring(self, template1, struct_kmer_list1, no_sec_peak, not_matched=None):
+
+        norm_vector = self.getNormVector()
 
         if not_matched is None:
             not_matched = []
@@ -59,31 +61,34 @@ class SecStructure(Processing):
 
         color_hm1 = {str(i): 0 for i in range(1, len(template1) + 1)}
         color_hm1, not_matched_kmer1, color_domain_max1 = createColorVector(k, template1_sTree, struct_kmer_list1,
-                                                                            color_hm1,no_sec_peak)
+                                                                            color_hm1, no_sec_peak, norm_vector)
         return color_hm1, color_domain_max1, not_matched_kmer1
 
 
-def createColorVector(k, tree, kmer_list, color_hm,no_sec_peak):
+def createColorVector(k, tree, kmer_list, color_hm, no_sec_peak, norm_vector):
     not_matched_kmer = []
 
     for kmer in kmer_list:
         idx = tree.find(kmer.upper())
+        if norm_vector is None:
+            norm = 1
+        else:
+            norm = norm_vector[kmer.upper()]
+            if norm == 0:
+                norm = 1
         if idx >= 0:
             if no_sec_peak == 0:
                 for match in re.finditer('[A-Z]', kmer):
                     if match.group() == 1:
                         idx += 1
-                color_hm[str(idx + 1)] += kmer_list[kmer]
+                color_hm[str(idx + 1)] += (kmer_list[kmer] / norm)
             else:
                 for i in range(0, k):
-                    color_hm[str(idx + i + 1)] += kmer_list[kmer]
+                    color_hm[str(idx + i + 1)] += (kmer_list[kmer] / norm)
         else:
             not_matched_kmer.append(kmer)
-
-    # print(color_hm)
     color_hm = {x: round(math.log(y, 2)) if y > 0 else y for x, y in color_hm.items()}
     max_val = max(color_hm.values())
-    # print(color_hm, max_val)
     color_domain_max = round(max_val, -1)
 
     return color_hm, not_matched_kmer, color_domain_max
