@@ -383,8 +383,8 @@ app.layout = dbc.Container([
      dash.dependencies.Input('peak', 'value'),
      dash.dependencies.Input('top', 'value'),
      dash.dependencies.Input('Feature', 'value'),
-     dash.dependencies.Input('sec_peak', 'value'),
      dash.dependencies.Input('opt_btn_apply', 'n_clicks'),
+     dash.dependencies.State('sec_peak', 'value'),
      dash.dependencies.State('error', 'hidden'),
      dash.dependencies.State('error_type', 'hidden'),
      dash.dependencies.State('EE', 'value'),
@@ -403,6 +403,7 @@ app.layout = dbc.Container([
      dash.dependencies.State('SH', 'value'),
      dash.dependencies.State('SB', 'value'),
      dash.dependencies.State('BS', 'value'),
+     dash.dependencies.State('db', 'value'),
      dash.dependencies.State('memory', 'data')]
 )
 # calculates new data for tables/diagrams
@@ -411,15 +412,12 @@ app.layout = dbc.Container([
 # top: number of best values
 # pca_feature: number of T or kmer-Frequency for pcas
 # data: storage to share data between callbacks
-def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, sec_peak, apply_options_btn, hide_error1, hide_error2,
-               ee, ss, ii, mm, bb, si, Is, sm, ms, es, se, hh, hs, sh, sb, bs, data):
+def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, apply_options_btn, sec_peak, hide_error1, hide_error2,
+               ee, ss, ii, mm, bb, si, Is, sm, ms, es, se, hh, hs, sh, sb, bs,norm_option, data):
 
     normalization_vector = None
 
-    ctx = dash.callback_context
-    triggered_component = ctx.triggered[0]['prop_id'].split('.')[0]
-
-    if triggered_component == 'opt_btn_apply':
+    if not apply_options_btn is None and norm_option == 'custom_vals':
         custom_rates = [ee, ss, ii, mm, bb, si, Is, sm, ms, es, se, hh, hs, sh, sb, bs]
         labels = ["EE", "SS", "II", "MM", "BB", "SI", "IS", "SM", "MS", "ES", "SE", "HH", "HS", "SH", "SB", "BS"]
         if hide_error1 and hide_error2 and apply_options_btn > 1:
