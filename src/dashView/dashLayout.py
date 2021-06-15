@@ -413,11 +413,13 @@ app.layout = dbc.Container([
 # pca_feature: number of T or kmer-Frequency for pcas
 # data: storage to share data between callbacks
 def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, apply_options_btn, sec_peak, hide_error1, hide_error2,
-               ee, ss, ii, mm, bb, si, Is, sm, ms, es, se, hh, hs, sh, sb, bs,norm_option, data):
-
+               ee, ss, ii, mm, bb, si, Is, sm, ms, es, se, hh, hs, sh, sb, bs, norm_option, data):
     normalization_vector = None
 
+    custom_norm_vec = False
+
     if not apply_options_btn is None and norm_option == 'custom_vals':
+        custom_norm_vec = True
         custom_rates = [ee, ss, ii, mm, bb, si, Is, sm, ms, es, se, hh, hs, sh, sb, bs]
         labels = ["EE", "SS", "II", "MM", "BB", "SI", "IS", "SM", "MS", "ES", "SE", "HH", "HS", "SH", "SB", "BS"]
         if hide_error1 and hide_error2 and apply_options_btn > 1:
@@ -538,7 +540,7 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, apply_options_btn, sec
     seq_len = new_process.getSeqLen()
 
     struct1, struct2, color1, color2, color_domain_max1, color_domain_max2, color_scale = initializeData.getTemplateSecondaryStructure(
-        new_process, normalization_vector)
+        new_process, normalization_vector, custom_norm_vec)
 
     if not struct1 is None and not struct2 is None:
         templates = [struct1[0], struct2[0]]
@@ -812,7 +814,7 @@ def show_selected_sequences(data, f3, f4):
                dash.dependencies.Input('error', 'hidden'),
                dash.dependencies.Input('error_type', 'hidden'),
                dash.dependencies.State('ex_options', 'is_open'),
-               ],prevent_initial_call=True)
+               ], prevent_initial_call=True)
 # ts: timestamp when data was modified
 # data: storage to share data between callbacks
 def updateExtendedOptionModal(ts, btn_open, btn_close, btn_apply, norm_val, error1, error2, is_open):
@@ -859,7 +861,7 @@ def updateExtendedOptionModal(ts, btn_open, btn_close, btn_apply, norm_val, erro
 ],
     [dash.dependencies.Input('memory', 'modified_timestamp'),
      dash.dependencies.Input('opt_btn_reset', 'n_clicks'),
-     ],prevent_initial_call=True)
+     ], prevent_initial_call=True)
 def resetTable(ts, reset_btn):
     if ts is None:
         raise PreventUpdate
@@ -877,30 +879,29 @@ def resetTable(ts, reset_btn):
 ],
     [
         # dash.dependencies.Input('memory', 'modified_timestamp'),
-     dash.dependencies.Input('opt_btn_apply', 'n_clicks'),
-     dash.dependencies.Input('db', 'value'),
-     dash.dependencies.State('EE', 'value'),
-     dash.dependencies.State('SS', 'value'),
-     dash.dependencies.State('II', 'value'),
-     dash.dependencies.State('MM', 'value'),
-     dash.dependencies.State('BB', 'value'),
-     dash.dependencies.State('SI', 'value'),
-     dash.dependencies.State('IS', 'value'),
-     dash.dependencies.State('SM', 'value'),
-     dash.dependencies.State('MS', 'value'),
-     dash.dependencies.State('ES', 'value'),
-     dash.dependencies.State('SE', 'value'),
-     dash.dependencies.State('HH', 'value'),
-     dash.dependencies.State('HS', 'value'),
-     dash.dependencies.State('SH', 'value'),
-     dash.dependencies.State('SB', 'value'),
-     dash.dependencies.State('BS', 'value'),
-     dash.dependencies.State('error', 'hidden'),
-     dash.dependencies.State('error_type', 'hidden'),
-     ],prevent_initial_call=True)
+        dash.dependencies.Input('opt_btn_apply', 'n_clicks'),
+        dash.dependencies.Input('db', 'value'),
+        dash.dependencies.State('EE', 'value'),
+        dash.dependencies.State('SS', 'value'),
+        dash.dependencies.State('II', 'value'),
+        dash.dependencies.State('MM', 'value'),
+        dash.dependencies.State('BB', 'value'),
+        dash.dependencies.State('SI', 'value'),
+        dash.dependencies.State('IS', 'value'),
+        dash.dependencies.State('SM', 'value'),
+        dash.dependencies.State('MS', 'value'),
+        dash.dependencies.State('ES', 'value'),
+        dash.dependencies.State('SE', 'value'),
+        dash.dependencies.State('HH', 'value'),
+        dash.dependencies.State('HS', 'value'),
+        dash.dependencies.State('SH', 'value'),
+        dash.dependencies.State('SB', 'value'),
+        dash.dependencies.State('BS', 'value'),
+        dash.dependencies.State('error', 'hidden'),
+        dash.dependencies.State('error_type', 'hidden'),
+    ], prevent_initial_call=True)
 def showErrorMessages(apply_btn, norm_option, ee, ss, ii, mm, bb, si, Is, sm, ms, es, se, hh, hs, sh, sb, bs,
                       error1, error2):
-
     hide_error_msg = True
     hide_error_type_msg = True
 
@@ -918,7 +919,6 @@ def showErrorMessages(apply_btn, norm_option, ee, ss, ii, mm, bb, si, Is, sm, ms
         if not (check_sum == 1):
             hide_error_msg = False
     return [hide_error_msg, hide_error_type_msg]
-
 
 
 # --------------------------------------------- Diagram/Table Updater --------------------------------------------------

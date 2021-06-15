@@ -21,7 +21,7 @@ def initData(data, selected, k, peak, top, feature, secStruct_data, no_sec_peak)
     return process
 
 
-def getTemplateSecondaryStructure(process,norm_vector):
+def getTemplateSecondaryStructure(process, norm_vector, custom_norm_vec):
     color_scale = px.colors.sequential.Viridis
 
     structProfile1 = process.getStructProfil1()
@@ -31,8 +31,12 @@ def getTemplateSecondaryStructure(process,norm_vector):
 
     no_seq_peak = process.getNoSecPeak()
 
-    if not norm_vector is None:
+    # if not norm_vector is None:
+    if custom_norm_vec:
         process.setNormVector(norm_vector)
+    else:
+        at_norm_vector = process.getATnormVector()
+        process.setNormVector(at_norm_vector)
 
     if not structProfile1 is None:
 

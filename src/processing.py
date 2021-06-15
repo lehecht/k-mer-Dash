@@ -14,7 +14,8 @@ class Processing:
     struct_profile1 = None
     struct_profile2 = None
     no_sec_peak = -1
-    norm_vector = None
+    custom_norm_vector = None
+    at_norm_vector = None
     # struct_alphabet2 = None
     setting = None  # object containing all information, which are needed for calculation
     df = None  # table which contains kmer-frequencies as coordinates (kmer: x:(file1) = fre1,y:(file2)= fre2)
@@ -122,7 +123,13 @@ class Processing:
         return self.no_sec_peak
 
     def getNormVector(self):
-        return self.norm_vector
+        return self.custom_norm_vector
 
     def setNormVector(self,nv):
-        self.norm_vector = nv
+        self.custom_norm_vector = nv
+
+    def getATnormVector(self):
+        return self.at_norm_vector
+
+    def setATnormVector(self,nv):
+        self.at_norm_vector = nv
