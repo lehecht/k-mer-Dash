@@ -4,8 +4,6 @@ from src.profile import Profile
 class StructProfile(Profile):
     template_string = None
     template_dict = None
-    dotbracket_string = None
-    dotbracket_dict = None
     alphabet = None
 
     def __init__(self, profile, name, alpha):
