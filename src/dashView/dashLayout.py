@@ -41,6 +41,14 @@ def markSliderRange(min_val, max_val, peak):
     return mark
 
 
+def check_sum(ee, ss, ii, mm, bb, si, Is, sm, ms, es, se, hh, hs, sh, sb, bs):
+    custom_rates = [ee, ss, ii, mm, bb, si, Is, sm, ms, es, se, hh, hs, sh, sb, bs]
+    kmer_sum = round(sum(custom_rates), 1)
+    check_passed = bool(kmer_sum == 1)
+
+    return check_passed
+
+
 # ------------------------------------------- Dash-Layout --------------------------------------------------------------
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -385,8 +393,6 @@ app.layout = dbc.Container([
      dash.dependencies.Input('Feature', 'value'),
      dash.dependencies.Input('opt_btn_apply', 'n_clicks'),
      dash.dependencies.State('sec_peak', 'value'),
-     dash.dependencies.State('error', 'hidden'),
-     dash.dependencies.State('error_type', 'hidden'),
      dash.dependencies.State('EE', 'value'),
      dash.dependencies.State('SS', 'value'),
      dash.dependencies.State('II', 'value'),
@@ -412,7 +418,7 @@ app.layout = dbc.Container([
 # top: number of best values
 # pca_feature: number of T or kmer-Frequency for pcas
 # data: storage to share data between callbacks
-def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, apply_options_btn, sec_peak, hide_error1, hide_error2,
+def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, apply_options_btn, sec_peak,
                ee, ss, ii, mm, bb, si, Is, sm, ms, es, se, hh, hs, sh, sb, bs, norm_option, data):
     normalization_vector = None
 
@@ -422,16 +428,13 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, apply_options_btn, sec
         custom_norm_vec = True
         custom_rates = [ee, ss, ii, mm, bb, si, Is, sm, ms, es, se, hh, hs, sh, sb, bs]
         labels = ["EE", "SS", "II", "MM", "BB", "SI", "IS", "SM", "MS", "ES", "SE", "HH", "HS", "SH", "SB", "BS"]
-        if hide_error1 and hide_error2 and apply_options_btn > 1:
+        if None in custom_rates:
+            return dash.no_update
+        check_sum_passed = check_sum(ee, ss, ii, mm, bb, si, Is, sm, ms, es, se, hh, hs, sh, sb, bs)
+        if check_sum_passed:
             normalization_vector = dict(zip(labels, custom_rates))
         else:
-            if None in custom_rates:
-                return dash.no_update
-            check_sum = round(sum(custom_rates), 1)
-            if apply_options_btn == 1 and check_sum == 1:
-                normalization_vector = dict(zip(labels, custom_rates))
-            else:
-                return dash.no_update
+            return dash.no_update
 
     top_opt_val = {'0': 10, '1': 20, '2': 50, '3': 100}
 
@@ -540,7 +543,7 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, apply_options_btn, sec
     seq_len = new_process.getSeqLen()
 
     structure_info = initializeData.getTemplateSecondaryStructure(new_process, normalization_vector,
-                                                                 custom_norm_vec,no_sec_peak)
+                                                                  custom_norm_vec, no_sec_peak)
 
     struct1, struct2, color1, color2, color_domain_max1, color_domain_max2, color_scale = structure_info
 
@@ -861,13 +864,9 @@ def updateExtendedOptionModal(ts, btn_open, btn_close, btn_apply, norm_val, erro
     dash.dependencies.Output('BS', 'value'),
 
 ],
-    [dash.dependencies.Input('memory', 'modified_timestamp'),
-     dash.dependencies.Input('opt_btn_reset', 'n_clicks'),
+    [dash.dependencies.Input('opt_btn_reset', 'n_clicks'),
      ], prevent_initial_call=True)
-def resetTable(ts, reset_btn):
-    if ts is None:
-        raise PreventUpdate
-
+def resetTable(reset_btn):
     if reset_btn:
         return [0 for i in range(0, 16)]
     else:
@@ -880,7 +879,6 @@ def resetTable(ts, reset_btn):
 
 ],
     [
-        # dash.dependencies.Input('memory', 'modified_timestamp'),
         dash.dependencies.Input('opt_btn_apply', 'n_clicks'),
         dash.dependencies.Input('db', 'value'),
         dash.dependencies.State('EE', 'value'),
@@ -899,11 +897,8 @@ def resetTable(ts, reset_btn):
         dash.dependencies.State('SH', 'value'),
         dash.dependencies.State('SB', 'value'),
         dash.dependencies.State('BS', 'value'),
-        dash.dependencies.State('error', 'hidden'),
-        dash.dependencies.State('error_type', 'hidden'),
     ], prevent_initial_call=True)
-def showErrorMessages(apply_btn, norm_option, ee, ss, ii, mm, bb, si, Is, sm, ms, es, se, hh, hs, sh, sb, bs,
-                      error1, error2):
+def showErrorMessages(apply_btn, norm_option, ee, ss, ii, mm, bb, si, Is, sm, ms, es, se, hh, hs, sh, sb, bs):
     hide_error_msg = True
     hide_error_type_msg = True
 
@@ -917,8 +912,8 @@ def showErrorMessages(apply_btn, norm_option, ee, ss, ii, mm, bb, si, Is, sm, ms
         if None in custom_rates:
             hide_error_type_msg = False
             return [hide_error_msg, hide_error_type_msg]
-        check_sum = round(sum(custom_rates), 1)
-        if not (check_sum == 1):
+        check_sum_passed = check_sum(ee, ss, ii, mm, bb, si, Is, sm, ms, es, se, hh, hs, sh, sb, bs)
+        if not check_sum_passed:
             hide_error_msg = False
     return [hide_error_msg, hide_error_type_msg]
 
