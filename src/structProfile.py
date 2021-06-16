@@ -3,17 +3,17 @@ from src.profile import Profile
 
 class StructProfile(Profile):
     template_string = None
-    template_dict = None
+    dotbracket_string = None
     alphabet = None
 
     def __init__(self, profile, name, alpha):
         super().__init__(profile, name)
         self.alphabet = alpha
 
-    def setTemplate(self,template):
+    def setTemplate(self, template):
         self.template_string = template
 
-    def setDotbracket(self,db):
+    def setDotbracket(self, db):
         self.dotbracket_string = db
 
     def getTemplate(self):
