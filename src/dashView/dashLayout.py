@@ -539,8 +539,10 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, apply_options_btn, sec
 
     seq_len = new_process.getSeqLen()
 
-    struct1, struct2, color1, color2, color_domain_max1, color_domain_max2, color_scale = initializeData.getTemplateSecondaryStructure(
-        new_process, normalization_vector, custom_norm_vec)
+    structure_info = initializeData.getTemplateSecondaryStructure(new_process, normalization_vector,
+                                                                 custom_norm_vec,no_sec_peak)
+
+    struct1, struct2, color1, color2, color_domain_max1, color_domain_max2, color_scale = structure_info
 
     if not struct1 is None and not struct2 is None:
         templates = [struct1[0], struct2[0]]

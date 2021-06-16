@@ -10,59 +10,85 @@ class SecStructure(Processing):
     def __init__(self, data, selected, k, peak, top, feature, cmd, secStruct_data, no_sec_peak):
         super().__init__(data, selected, k, peak, top, feature, cmd, secStruct_data, no_sec_peak)
 
-    def createTemplate(self, alphabet):
+    def processData(self):
         k = 3
 
-        hairpin = bool("H" in alphabet)
-        multiloop = bool("M" in alphabet)
-        bulge = bool("B" in alphabet)
-        internalloop = bool("I" in alphabet)
+        alphabet1 = self.getStructProfil1().getAlphabet()
 
-        template2dotstring = list()
-        dotstring2template = list()
+        alphabets = [alphabet1]
 
-        result = list()
-        result.append(k * "E")
+        secProfileObj2 = self.getStructProfil2()
 
-        result_dotbracket_string = list()
-        result_dotbracket_string.extend(element2dotbracket(result, k, 0, k, True))
+        if not secProfileObj2 is None:
+            alphabet2 = secProfileObj2.getAlphabet()
+            alphabets.append(alphabet2)
 
-        template, dotbracket_string = createIntermediateTemplate(k, hairpin, multiloop,
-                                                                 internalloop, bulge)
+        results = []
 
-        result.extend(template)
-        result_dotbracket_string.extend(dotbracket_string)
+        for alphabet in alphabets:
+            hairpin = bool("H" in alphabet)
+            multiloop = bool("M" in alphabet)
+            bulge = bool("B" in alphabet)
+            internalloop = bool("I" in alphabet)
 
-        l3 = len(result)
-        result.append(k * "S")
-        result_dotbracket_string.extend(element2dotbracket(result, k, l3, len(result) - 1, False))
+            template = list()
+            template.append(k * "E")
 
-        l4 = len(result)
-        result.append(k * "E")
-        result_dotbracket_string.extend(element2dotbracket(result, k, l4, len(result) - 1, False))
+            dotbracket_string = list()
+            dotbracket_string.extend(element2dotbracket(template, k, 0, k, True))
 
-        result = ''.join(result)
-        result_dotbracket_string = ''.join(result_dotbracket_string)
+            template_part, dotbracket_string_part = createIntermediateTemplate(k, hairpin, multiloop,
+                                                                               internalloop, bulge)
 
-        return result, result_dotbracket_string
+            template.extend(template_part)
+            dotbracket_string.extend(dotbracket_string_part)
 
-    def createHeatMapColoring(self, template1, struct_kmer_list1, no_sec_peak, not_matched=None):
+            l3 = len(template)
+            template.append(k * "S")
+            dotbracket_string.extend(element2dotbracket(template, k, l3, len(template) - 1, False))
+
+            l4 = len(template)
+            template.append(k * "E")
+            dotbracket_string.extend(element2dotbracket(template, k, l4, len(template) - 1, False))
+
+            template = ''.join(template)
+            dotbracket_string = ''.join(dotbracket_string)
+
+            results.append([template, dotbracket_string])
+
+        return results
+
+    def createHeatMapColoring(self, template1, template2, no_sec_peak):
+        k = 2
+
+        structProfile1 = self.getStructProfil1().getProfile()
+        struct_kmer_list = [structProfile1]
+
+        template = [template1]
+
+        structProfileObj2 = self.getStructProfil2()
+        if not structProfileObj2 is None:
+            structProfile2 = structProfileObj2.getProfile()
+            struct_kmer_list.append(structProfile2)
+            template.append(template2)
 
         norm_vector = self.getNormVector()
 
-        if not_matched is None:
-            not_matched = []
-        k = 2
+        result = []
 
-        if len(not_matched) > 0:
-            struct_kmer_list1 = {kmer: struct_kmer_list1[kmer] for kmer in not_matched}
+        for i in range(0, len(struct_kmer_list)):
+            current_template = template[i]
+            current_profil = struct_kmer_list[i]
 
-        template1_sTree = STree.STree(template1)
+            template1_sTree = STree.STree(current_template)
 
-        color_hm1 = {str(i): 0 for i in range(1, len(template1) + 1)}
-        color_hm1, not_matched_kmer1, color_domain_max1 = createColorVector(k, template1_sTree, struct_kmer_list1,
-                                                                            color_hm1, no_sec_peak, norm_vector)
-        return color_hm1, color_domain_max1, not_matched_kmer1
+            color_hm1 = {str(i): 0 for i in range(1, len(current_template) + 1)}
+            color_hm1, not_matched_kmer1, color_domain_max1 = createColorVector(k, template1_sTree, current_profil,
+                                                                                color_hm1, no_sec_peak, norm_vector)
+
+            result.append([color_hm1, color_domain_max1, not_matched_kmer1])
+
+        return result
 
 
 def createColorVector(k, tree, kmer_list, color_hm, no_sec_peak, norm_vector):
