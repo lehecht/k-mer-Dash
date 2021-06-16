@@ -18,23 +18,11 @@ class StructProfile(Profile):
     def setDotbracket(self,db):
         self.dotbracket_string = db
 
-    def setDictTemplate(self,d_template):
-        self.template_dict = d_template
-
-    def setDictDotbracket(self,d_db):
-        self.dotbracket_dict = d_db
-
     def getTemplate(self):
         return self.template_string
 
     def getDotbracket(self):
         return self.dotbracket_string
-
-    def getDictTemplate(self):
-        return self.template_dict
-
-    def getDictDotbracket(self):
-        return self.dotbracket_dict
 
     def getAlphabet(self):
         return self.alphabet
