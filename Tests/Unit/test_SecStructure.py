@@ -1,4 +1,6 @@
 from src.secStructure import *
+from suffix_trees import STree
+import math
 
 
 def test_processData():
@@ -90,13 +92,131 @@ def test_processData():
     assert template2 == "EEESSSSSSEEE"
     assert dotbracket_string2 == "...((()))..."
 
+    # Test3: different alphabets
+    sProfile1 = process.getStructProfil1()
+    sProfile2 = process.getStructProfil2()
+
+    # Test3a: alphabets with no multiloop
+
+    alphabet3 = ["S", "B", "E"]
+    alphabet4 = ["S", "I", "E"]
+
+    sProfile1.setAlphabet(alphabet3)
+    sProfile2.setAlphabet(alphabet4)
+
+    results = SecStructure.processData(process)
+
+    template1 = results[0][0]
+    template2 = results[1][0]
+
+    dotbracket_string1 = results[0][1]
+    dotbracket_string2 = results[1][1]
+
+    assert template1 == "EEESSSBBBSSSSSSSSSEEE"
+    assert dotbracket_string1 == "...(((...((())))))..."
+
+    assert template2 == "EEESSSIIISSSSSSIIISSSEEE"
+    assert dotbracket_string2 == "...(((...((()))...)))..."
+
+    # Test3b: alphabets with only hairpin or hairpin and multiloop
+    alphabet5 = ["S", "H", "E"]
+    alphabet6 = ["S", "H", "M", "E"]
+
+    sProfile1.setAlphabet(alphabet5)
+    sProfile2.setAlphabet(alphabet6)
+
+    results = SecStructure.processData(process)
+
+    template1 = results[0][0]
+    template2 = results[1][0]
+
+    dotbracket_string1 = results[0][1]
+    dotbracket_string2 = results[1][1]
+
+    assert template1 == "EEESSSHHHSSSEEE"
+    assert dotbracket_string1 == "...(((...)))..."
+
+    assert template2 == "EEESSSHHHSSSMMMSSSHHHSSSEEE"
+    assert dotbracket_string2 == "...(((...)))...(((...)))..."
+
+    # Test3c: ('flawed') alphabets with no multiloops
+
+    alphabet7 = ["S", "H", "E", "B", "I"]
+    alphabet8 = ["S", "M", "E"]  # should be equal to ["S","E"]
+
+    sProfile1.setAlphabet(alphabet7)
+    sProfile2.setAlphabet(alphabet8)
+
+    results = SecStructure.processData(process)
+
+    template1 = results[0][0]
+    template2 = results[1][0]
+
+    dotbracket_string1 = results[0][1]
+    dotbracket_string2 = results[1][1]
+
+    assert template1 == "EEESSSIIISSSBBBSSSHHHSSSSSSIIISSSEEE"
+    assert dotbracket_string1 == "...(((...(((...(((...))))))...)))..."
+
+    assert template2 == "EEESSSSSSEEE"
+    assert dotbracket_string2 == "...((()))..."
+
 
 def test_createHeatMapColoring():
     pass
 
 
 def test_createColorVector():
-    pass
+    # Test1
+    k = 3
+    no_sec_peak = 1
+    template = "EEESSSIIISSSBBBSSSHHHSSSSSSIIISSSEEE"
+    kmer_counts = {"EE": 5, "ES": 7, "SS": 20, "SI": 10, "II": 15, "IS": 11, "SB": 5, "BB": 6, "BS": 5, "SH": 4,
+                   "HH": 5, "HS": 4, "SE": 7}
+    template_sTree = STree.STree(template)
+    normalization_vector1 = None
+
+    color_hm = {str(i): 0 for i in range(1, len(template) + 1)}
+
+    # Executing
+    new_color_hm1, not_matched1, color_domain_max1 = createColorVector(k, template_sTree, kmer_counts, color_hm,
+                                                                       no_sec_peak, normalization_vector1)
+
+    assert len(color_hm) == len(new_color_hm1)
+    for i in color_hm.keys():
+        x = color_hm[i]
+        if x > 0:
+            assert new_color_hm1[i] == round(math.log(x, 2))
+        else:
+            assert new_color_hm1[i] == 0
+    assert len(not_matched1) == 0
+    assert color_domain_max1 == 5
+
+    # Test2
+
+    normalization_vector2 = {"EE": 0, "ES": 0, "SS": 0.7, "SI": 0.1, "II": 0.2, "IS": 0, "SB": 0, "BB": 0, "BS": 0,
+                             "SH": 0, "HH": 0, "HS": 0, "SE": 0}
+
+    new_color_hm2, not_matched2, color_domain_max2 = createColorVector(k, template_sTree, kmer_counts, color_hm,
+                                                                       no_sec_peak, normalization_vector2)
+
+    assert new_color_hm1 is not new_color_hm2
+    assert len(color_hm) == len(new_color_hm2)
+    for i in color_hm.keys():
+        x = color_hm[i]
+        if i == "3" or i == "4":
+            x = x / normalization_vector2["SS"]
+            # in beiden fällen wird == 6 abgefragt
+        # elif i == "5" or i == "6":
+        #     x = x / normalization_vector2["SI"]
+        # elif i == "6" or i == "7":
+        #     x = x / normalization_vector2["II"]
+        if x > 0:
+            assert new_color_hm2[i] == round(math.log(x, 2))
+        else:
+            assert new_color_hm2[i] == 0
+    assert len(not_matched2) == 0
+    assert color_domain_max2 == 5
 
 
 def test_helpAddIBloop():

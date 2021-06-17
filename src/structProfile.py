@@ -16,6 +16,9 @@ class StructProfile(Profile):
     def setDotbracket(self, db):
         self.dotbracket_string = db
 
+    def setAlphabet(self, a):
+        self.alphabet = a
+
     def getTemplate(self):
         return self.template_string
 
