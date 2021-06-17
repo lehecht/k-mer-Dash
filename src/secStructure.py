@@ -33,23 +33,49 @@ class SecStructure(Processing):
 
             template = list()
             template.append(k * "E")
+            l0 = len(template)
 
             dotbracket_string = list()
-            dotbracket_string.extend(element2dotbracket(template, k, 0, k, True))
 
-            template_part, dotbracket_string_part = createIntermediateTemplate(k, hairpin, multiloop,
-                                                                               internalloop, bulge)
+            dotbracket_string.extend(element2dotbracket(template, k, 0, l0, True))
 
-            template.extend(template_part)
-            dotbracket_string.extend(dotbracket_string_part)
+            l1 = len(template)
+            template = helpAddIBloop(k, template, internalloop, bulge, True)
 
-            l3 = len(template)
-            template.append(k * "S")
-            dotbracket_string.extend(element2dotbracket(template, k, l3, len(template) - 1, False))
+            if "H" in alphabet:
+                hp = [k * "S", k * "H"]
+                template.extend(hp)
+            else:
+                template.append(k * "S")
+
+            l2 = len(template) - 1
+            dotbracket_string.extend(element2dotbracket(template, k, l1, l2, True))
+
+            template = helpAddIBloop(k, template, internalloop, bulge, False)
+
+            if multiloop and hairpin:
+                template.extend([k * "S", k * "M"])
+
+                l3 = len(template) - 1
+                dotbracket_string.extend(element2dotbracket(template, k, l2 + 1, l3, False))
+
+                hp = [k * "S", k * "H"]
+                template.extend(hp)
+
+                l4 = len(template) - 1
+                dotbracket_string.extend(element2dotbracket(template, k, l3 + 1, l4, True))
+
+            else:
+                l3 = len(template) - 1
+                dotbracket_string.extend(element2dotbracket(template, k, l2 + 1, l3, False))
 
             l4 = len(template)
-            template.append(k * "E")
+            template.append(k * "S")
             dotbracket_string.extend(element2dotbracket(template, k, l4, len(template) - 1, False))
+
+            l5 = len(template)
+            template.append(k * "E")
+            dotbracket_string.extend(element2dotbracket(template, k, l5, len(template) - 1, False))
 
             template = ''.join(template)
             dotbracket_string = ''.join(dotbracket_string)
@@ -114,47 +140,46 @@ def createColorVector(k, tree, kmer_list, color_hm, no_sec_peak, norm_vector):
         else:
             not_matched_kmer.append(kmer)
     color_hm = {x: round(math.log(y, 2)) if y > 0 else y for x, y in color_hm.items()}
-    max_val = max(color_hm.values())
-    color_domain_max = round(max_val, -1)
+    color_domain_max = max(color_hm.values())
 
     return color_hm, not_matched_kmer, color_domain_max
 
 
-def createIntermediateTemplate(i, hairpin, multiloop, internalloop, bulge):
-    template = []
-    dotbracket_string = []
+# def createIntermediateTemplate(i, hairpin, multiloop, internalloop, bulge):
+#     template = []
+#     dotbracket_string = []
+#
+#     template = helpAddIBloop(i, template, internalloop, bulge, True)
+#
+#     hp = [i * "S", i * "H"]
+#     template.extend(hp)
+#
+#     l1 = len(template) - 1
+#     dotbracket_string.extend(element2dotbracket(template, i, 0, l1, True))
+#
+#     template = helpAddIBloop(i, template, internalloop, bulge, False)
+#
+#     if multiloop and hairpin and i > 1:
+#         template.extend([i * "S", i * "M"])
+#
+#         l2 = len(template) - 1
+#         dotbracket_string.extend(element2dotbracket(template, i, l1 + 1, l2, False))
+#
+#         hp = [i * "S", i * "H"]
+#         template.extend(hp)
+#
+#         l3 = len(template) - 1
+#         dotbracket_string.extend(element2dotbracket(template, i, l2 + 1, l3, True))
+#
+#     else:
+#         l2 = len(template) - 1
+#         dotbracket_string.extend(element2dotbracket(template, i, l1 + 1, l2, False))
+#
+#     return template, dotbracket_string
 
-    template = helpAddIBloop(i, template, internalloop, bulge, True)
 
-    hp = [i * "S", i * "H"]
-    template.extend(hp)
-
-    l1 = len(template) - 1
-    dotbracket_string.extend(element2dotbracket(template, i, 0, l1, True))
-
-    template = helpAddIBloop(i, template, internalloop, bulge, False)
-
-    if multiloop and hairpin and i > 1:
-        template.extend([i * "S", i * "M"])
-
-        l2 = len(template) - 1
-        dotbracket_string.extend(element2dotbracket(template, i, l1 + 1, l2, False))
-
-        hp = [i * "S", i * "H"]
-        template.extend(hp)
-
-        l3 = len(template) - 1
-        dotbracket_string.extend(element2dotbracket(template, i, l2 + 1, l3, True))
-
-    else:
-        l2 = len(template) - 1
-        dotbracket_string.extend(element2dotbracket(template, i, l1 + 1, l2, False))
-
-    return template, dotbracket_string
-
-
-def helpAddIBloop(k, template, internalloop, bulge, lead):
-    if lead:
+def helpAddIBloop(k, template, internalloop, bulge, forward):
+    if forward:
         if internalloop:
             il = [k * "S", k * "I"]
             template.extend(il)
@@ -172,6 +197,8 @@ def helpAddIBloop(k, template, internalloop, bulge, lead):
 
 
 def element2dotbracket(template, k, i, j, open_bracket):
+    # template example: ['EEE','SSS','HHH','SSS','EEE']
+
     db_sublist = template[i: j + 1]
 
     if open_bracket:
