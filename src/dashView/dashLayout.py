@@ -140,7 +140,8 @@ app.layout = dbc.Container([
                     html.Br(),
                     html.Br(),
                     dbc.ButtonGroup(
-                        [dbc.Button("Extended options", id="opt_btn_open"), dbc.Button("Export PDF", id="ex_btn")],
+                        [dbc.Button("Extended options", id="opt_btn_open"),
+                         dbc.Button("Export PDF", id="ex_btn")],
                         size="md",
                         className="mr-1",
                     ),
@@ -460,10 +461,11 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, apply_options_btn, sec
                 selected_struc = [struct_data[0]]
     else:
         selected = [file_list[int(f1)], file_list[int(f2)]]
-        if len(struct_data) > 1:
-            selected_struc = [struct_data[int(f3)], struct_data[int(f4)]]
-        else:
-            selected_struc = [struct_data[int(f3)]]
+        if not struct_data is None:
+            if len(struct_data) > 1:
+                selected_struc = [struct_data[int(f3)], struct_data[int(f4)]]
+            else:
+                selected_struc = [struct_data[int(f3)]]
 
     new_process = initializeData.initData(selected, selected, k, peak, top, pca_feature, selected_struc, no_sec_peak)
 
@@ -542,20 +544,30 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, apply_options_btn, sec
 
     seq_len = new_process.getSeqLen()
 
-    structure_info = initializeData.getTemplateSecondaryStructure(new_process, normalization_vector,
-                                                                  custom_norm_vec, no_sec_peak)
+    if not struct_data is None:
 
-    struct1, struct2, color1, color2, color_domain_max1, color_domain_max2, color_scale = structure_info
+        structure_info = initializeData.getTemplateSecondaryStructure(new_process, normalization_vector,
+                                                                      custom_norm_vec, no_sec_peak)
 
-    if not struct1 is None and not struct2 is None:
-        templates = [struct1[0], struct2[0]]
-        dbs = [struct1[1], struct2[1]]
-    elif not struct1 is None:
-        templates = [struct1[0]]
-        dbs = [struct1[1]]
+        struct1, struct2, color1, color2, color_domain_max1, color_domain_max2, color_scale = structure_info
+
+        if not struct1 is None and not struct2 is None:
+            templates = [struct1[0], struct2[0]]
+            dbs = [struct1[1], struct2[1]]
+        elif not struct1 is None:
+            templates = [struct1[0]]
+            dbs = [struct1[1]]
+        else:
+            templates = []
+            dbs = []
     else:
-        templates = []
-        dbs = []
+        templates = None
+        dbs = None
+        color1 = None
+        color2 = None
+        color_domain_max1 = None
+        color_domain_max2 = None
+        color_scale = None
 
     data = {'topK': top_k_table, 'msas': msas, 'scatter': scatter, 'pcas': pcas, 'seqLen': seq_len,
             'templates': templates, 'dbs': dbs, 'colors': [color1, color2],
@@ -916,6 +928,21 @@ def showErrorMessages(apply_btn, norm_option, ee, ss, ii, mm, bb, si, Is, sm, ms
         if not check_sum_passed:
             hide_error_msg = False
     return [hide_error_msg, hide_error_type_msg]
+
+
+@app.callback([dash.dependencies.Output('opt_btn_open', 'disabled'),
+               ],
+              [dash.dependencies.Input('memory', 'modified_timestamp')])
+def disableButton(ts):
+    if ts is None:
+       raise PreventUpdate
+
+    disable_btn = False
+    if struct_data is None:
+        disable_btn = True
+
+    return [disable_btn]
+
 
 
 # --------------------------------------------- Diagram/Table Updater --------------------------------------------------
