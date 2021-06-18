@@ -9,7 +9,11 @@ import math
 # peak: peak: peak-position, where sequences should be aligned
 # top: number of best values
 def printData(data, k, peak, top):
-    process = Processing(data, data, k, peak, top, None,True,None)
+    feature = None
+    cmd = True
+    struct_data = None
+    no_sec_peak = None
+    process = Processing(data, data, k, peak, top, feature, cmd, struct_data, no_sec_peak)
     printPairwAlignment(process)
     printKMerFrequency(process)
 
@@ -66,9 +70,9 @@ def printPairwAlignment(process):
                 name = f2_name
                 print()
         else:
-            peak= process.getSettings().getPeak()
+            peak = process.getSettings().getPeak()
             k = process.getSettings().getK()
-            print('Alignment of Top-{k}-mer created with Peak-Position: {p}'.format(k=k,p=peak))
+            print('Alignment of Top-{k}-mer created with Peak-Position: {p}'.format(k=k, p=peak))
             name = f1_name
             for file in alignment_lists:
                 print("File: " + name)

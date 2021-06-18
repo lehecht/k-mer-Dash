@@ -55,7 +55,6 @@ def checkSecFileFormat(file):
     record = str(list(SeqIO.parse(file, "fasta"))[0].seq)
 
     if 'A' in record or 'T' in record or 'C' in record or 'G' in record:
-        print(file, record)
         raise InputValueException("ERROR: Fasta files for secondary structure must only contain element-strings.")
 
 
@@ -125,7 +124,7 @@ def selectAllFastaFiles(dir, struct):
     for f in file_list:
         if os.stat(f).st_size is 0:
             raise FileCountException(
-                'ERROR: there must be no empty Fasta-file in \'{}\'.'.format(dir))
+                'ERROR: file(s) in \'{}\' is/are empty.'.format(dir))
     return file_list
 
 
@@ -229,8 +228,13 @@ if __name__ == '__main__':
     try:
         checkArguments(file_list, args.f, args.console, args.k, args.d, args.fs, struct_sfs_list, struct_sd_list,
                        struct_sf_list)
+        if not struct_list is None:
+            checkTargetLengths(struct_list)
     except InputValueException as ive:
         print(ive.args[0])
+        sys.exit(0)
+    except ValueError as ve:
+        print(ve.args[0])
         sys.exit(0)
 
     # ----------------------------------------- check options/files ----------------------------------------------------
@@ -246,6 +250,10 @@ if __name__ == '__main__':
     else:
         files = [file_list[0], file_list[1]]
 
+    if args.console and (args.sd or args.sf or args.sfs):
+        print("INFO: Console mode does not support visualization for structural data.")
+        print()
+
     # -------------------------------------------- program start ------------------------------------------------------
 
     if args.console:
@@ -259,7 +267,7 @@ if __name__ == '__main__':
             print(fnf.args[0])
     else:
         try:
-            dashLayout.startDash(file_list, args.port,struct_list)
+            dashLayout.startDash(file_list, args.port, struct_list)
         except InputValueException as ive:
             print(ive.args[0])
         except FileNotFoundError as fnf:
