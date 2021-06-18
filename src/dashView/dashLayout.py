@@ -141,7 +141,8 @@ app.layout = dbc.Container([
                     html.Br(),
                     dbc.ButtonGroup(
                         [dbc.Button("Extended options", id="opt_btn_open"),
-                         dbc.Button("Export PDF", id="ex_btn")],
+                         # dbc.Button("Export PDF", id="ex_btn",disabled=True)
+                         ],
                         size="md",
                         className="mr-1",
                     ),
@@ -151,6 +152,7 @@ app.layout = dbc.Container([
                             dbc.ModalBody(children=[
                                 dcc.Checklist(
                                     id="sec_peak",
+                                    inputStyle={'margin-right': '3px'},
                                 ),
                                 html.Br(),
                                 html.Div("Normalization:", style={'font-weight': 'bold', 'padding-bottom': '10px'}),
@@ -165,10 +167,11 @@ app.layout = dbc.Container([
                                     options=[
                                         {'label': 'none', 'value': 'none'},
                                         {'label': 'use A.thaliana database', 'value': 'at_db'},
-                                        {'label': 'enter custom k-mer rates', 'value': 'custom_vals'}
+                                        {'label': 'use custom k-mer rates', 'value': 'custom_vals'}
                                     ],
                                     value='none',
-                                    labelStyle={'display': 'block'}
+                                    labelStyle={'display': 'block'},
+                                    inputStyle={'margin-right': '3px'}
                                 ),
                                 html.Div(id="norm_input", children=[
                                     html.Table(children=[
@@ -935,14 +938,13 @@ def showErrorMessages(apply_btn, norm_option, ee, ss, ii, mm, bb, si, Is, sm, ms
               [dash.dependencies.Input('memory', 'modified_timestamp')])
 def disableButton(ts):
     if ts is None:
-       raise PreventUpdate
+        raise PreventUpdate
 
     disable_btn = False
     if struct_data is None:
         disable_btn = True
 
     return [disable_btn]
-
 
 
 # --------------------------------------------- Diagram/Table Updater --------------------------------------------------
