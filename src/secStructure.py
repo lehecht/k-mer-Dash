@@ -1,5 +1,3 @@
-import re
-
 from src.processing import Processing
 from suffix_trees import STree
 import math
@@ -120,7 +118,7 @@ class SecStructure(Processing):
 def createColorVector(k, tree, kmer_list, color_hm, no_sec_peak, norm_vector):
     not_matched_kmer = []
 
-    for kmer in kmer_list:
+    for kmer in kmer_list.keys():
         idx = tree.find(kmer.upper())
         if norm_vector is None:
             norm = 1
@@ -130,52 +128,18 @@ def createColorVector(k, tree, kmer_list, color_hm, no_sec_peak, norm_vector):
                 norm = 1
         if idx >= 0:
             if no_sec_peak == 0:
-                for match in re.finditer('[A-Z]', kmer):
-                    if match.group() == 1:
-                        idx += 1
+                idx = [idx + i for i in range(0, len(kmer)) if kmer[i].isupper()][0]
                 color_hm[str(idx + 1)] += (kmer_list[kmer] / norm)
             else:
                 for i in range(0, k):
                     color_hm[str(idx + i + 1)] += (kmer_list[kmer] / norm)
         else:
             not_matched_kmer.append(kmer)
+
     color_hm = {x: round(math.log(y, 2)) if y > 0 else y for x, y in color_hm.items()}
     color_domain_max = max(color_hm.values())
 
     return color_hm, not_matched_kmer, color_domain_max
-
-
-# def createIntermediateTemplate(i, hairpin, multiloop, internalloop, bulge):
-#     template = []
-#     dotbracket_string = []
-#
-#     template = helpAddIBloop(i, template, internalloop, bulge, True)
-#
-#     hp = [i * "S", i * "H"]
-#     template.extend(hp)
-#
-#     l1 = len(template) - 1
-#     dotbracket_string.extend(element2dotbracket(template, i, 0, l1, True))
-#
-#     template = helpAddIBloop(i, template, internalloop, bulge, False)
-#
-#     if multiloop and hairpin and i > 1:
-#         template.extend([i * "S", i * "M"])
-#
-#         l2 = len(template) - 1
-#         dotbracket_string.extend(element2dotbracket(template, i, l1 + 1, l2, False))
-#
-#         hp = [i * "S", i * "H"]
-#         template.extend(hp)
-#
-#         l3 = len(template) - 1
-#         dotbracket_string.extend(element2dotbracket(template, i, l2 + 1, l3, True))
-#
-#     else:
-#         l2 = len(template) - 1
-#         dotbracket_string.extend(element2dotbracket(template, i, l1 + 1, l2, False))
-#
-#     return template, dotbracket_string
 
 
 def helpAddIBloop(k, template, internalloop, bulge, forward):
