@@ -162,13 +162,9 @@ def test_processData():
     assert dotbracket_string2 == "...((()))..."
 
 
-def test_createHeatMapColoring():
-    pass
-
-
 def test_createColorVector():
-    # Test1
-    k = 3
+    # Test1: no normalization vector wanted
+    k = 2
     no_sec_peak = 1
     template = "EEESSSIIISSSBBBSSSHHHSSSSSSIIISSSEEE"
     kmer_counts = {"EE": 5, "ES": 7, "SS": 20, "SI": 10, "II": 15, "IS": 11, "SB": 5, "BB": 6, "BS": 5, "SH": 4,
@@ -192,31 +188,75 @@ def test_createColorVector():
     assert len(not_matched1) == 0
     assert color_domain_max1 == 5
 
-    # Test2
+    # Test2: with normalization vector
 
     normalization_vector2 = {"EE": 0, "ES": 0, "SS": 0.7, "SI": 0.1, "II": 0.2, "IS": 0, "SB": 0, "BB": 0, "BS": 0,
                              "SH": 0, "HH": 0, "HS": 0, "SE": 0}
 
+    # Execution
+
+    color_hm = {str(i): 0 for i in range(1, len(template) + 1)}
     new_color_hm2, not_matched2, color_domain_max2 = createColorVector(k, template_sTree, kmer_counts, color_hm,
                                                                        no_sec_peak, normalization_vector2)
 
+    test_color_hm = {str(i): 0 for i in range(1, len(template) + 1)}
+    for kmer in normalization_vector2:
+        idx = template.find(kmer)
+        norm = normalization_vector2[kmer]
+        if norm == 0:
+            norm = 1
+        for i in range(0, k):
+            current_idx = str(idx + i + 1)
+            test_color_hm[current_idx] += (kmer_counts[kmer] / norm)
+
+    test_color_hm = {x: round(math.log(y, 2)) if y > 0 else y for x, y in test_color_hm.items()}
+    test_color_domain_max = max(test_color_hm.values())
+
+    # Testing
+
     assert new_color_hm1 is not new_color_hm2
     assert len(color_hm) == len(new_color_hm2)
-    for i in color_hm.keys():
-        x = color_hm[i]
-        if i == "3" or i == "4":
-            x = x / normalization_vector2["SS"]
-            # in beiden fällen wird == 6 abgefragt
-        # elif i == "5" or i == "6":
-        #     x = x / normalization_vector2["SI"]
-        # elif i == "6" or i == "7":
-        #     x = x / normalization_vector2["II"]
-        if x > 0:
-            assert new_color_hm2[i] == round(math.log(x, 2))
-        else:
-            assert new_color_hm2[i] == 0
     assert len(not_matched2) == 0
-    assert color_domain_max2 == 5
+    assert color_domain_max2 == test_color_domain_max
+    for i in new_color_hm2.keys():
+        assert new_color_hm2[i] == test_color_hm[i]
+
+    # Test3: normalization vector and secondary peak position wanted
+
+    kmer_counts2 = {"Ee": 5, "eS": 7, "sS": 20, "Si": 10, "iI": 15, "iS": 11, "Sb": 5, "Bb": 6, "bS": 5, "sH": 4,
+                    "Hh": 5, "hS": 4, "Se": 7}
+    no_sec_peak2 = 0
+
+    # Execution
+
+    color_hm = {str(i): 0 for i in range(1, len(template) + 1)}
+    new_color_hm3, not_matched3, color_domain_max3 = createColorVector(k, template_sTree, kmer_counts2, color_hm,
+                                                                       no_sec_peak2, normalization_vector2)
+
+    test_color_hm2 = {str(i): 0 for i in range(1, len(template) + 1)}
+    for k in kmer_counts2.keys():
+        kmer = k.upper()
+        idx = template.find(kmer)
+        if k[1].isupper():
+            idx += 1
+        print(k, idx)
+        norm = normalization_vector2[kmer]
+        if norm == 0:
+            norm = 1
+        current_idx = str(idx + 1)
+        test_color_hm2[current_idx] += (kmer_counts2[k] / norm)
+
+    test_color_hm2 = {x: round(math.log(y, 2)) if y > 0 else y for x, y in test_color_hm2.items()}
+    test_color_domain_max2 = max(test_color_hm2.values())
+
+    # Testing
+
+    assert len(not_matched3) == 0
+    assert new_color_hm2 is not new_color_hm3
+    assert len(color_hm) == len(new_color_hm3)
+    for i in test_color_hm2:
+        assert test_color_hm2[i] == new_color_hm3[i]
+    assert test_color_domain_max2 == color_domain_max3
 
 
 def test_helpAddIBloop():
