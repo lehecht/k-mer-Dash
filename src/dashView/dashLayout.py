@@ -134,11 +134,15 @@ app.layout = dbc.Container([
                         options=[
                             {"label": "Frequency", "value": "1"},
                             {"label": "T Occurrences", "value": "2"},
+                            {"label": "A Occurrences", "value": "3"},
+                            {"label": "C Occurrences", "value": "4"},
+                            {"label": "G Occurrences", "value": "5"},
                         ],
                         value="1"
                     ),
                     html.Br(),
                     html.Br(),
+                    # ------------------------------- Options structural data ------------------------------------------
                     dbc.ButtonGroup(
                         [dbc.Button("Extended options", id="opt_btn_open"),
                          # dbc.Button("Export PDF", id="ex_btn",disabled=True)

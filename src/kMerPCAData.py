@@ -36,8 +36,8 @@ def fillDataFrame(df, all_triplets):
 # implements processData for pca
 class KMerPCAData(Processing):
 
-    def __init__(self, data, selected, k, peak, top, feature,cmd,secStruct_data,no_sec_peak):
-        super().__init__(data, selected, k, peak, top, feature,cmd,secStruct_data,no_sec_peak)
+    def __init__(self, data, selected, k, peak, top, feature, cmd, secStruct_data, no_sec_peak):
+        super().__init__(data, selected, k, peak, top, feature, cmd, secStruct_data, no_sec_peak)
 
     # processes data to display pca as scatterplot
     def processData(self):
