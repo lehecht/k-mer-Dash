@@ -68,17 +68,21 @@ app.layout = dbc.Container([
                     html.H3("Menu"),
                     html.Br(),
                     # ------------------------------------- Select File1 And File 2 ------------------------------------
-                    html.H6("Selected Files:"),
+                    html.H6("Selected Files:", id="sel_files_header"),
                     dbc.Select(
                         id="file1",
                         options=[]),
                     dbc.Select(
                         id="file2",
                         options=[]),
+                    dbc.Tooltip(
+                        "Files used for k-mer visualization",
+                        target="sel_files_header"
+                    ),
                     html.Br(),
                     html.Br(),
                     # ------------------------------------- Select Structure Files -------------------------------------
-                    html.H6("Selected Structure Files:"),
+                    html.H6("Selected Structure Files:", id="struc_files_header"),
                     dbc.Select(
                         id="file3",
                         options=[{"label": "-", "value": "0"}],
@@ -87,12 +91,14 @@ app.layout = dbc.Container([
                         id="file4",
                         options=[{"label": "-", "value": "0"}],
                         value="0"),
+                    dbc.Tooltip(
+                        "Element strings containing files used for RNA structure heatmaps(s)",
+                        target="struc_files_header"
+                    ),
                     html.Br(),
-                    # html.Br(),
-                    # html.Br(),
                     html.Br(),
                     # ------------------------------------------- K ----------------------------------------------------
-                    html.H6("K-mer length:"),
+                    html.H6("K-mer length:", id="k_header"),
                     dcc.Slider(
                         id='k',
                         min=0,
@@ -101,9 +107,13 @@ app.layout = dbc.Container([
                         value=3,
                         marks=markSliderRange(0, 10, False)
                     ),
+                    dbc.Tooltip(
+                        "Length of visualized substrings (k-mer)",
+                        target="k_header"
+                    ),
                     html.Br(),
                     # ----------------------------------------- Peak ---------------------------------------------------
-                    html.H6("Peak-position:"),
+                    html.H6("Peak-position:", id="peak_header"),
                     dcc.Slider(
                         id='peak',
                         min=1,
@@ -112,9 +122,13 @@ app.layout = dbc.Container([
                         value=0,
                         marks=markSliderRange(0, 10, True)
                     ),
+                    dbc.Tooltip(
+                        "Assumed binding position of protein in given sequences",
+                        target="peak_header"
+                    ),
                     html.Br(),
                     # ------------------------------------------ top ---------------------------------------------------
-                    html.H6("Top-values:"),
+                    html.H6("Top-values:", id="top_header"),
                     dbc.Select(
                         id='top',
                         options=[
@@ -125,10 +139,14 @@ app.layout = dbc.Container([
                         ],
                         value="0"
                     ),
+                    dbc.Tooltip(
+                        "Number of <top> highest k-mer occurrences",
+                        target="top_header"
+                    ),
                     html.Br(),
                     html.Br(),
                     # -------------------------------- Highlighted Feature ---------------------------------------------
-                    html.H6("Highlighted Feature:"),
+                    html.H6("Highlighted Feature:", id="feature_header"),
                     dbc.Select(
                         id="Feature",
                         options=[
@@ -140,6 +158,10 @@ app.layout = dbc.Container([
                         ],
                         value="1"
                     ),
+                    dbc.Tooltip(
+                        "Highlighted/Colored property of PCAs",
+                        target="feature_header"
+                    ),
                     html.Br(),
                     html.Br(),
                     # ------------------------------- Options structural data ------------------------------------------
@@ -150,6 +172,10 @@ app.layout = dbc.Container([
                         size="md",
                         className="mr-1",
                     ),
+                    dbc.Tooltip(
+                        "Options for structural data visualization",
+                        target="opt_btn_open"
+                    ),
                     dbc.Modal(
                         [
                             dbc.ModalHeader("Options for structural data visualization"),
@@ -158,8 +184,13 @@ app.layout = dbc.Container([
                                     id="sec_peak",
                                     inputStyle={'margin-right': '3px'},
                                 ),
+                                dbc.Tooltip(
+                                    "Only show peak positions in RNA structure Heatmap(s)",
+                                    target="sec_peak"
+                                ),
                                 html.Br(),
-                                html.Div("Normalization:", style={'font-weight': 'bold', 'padding-bottom': '10px'}),
+                                html.Div("Normalization:", id="norm_header",
+                                         style={'font-weight': 'bold', 'padding-bottom': '10px'}),
                                 html.Div("ERROR: sum of custom rates should be equal to 1", id="error",
                                          style={'font-weight': 'bold', 'color': 'red',
                                                 'padding-bottom': '10px'}, hidden=True),
@@ -176,6 +207,10 @@ app.layout = dbc.Container([
                                     value='none',
                                     labelStyle={'display': 'block'},
                                     inputStyle={'margin-right': '3px'}
+                                ),
+                                dbc.Tooltip(
+                                    "Used data for normalization of structural data",
+                                    target="norm_header"
                                 ),
                                 html.Div(id="norm_input", children=[
                                     html.Table(children=[
@@ -261,12 +296,15 @@ app.layout = dbc.Container([
                                                 html.Br(),
                                                 dbc.Button("Reset", id="opt_btn_reset",
                                                            style={'margin': 'auto'})]),
+                                            dbc.Tooltip(
+                                                "Reset table",
+                                                target="opt_btn_reset"
+                                            ),
 
                                         ])
                                     ], style={'width': '100%'}
                                     )
                                 ], style={'display': 'block'}, hidden=True),
-
                             ]),
                             dbc.ModalFooter(children=[
                                 dbc.ButtonGroup(
@@ -318,6 +356,21 @@ app.layout = dbc.Container([
                                 ),
                             ])
                         ]),
+                        dbc.Tooltip(
+                            "Scatterplot of k-mer occurences from selected files containing "
+                            "nucleotide sequences",
+                            target="s-tab1"
+                        ),
+                        dbc.Tooltip(
+                            "Visualization of arbitrary RNA structure, highlighting k-mer occurrences of "
+                            "element strings from first selected structural data file",
+                            target="s-tab2"
+                        ),
+                        dbc.Tooltip(
+                            "Visualization of arbitrary RNA structure, highlighting k-mer occurrences of "
+                            "element strings from second selected structural data file",
+                            target="s-tab3"
+                        ),
                     ],
                         color="primary", spinner_style={'position': 'absolute',
                                                         'top': '50%',
@@ -355,7 +408,16 @@ app.layout = dbc.Container([
                                           )
                             ]),
                         ],
-                                 )], color="primary",
+                                 ),
+                        dbc.Tooltip(
+                            "Principal component analysis (PCA) of first selected file containing nucleotide sequences",
+                            target="Tab1"
+                        ),
+                        dbc.Tooltip(
+                            "Principal component analysis (PCA) of second selected file containing nucleotide sequences",
+                            target="Tab2"
+                        ),
+                    ], color="primary",
                         spinner_style={'position': 'absolute',
                                        'top': '50%',
                                        'left': '50%'
