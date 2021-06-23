@@ -42,35 +42,38 @@ Or by downloading from: [http://www.clustal.org/clustal2/](http://www.clustal.or
 ## Input
 | parameter | Description |
 |-------|---------------------------------------------|
-| -f1 FILE1 -f2 FILE2 | FASTA formatted file(s) with sequences of equal length|
+| -fs FILES | List of FASTA formatted files with nucleotide-sequences of equal length|
+| -f FILE | Single FASTA formatted file with nucleotide-sequences of equal length|
+| -d DIR | Directory of FASTA formatted files with nucleotide-sequences of equal length|
+| -sfs FILES | List of FASTA formatted file with element-strings of equal length|
+| -sf FILE | Single FASTA formatted file with element-strings of equal length|
+| -sd DIR | Directory of FASTA formatted files with element-strings of equal length|
 | -k INT | Length of generated k-mer subsequences |
 | -p INT | Highlighted position in sequence, e.g. center of a binding site |
-| -t INT | Number of displayed top k-mer frequencies* |
+| -t INT | Number of highest k-mer occurrences used for visualization |
 | -c STR | Boolean starting program with GUI or on command-line |
 | -pt INT | Custom port (only for GUI) |
 
-\* The top value and number of results may differ if there are multiple k-mers with equal frequencies
-
 ## Output
-On valud input parameters a Dash application is started to explore various k-mer visualizations and statistics.
-It visualizes data as diagrams (Scatterplot, PCA) and tables (k-mer Frequency-table, Alignment-table).
+On valid input parameters a Dash application is started to explore various k-mer visualizations and statistics.
+It visualizes data as diagrams (Scatterplot, PCA, RNA Secondary Structure) and tables (k-mer Frequency-table, Alignment-table).
 
 ## Description
 
 ### Command-line
 In order to use the application via command-line only requires to set 'console' parameter `-c` on `True`.
-Mandatory parameters are `-f1`,`-f2` and `-k`. All other parameters are optional.
+Mandatory parameters are `-f` and `-k`. All other parameters are optional. 
+For commandline-mode only one single file can be evaluated.
 
 #### Example:
 
 The git project contains failsafe examples of generated fasta file in the *example* folder. An invokation to display the data on the console is listed below:
 
 ```
-python3 main.py -f1 example/example1.fa -f2 example/example2.fa -k 4 -t 5 -c True
+python3 main.py -f example/example1.fa -k 4 -t 5 -c True
 ```
 
 #### Console Output:
-
 ```
 Alignment of Top-kmere created with ClustalW
 (for more information, see: http://www.clustal.org/clustal2/)
@@ -83,53 +86,9 @@ ACCC--
 -CCCC-
 AACC--
 
-File: example2.fa
---ATAT--
----TATA-
---TTAT--
----TATT-
---TAAT--
----AATT-
--ATTA---
---TTAA--
---TTTC--
---TTCC--
--ATTC---
---TTTG--
---ATTG--
-GATT----
--GTGA---
---TGAT--
---CGAT--
---TCGA--
---GCGC--
----CGCG-
-----GCGA
---ACGT--
----CGTG-
---TTGG--
----TGGA-
-----GGAC
-----GAAC
-----GGAA
---CCGG--
----CGGA-
----CGAA-
--GCCC---
---CCCC--
---CCCA--
---CCAC--
---TCCA--
---CCAA--
-----AAAA
--GCTA---
---CTAG--
----TAGC-
-----AGCA
-
 
 Options:
-k: 4, peak: None, top: 5, files: ['example/example1.fa', 'example/example2.fa']
+k: 4, peak: None, top: 5, files: ['example/example1.fa']
 
 k-Mer		Frequency	File
 AAAA		4		example1.fa
@@ -138,84 +97,40 @@ ACCC		2		example1.fa
 CCCC		2		example1.fa
 TATA		2		example1.fa
 ATAT		2		example1.fa
-AAAA		4		example2.fa
-CGAT		2		example2.fa
-GATT		2		example2.fa
-ATAT		2		example2.fa
-TTTC		1		example2.fa
-TTCC		1		example2.fa
-TCCA		1		example2.fa
-CCAA		1		example2.fa
-GCGC		1		example2.fa
-CGCG		1		example2.fa
-GCGA		1		example2.fa
-CGAA		1		example2.fa
-TTTG		1		example2.fa
-TTGG		1		example2.fa
-TGGA		1		example2.fa
-GGAC		1		example2.fa
-ACGT		1		example2.fa
-CGTG		1		example2.fa
-GTGA		1		example2.fa
-TGAT		1		example2.fa
-GCTA		1		example2.fa
-CTAG		1		example2.fa
-TAGC		1		example2.fa
-AGCA		1		example2.fa
-CCGG		1		example2.fa
-CGGA		1		example2.fa
-GGAA		1		example2.fa
-GAAC		1		example2.fa
-ATTA		1		example2.fa
-TTAT		1		example2.fa
-TTAA		1		example2.fa
-TAAT		1		example2.fa
-AATT		1		example2.fa
-ATTG		1		example2.fa
-TATA		1		example2.fa
-TATT		1		example2.fa
-GCCC		1		example2.fa
-CCCC		1		example2.fa
-CCCA		1		example2.fa
-CCAC		1		example2.fa
-TCGA		1		example2.fa
-ATTC		1		example2.fa
 ```
-
-
-##### Plots
-![Scatter](scatter.png)
-\
-\
-![PCA1](pca1.png)
-\
-\
-![PCA2](pca2.png)
-
-
-
 ### Graphical-User-Interface Output:
-Starting the application with the interactive user interface requires no parameter except for FASTA-Files (-f1 and -f2).
-Port number is optional.
+Starting the application with the interactive user interface requires no parameter except for at least two FASTA-Files (-fs or -d).
+Port number (-pt) and structural data (-sd, -sfs, -sf) are optional. 
 
 #### Example:
 ```
-python3 main.py -f1 example/example1.fa -f2 example/example2.fa
+python3 main.py -d example/ -sd example/exampleStrucData
 ```
 
 #### Output:
-![GUI](gui.JPG)
+![scatter](scatter.png)
 
+![structure](structure.png)
+
+#### Plots
+PCA: Principle component analysis of selected files
+
+Scatterplot: k-mer frequencies of selected files are visualized as point in coordinate system
+
+RNA-Structure Heatmap:
+Arbitrary RNA-Structure based on alphabet of element-string. For example alphabet contains no internal-loops which is why no internal-loops are visualized.
+For Heatmap highlighting k-mer occurrences are used.
+With 'extended options' normalization of number of occurrences can be normalized.
 #### Settings
-
 **Menu:**
 
-* '_Select-Files_'-Dropdown (coming soon): Select two files of given list of files, for which analysis should be done
+* '_Select-Files_'-Dropdown: Select two files of given list of files, for which analysis should be done
 
-* Slider: Set values for their property
+* Slider/Dropdown: Set values for their property
 
-* '_Highlighted-Feature_'-Dropdown: Change coloring in PCA plots from k-mer-frequency ('Frequency') to thymine-frequency in k-mer ('#T')
+* '_Highlighted-Feature_'-Dropdown: Change coloring in PCA plots from k-mer-frequency ('Frequency') to number of occurrences of specific nucleotide (#T, #A, #C, #G)
 
+* '_Extended Options_'-Button: Change options for RNA structure visualization
 #### Features
 
 Tables:
@@ -224,9 +139,7 @@ Tables:
 
 * Frequency-Table-Sorting: Sort by k-mers, frequency or filename
 
-PCA:
-
-* Tabs: Change view between PCAs
+Tabs: Change view between files for PCA/RNA-Structure or scatterplot
 
 Plots:
 
