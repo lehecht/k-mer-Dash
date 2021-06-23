@@ -26,7 +26,7 @@ def startDash(files, port, secStruct_data):
     global struct_data
     file_list = files
     struct_data = secStruct_data
-    app.run_server(debug=True, host='0.0.0.0', port=port)
+    app.run_server(debug=False, host='0.0.0.0', port=port)
 
 
 # calculates slider ranges
@@ -821,7 +821,10 @@ def show_selected_sequences(data, f3, f4):
     tab2_label = "RNA-Structure Heatmap 2"
 
     if not struct_data is None:
-        color_domain1 = [i for i in range(0, color_domain_max1, round(color_domain_max1 / len(color_range)))]
+        steps1 = round(color_domain_max1 / len(color_range))
+        if steps1 == 0:
+            steps1 = 1
+        color_domain1 = [i for i in range(0, color_domain_max1, steps1)]
         color_domain1.append(color_domain_max1)
         color_domain1 = list(set(color_domain1))
 
@@ -844,7 +847,10 @@ def show_selected_sequences(data, f3, f4):
         }]
 
         if len(template_list) > 1:  # more than one structure file committed
-            color_domain2 = [i for i in range(0, color_domain_max2, round(color_domain_max2 / len(color_range)))]
+            steps2 = round(color_domain_max2 / len(color_range))
+            if steps2 == 0:
+                steps2 = 1
+            color_domain2 = [i for i in range(0, color_domain_max2, steps2)]
             color_domain2.append(color_domain_max2)
             color_domain2 = list(set(color_domain2))
             color2 = data['colors'][1]
