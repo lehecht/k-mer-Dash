@@ -6,7 +6,8 @@ import math
 def test_processData():
     # Test1: ignoring peak position
     data = ['example/example1.fa', 'example/example2.fa']
-    struct_data = ['example/exampleStructuralData1.fa', 'example/exampleStructuralData2.fa']
+    struct_data = ['example/exampleStrucData/exampleStructuralData1.fa',
+                   'example/exampleStrucData/exampleStructuralData2.fa']
     k = 3
     top = 10
     peak = None
