@@ -42,13 +42,13 @@ Or by downloading from: [http://www.clustal.org/clustal2/](http://www.clustal.or
 ## Input
 | parameter | Description |
 |-------|---------------------------------------------|
-| -fs FILES | List of FASTA formatted files with nucleotide-sequences of equal length|
-| -f FILE | Single FASTA formatted file with nucleotide-sequences of equal length|
-| -d DIR | Directory of FASTA formatted files with nucleotide-sequences of equal length|
+| -fs FILES | List of FASTA formatted files with DNA nucleotide-sequences of equal length|
+| -f FILE | Single FASTA formatted file with DNA nucleotide-sequences|
+| -d DIR | Directory of FASTA formatted files with DNA nucleotide-sequences of equal length|
 | -sfs FILES | List of FASTA formatted file with element-strings of equal length|
-| -sf FILE | Single FASTA formatted file with element-strings of equal length|
+| -sf FILE | Single FASTA formatted file with element-strings|
 | -sd DIR | Directory of FASTA formatted files with element-strings of equal length|
-| -k INT | Length of generated k-mer subsequences |
+| -k INT | Length of generated k-mer (substrings) |
 | -p INT | Highlighted position in sequence, e.g. center of a binding site |
 | -t INT | Number of highest k-mer occurrences used for visualization |
 | -c STR | Boolean starting program with GUI or on command-line |
@@ -118,17 +118,16 @@ PCA: Principle component analysis of selected files
 Scatterplot: k-mer frequencies of selected files are visualized as point in coordinate system
 
 RNA-Structure Heatmap:
-Arbitrary RNA-Structure based on alphabet of element-string. For example alphabet contains no internal-loops which is why no internal-loops are visualized.
-For Heatmap highlighting k-mer occurrences are used.
+Arbitrary RNA-Structure based on alphabet of element-string. For example if alphabet contains no "i" or "I" (internal-loops), no internal-loops are visualized.
+For heatmap highlighting k-mer frequency is used.
 With 'extended options' normalization of number of occurrences can be normalized.
 #### Settings
 **Menu:**
-
 * '_Select-Files_'-Dropdown: Select two files of given list of files, for which analysis should be done
 
 * Slider/Dropdown: Set values for their property
 
-* '_Highlighted-Feature_'-Dropdown: Change coloring in PCA plots from k-mer-frequency ('Frequency') to number of occurrences of specific nucleotide (#T, #A, #C, #G)
+* '_Highlighted-Feature_'-Dropdown: Change coloring in PCA plots from k-mer-frequency ('Frequency') to frequency of specific nucleotide (#T, #A, #C or #G) in k-mer
 
 * '_Extended Options_'-Button: Change options for RNA structure visualization
 #### Features
@@ -139,11 +138,11 @@ Tables:
 
 * Frequency-Table-Sorting: Sort by k-mers, frequency or filename
 
-Tabs: Change view between files for PCA/RNA-Structure or scatterplot
-
 Plots:
 
 * Dash-Features: Image-download, Zooming, Scaling, etc...
+
+Tabs: Change view between files for PCA/RNA-Structure or scatterplot
 
 ## License
 MIT
