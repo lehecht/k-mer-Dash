@@ -42,10 +42,10 @@ Or by downloading from: [http://www.clustal.org/clustal2/](http://www.clustal.or
 ## Input
 | parameter | Description |
 |-------|---------------------------------------------|
-| -fs FILES | List of FASTA formatted files with DNA nucleotide-sequences of equal length|
+| -fs FILES | List of space separated FASTA formatted files with DNA nucleotide-sequences of equal length|
 | -f FILE | Single FASTA formatted file with DNA nucleotide-sequences|
 | -d DIR | Directory of FASTA formatted files with DNA nucleotide-sequences of equal length|
-| -sfs FILES | List of FASTA formatted file with element-strings of equal length|
+| -sfs FILES | List of space separated FASTA formatted file with element-strings of equal length|
 | -sf FILE | Single FASTA formatted file with element-strings|
 | -sd DIR | Directory of FASTA formatted files with element-strings of equal length|
 | -k INT | Length of generated k-mer (substrings) |
@@ -56,7 +56,7 @@ Or by downloading from: [http://www.clustal.org/clustal2/](http://www.clustal.or
 
 ## Output
 On valid input parameters a Dash application is started to explore various k-mer visualizations and statistics.
-It visualizes data as diagrams (Scatterplot, PCA, RNA Secondary Structure) and tables (k-mer Frequency-table, Alignment-table).
+It visualizes data as diagrams (Scatterplot, PCA, RNA Secondary Structure Heatmap) and tables (k-mer Frequency-table, Alignment-table).
 
 ## Description
 
@@ -120,7 +120,7 @@ Scatterplot: k-mer frequencies of selected files are visualized as point in coor
 RNA-Structure Heatmap:
 Arbitrary RNA-Structure based on alphabet of element-string. For example if alphabet contains no "i" or "I" (internal-loops), no internal-loops are visualized.
 For heatmap highlighting k-mer frequency is used.
-With 'extended options' normalization of number of occurrences can be normalized.
+K-mer frequencies of element-sequences can be normalized by using 'extended options'-button.
 #### Settings
 **Menu:**
 * '_Select-Files_'-Dropdown: Select two files of given list of files, for which analysis should be done
@@ -129,7 +129,7 @@ With 'extended options' normalization of number of occurrences can be normalized
 
 * '_Highlighted-Feature_'-Dropdown: Change coloring in PCA plots from k-mer-frequency ('Frequency') to frequency of specific nucleotide (#T, #A, #C or #G) in k-mer
 
-* '_Extended Options_'-Button: Change options for RNA structure visualization
+* '_Extended Options_'-Button: Change options for RNA-Structure-Heatmap visualization
 #### Features
 
 Tables:
@@ -141,8 +141,6 @@ Tables:
 Plots:
 
 * Dash-Features: Image-download, Zooming, Scaling, etc...
-
-Tabs: Change view between files for PCA/RNA-Structure or scatterplot
 
 ## License
 MIT
