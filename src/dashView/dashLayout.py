@@ -3,7 +3,6 @@ import dash_core_components as dcc
 import dash_table
 import dash_html_components as html
 import dash_bootstrap_components as dbc
-import forgi
 import pandas as pd
 import os
 from dash.exceptions import PreventUpdate
@@ -20,13 +19,14 @@ struct_data = None
 
 # starts dash
 # file_list: input data
+# sec_struct_data: input structural data
 # port: port
-def startDash(files, port, secStruct_data):
+def startDash(files, port, sec_struct_data):
     global file_list
     global struct_data
     file_list = files
-    struct_data = secStruct_data
-    app.run_server(debug=False, host='0.0.0.0', port=port)
+    struct_data = sec_struct_data
+    app.run_server(debug=True, host='0.0.0.0', port=port)
 
 
 # calculates slider ranges
@@ -41,10 +41,12 @@ def markSliderRange(min_val, max_val, peak):
     return mark
 
 
-def check_sum(ee, ss, ii, mm, bb, si, Is, sm, ms, es, se, hh, hs, sh, sb, bs):
-    custom_rates = [ee, ss, ii, mm, bb, si, Is, sm, ms, es, se, hh, hs, sh, sb, bs]
-    kmer_sum = round(sum(custom_rates), 1)
-    check_passed = bool(kmer_sum == 1)
+# checks if custom normalization rates sum up to one
+# parameters (e.g. ee,ss,etc. ..): rate for 2-mer
+def check_sum(ee, ss, ii, mm, bb, si, i_s, sm, ms, es, se, hh, hs, sh, sb, bs):
+    custom_rates = [ee, ss, ii, mm, bb, si, i_s, sm, ms, es, se, hh, hs, sh, sb, bs]
+    k_mer_sum = round(sum(custom_rates), 1)
+    check_passed = bool(k_mer_sum == 1)
 
     return check_passed
 
@@ -76,7 +78,7 @@ app.layout = dbc.Container([
                         id="file2",
                         options=[]),
                     dbc.Tooltip(
-                        "Files used for k-mer visualization",
+                        "Files containing DNA nucleotide-sequences used for k-mer visualization",
                         target="sel_files_header"
                     ),
                     html.Br(),
@@ -92,7 +94,7 @@ app.layout = dbc.Container([
                         options=[{"label": "-", "value": "0"}],
                         value="0"),
                     dbc.Tooltip(
-                        "Element strings containing files used for RNA structure heatmaps(s)",
+                        "Files containing element-strings used for RNA structure heatmaps(s)",
                         target="struc_files_header"
                     ),
                     html.Br(),
@@ -123,7 +125,8 @@ app.layout = dbc.Container([
                         marks=markSliderRange(0, 10, True)
                     ),
                     dbc.Tooltip(
-                        "Assumed binding position of protein in given sequences",
+                        "Highlighted position in sequence (e.g. assumed binding position "
+                        "of protein in given sequences)",
                         target="peak_header"
                     ),
                     html.Br(),
@@ -182,6 +185,7 @@ app.layout = dbc.Container([
                             dbc.ModalBody(children=[
                                 dcc.Checklist(
                                     id="sec_peak",
+                                    options=[{'label': 'show only peak positions', 'value': 'peaking'}],
                                     inputStyle={'margin-right': '3px'},
                                 ),
                                 dbc.Tooltip(
@@ -339,12 +343,13 @@ app.layout = dbc.Container([
                             dcc.Tab(label="Scatterplot", value='s-tab', id="s-tab1", children=[
                                 dcc.Graph(figure={}, id="scatter", style={'height': '40vh'})
                             ]),
+                            # -------------------------------------- FornaContainer ------------------------------------
                             dcc.Tab(value='r-tab', id="s-tab2", children=[
                                 dbc.Card(
                                     dashbio.FornaContainer(
                                         id='forna', height='300', width='400', colorScheme='custom'
                                     ),
-                                    className="w-100 p-3"
+                                    className="w-100 p-3",
                                 ),
                             ]),
                             dcc.Tab(value='r-tab2', id="s-tab3", children=[
@@ -352,7 +357,7 @@ app.layout = dbc.Container([
                                     dashbio.FornaContainer(
                                         id='forna2', height='300', width='400', colorScheme='custom'
                                     ),
-                                    className="w-100 p-3"
+                                    className="w-100 p-3",
                                 ),
                             ])
                         ]),
@@ -414,7 +419,8 @@ app.layout = dbc.Container([
                             target="Tab1"
                         ),
                         dbc.Tooltip(
-                            "Principal component analysis (PCA) of second selected file containing nucleotide sequences",
+                            "Principal component analysis (PCA) of "
+                            "second selected file containing nucleotide sequences",
                             target="Tab2"
                         ),
                     ], color="primary",
@@ -483,54 +489,64 @@ app.layout = dbc.Container([
      dash.dependencies.State('memory', 'data')]
 )
 # calculates new data for tables/diagrams
-# k: kmer length
+# k: k-mer length
 # peak: peak: peak-position, where sequences should be aligned
 # top: number of best values
-# pca_feature: number of T or kmer-Frequency for pcas
+# pca_feature: number of T or k-mer-Frequency for PCAs
+# apply_options_btn: n_clicks of apply-button within modal
+# sec_peak: peak status (-1: no data, 0: False, 1: True) for structural data
+# parameters (e.g. ee,ss,etc. ...): custom rates of 2-mer
+# norm_option: normalization option (none, for A.thaliana, custom)
 # data: storage to share data between callbacks
 def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, apply_options_btn, sec_peak,
-               ee, ss, ii, mm, bb, si, Is, sm, ms, es, se, hh, hs, sh, sb, bs, norm_option, data):
+               ee, ss, ii, mm, bb, si, i_s, sm, ms, es, se, hh, hs, sh, sb, bs, norm_option, data):
     normalization_vector = None
+
+    selected_struc = None
 
     custom_norm_vec = False
 
-    if not apply_options_btn is None and norm_option == 'custom_vals':
+    # if custom rates given, check input
+    if apply_options_btn is not None and norm_option == 'custom_vals':
         custom_norm_vec = True
-        custom_rates = [ee, ss, ii, mm, bb, si, Is, sm, ms, es, se, hh, hs, sh, sb, bs]
+        custom_rates = [ee, ss, ii, mm, bb, si, i_s, sm, ms, es, se, hh, hs, sh, sb, bs]
+        # if input contains non-digits, prevent update
         labels = ["EE", "SS", "II", "MM", "BB", "SI", "IS", "SM", "MS", "ES", "SE", "HH", "HS", "SH", "SB", "BS"]
         if None in custom_rates:
             return dash.no_update
-        check_sum_passed = check_sum(ee, ss, ii, mm, bb, si, Is, sm, ms, es, se, hh, hs, sh, sb, bs)
+        check_sum_passed = check_sum(ee, ss, ii, mm, bb, si, i_s, sm, ms, es, se, hh, hs, sh, sb, bs)
+        # if sum of custom rates is one, do normalization
         if check_sum_passed:
             normalization_vector = dict(zip(labels, custom_rates))
+        # otherwise prevent update
         else:
             return dash.no_update
 
+    # translate dropdown value into real value
     top_opt_val = {'0': 10, '1': 20, '2': 50, '3': 100}
 
     top = top_opt_val[top]
-
-    selected_struc = None
 
     if peak is 0:
         peak = None
 
     if sec_peak == ['peaking']:
-        no_sec_peak = 0
+        no_sec_peak = 0  # =False
     else:
-        no_sec_peak = 1
+        no_sec_peak = 1  # =True
 
+    # initialize (structural) data for calculations
     if data is None:
         selected = [file_list[0], file_list[1]]
 
-        if not struct_data is None:
+        if struct_data is not None:
             if len(struct_data) > 1:
                 selected_struc = [struct_data[0], struct_data[1]]
             else:
                 selected_struc = [struct_data[0]]
     else:
         selected = [file_list[int(f1)], file_list[int(f2)]]
-        if not struct_data is None:
+        if struct_data is not None:
             if len(struct_data) > 1:
                 selected_struc = [struct_data[int(f3)], struct_data[int(f4)]]
             else:
@@ -556,24 +572,15 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, apply_options_btn, sec
 
     algn1, algn2, f1_name, f2_name = initializeData.getAlignmentData(new_process)
 
-    # if cols differ in their length, need to do some adaptions
+    # if columns differ in their length, need to do some adaptions
+    if (len(algn1) > 1 and len(algn2) > 1) or (len(algn1) <= 1 and len(algn2) <= 1):
+        if len(algn1) <= 1 and len(algn2) <= 1:
+            algn1_df = pd.DataFrame(columns=[f1_name], data=['No data to align'])
+            algn2_df = pd.DataFrame(columns=[f2_name], data=['No data to align'])
+        else:
+            algn1_df = pd.DataFrame(columns=[f1_name], data=algn1)
+            algn2_df = pd.DataFrame(columns=[f2_name], data=algn2)
 
-    if (len(algn1) > 1) and (len(algn2) > 1):
-        algn1_df = pd.DataFrame(columns=[f1_name], data=algn1)
-        algn2_df = pd.DataFrame(columns=[f2_name], data=algn2)
-        algn1_df = pd.concat([algn1_df, algn2_df], ignore_index=False, axis=1)
-        msas = [
-            dash_table.DataTable(columns=[{"name": i, "id": i} for i in algn1_df.columns],
-                                 data=algn1_df.to_dict('records'),
-                                 style_table={'overflow-x': 'hidden'},
-                                 style_cell={'textAlign': 'center'},
-                                 export_format="csv")]
-    elif len(algn1) <= 1 and len(algn2) <= 1:
-        algn1 = ['No data to align']
-        algn2 = ['No data to align']
-
-        algn1_df = pd.DataFrame(columns=[f1_name], data=algn1)
-        algn2_df = pd.DataFrame(columns=[f2_name], data=algn2)
         algn1_df = pd.concat([algn1_df, algn2_df], ignore_index=False, axis=1)
         msas = [
             dash_table.DataTable(columns=[{"name": i, "id": i} for i in algn1_df.columns],
@@ -613,17 +620,20 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, apply_options_btn, sec
 
     seq_len = new_process.getSeqLen()
 
-    if not struct_data is None:
+    # calculate RNA-Template(s), dotbracket-string(s), color-vector, color-scale
+    # and color-domain(s) (highest value in color-vector)
+
+    if struct_data is not None:
 
         structure_info = initializeData.getTemplateSecondaryStructure(new_process, normalization_vector,
                                                                       custom_norm_vec, no_sec_peak)
 
         struct1, struct2, color1, color2, color_domain_max1, color_domain_max2, color_scale = structure_info
 
-        if not struct1 is None and not struct2 is None:
+        if struct1 is not None and struct2 is not None:
             templates = [struct1[0], struct2[0]]
             dbs = [struct1[1], struct2[1]]
-        elif not struct1 is None:
+        elif struct1 is not None:
             templates = [struct1[0]]
             dbs = [struct1[1]]
         else:
@@ -642,7 +652,6 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, apply_options_btn, sec
             'templates': templates, 'dbs': dbs, 'colors': [color1, color2],
             'color_max': [color_domain_max1, color_domain_max2], 'color_scale': color_scale}
 
-    # return data, dash.no_update, dash.no_update
     return [data]
 
 
@@ -652,6 +661,8 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, apply_options_btn, sec
     dash.dependencies.Output("file2", "value"),
     dash.dependencies.Input('memory', 'modified_timestamp'),
 ])
+# initializes data dropdowns
+# ts: store timestamp
 def initialSelect(ts):
     if ts is None:
         f1 = "0"
@@ -666,6 +677,8 @@ def initialSelect(ts):
     dash.dependencies.Output("file1", "options"),
     dash.dependencies.Input("file2", "value"),
 ])
+# returns new option for dropdown based on selection
+# f2: second selected file
 def updateFile1Dropdown(f2):
     return updateFileList(f2, False)
 
@@ -674,12 +687,17 @@ def updateFile1Dropdown(f2):
     dash.dependencies.Output("file2", "options"),
     dash.dependencies.Input("file1", "value"),
 ])
+# returns new option for dropdown based on selection
+# f1: first selected file
 def updateFile2Dropdown(f1):
     return updateFileList(f1, False)
 
 
+# disables already selected file in other dropdown
+# val: (structural) file
+# struct: bool (True= structural file is given)
 def updateFileList(val, struct):
-    if struct and not struct_data is None:
+    if struct and struct_data is not None:
         files = struct_data
     elif struct and struct_data is None:
         return [{"label": "-", "value": "0"}]
@@ -700,8 +718,10 @@ def updateFileList(val, struct):
     dash.dependencies.Output("file4", "value"),
     dash.dependencies.Input('memory', 'modified_timestamp'),
 ])
+# initializes structural data dropdowns
+# ts: store timestamp
 def initialStructSelect(ts):
-    if ts is None and not struct_data is None:
+    if ts is None and struct_data is not None:
         f3 = "0"
         f4 = "1"
     else:
@@ -714,6 +734,8 @@ def initialStructSelect(ts):
     dash.dependencies.Output("file3", "options"),
     dash.dependencies.Input("file4", "value"),
 ])
+# returns new option for dropdown based on selection
+# f4: second selected structural file
 def updateFile4Dropdown(f4):
     return updateFileList(f4, True)
 
@@ -722,8 +744,10 @@ def updateFile4Dropdown(f4):
     dash.dependencies.Output("file4", "options"),
     dash.dependencies.Input("file3", "value"),
 ])
+# returns new option for dropdown based on selection
+# f1: first selected structural file
 def updateFile3Dropdown(f3):
-    if not struct_data is None and len(struct_data) > 1:
+    if struct_data is not None and len(struct_data) > 1:
         return updateFileList(f3, True)
     else:
         raise PreventUpdate
@@ -742,8 +766,6 @@ def updateFile3Dropdown(f3):
         dash.dependencies.Output("peak", "marks"),
     ],
     [
-        dash.dependencies.Input("file1", "value"),
-        dash.dependencies.Input("file2", "value"),
         dash.dependencies.Input('memory', 'modified_timestamp'),
         dash.dependencies.State('memory', 'data'),
     ],
@@ -752,7 +774,7 @@ def updateFile3Dropdown(f3):
 # fil1/file2: input file
 # ts: timestamp when data was modified
 # data: storage to share data between callbacks
-def updateSliderRange(file1, file2, ts, data):
+def updateSliderRange(ts, data):
     if ts is None:
         raise PreventUpdate
     k_p_slider_max = data['seqLen']
@@ -761,27 +783,12 @@ def updateSliderRange(file1, file2, ts, data):
     k_slider_max = k_p_slider_max - 1
     peak_min = 0
 
-    # calculation of new slider ranges, if files were changed or if dataframe-size was changed (for top-slider)
+    # calculation of new slider ranges if files were changed
 
     k_range = markSliderRange(k_p_slider_min, k_slider_max, False)
     peak_range = markSliderRange(peak_min, k_p_slider_max, True)
 
     return k_p_slider_min, k_slider_max, k_range, peak_min, k_p_slider_max, peak_range
-
-
-# ----------------------------------------- Checkbox-Updater -----------------------------------------------------------
-@app.callback([
-    dash.dependencies.Output("sec_peak", "options"),
-    dash.dependencies.Input('memory', 'modified_timestamp'),
-])
-def updateFile3Dropdown(ts):
-    if ts is None:
-        raise PreventUpdate
-
-    if struct_data is None:
-        return [[{'label': 'show only peak positions', 'value': 'peaking', 'disabled': True}]]
-    else:
-        return [[{'label': 'show only peak positions', 'value': 'peaking', 'disabled': False}]]
 
 
 # ----------------------------------------- Forna-Container Update -----------------------------------------------------
@@ -800,6 +807,10 @@ def updateFile3Dropdown(ts):
      dash.dependencies.Input('file4', 'value'),
      ]
 )
+# create RNA Structure Heatmap visualizations
+# data: store
+# f3: first selected structural file
+# f4: second selected structural file
 def show_selected_sequences(data, f3, f4):
     if data is None:
         raise PreventUpdate
@@ -811,27 +822,31 @@ def show_selected_sequences(data, f3, f4):
 
     color_range = data['color_scale']
 
+    # disable tab for files if no or only one structural file is given
     disable_t1 = False
     disable_t2 = False
 
+    # color-vector
     custom_colors = None
     custom_colors2 = None
 
     tab1_label = "RNA-Structure Heatmap 1"
     tab2_label = "RNA-Structure Heatmap 2"
 
-    if not struct_data is None:
+    if struct_data is not None:
         steps1 = round(color_domain_max1 / len(color_range))
         if steps1 == 0:
             steps1 = 1
         color_domain1 = [i for i in range(0, color_domain_max1, steps1)]
         color_domain1.append(color_domain_max1)
-        color_domain1 = list(set(color_domain1))
+        # list defining color sections for given data
+        color_domain1 = list(set(color_domain1))  # set() because round() can create duplicates
 
         color1 = data['colors'][0]
 
         tab1_label = os.path.basename(struct_data[int(f3)]) + " Structure Heatmap"
 
+        # create color-vector-object for FornaContainer
         custom_colors = {
             'domain': color_domain1,
             'range': color_range,
@@ -840,6 +855,7 @@ def show_selected_sequences(data, f3, f4):
             }
         }
 
+        # create sequence-object for FornaContainer
         template1 = [{
             'sequence': template_list[0],
             'structure': dotbracket_list[0],
@@ -871,14 +887,14 @@ def show_selected_sequences(data, f3, f4):
                 'options': {'name': 'template2'}
             }]
 
-        else:
+        else:  # if no second structural file is available
             template2 = [{
                 'sequence': "",
                 'structure': ""
             }]
             disable_t2 = True
 
-    else:
+    else:  # if not structural data is available
         template1 = [{
             'sequence': "",
             'structure': ""
@@ -907,12 +923,18 @@ def show_selected_sequences(data, f3, f4):
                dash.dependencies.Input('error_type', 'hidden'),
                dash.dependencies.State('ex_options', 'is_open'),
                ], prevent_initial_call=True)
+# opens or closes modal
 # ts: timestamp when data was modified
 # data: storage to share data between callbacks
+# btn_open, btn_close, btn_apply: n_clicks of open-/apply/reset-button for/in modal
+# norm_val: normalization option (none, for A.thaliana, custom)
+# error1, error2: error messages hidden status (True/False)
+# is_open: modal status (True/False)
 def updateExtendedOptionModal(ts, btn_open, btn_close, btn_apply, norm_val, error1, error2, is_open):
     if ts is None:
         raise PreventUpdate
 
+    # determine which button was triggered
     ctx = dash.callback_context
     btn_id = ctx.triggered[0]['prop_id'].split('.')[0]
 
@@ -921,8 +943,10 @@ def updateExtendedOptionModal(ts, btn_open, btn_close, btn_apply, norm_val, erro
     else:
         show_table = True
 
+    # if open-/close button was triggered, then open or close modal
     if btn_id == "opt_btn_open" or btn_id == "opt_btn_close":
         return [not is_open, show_table]
+    # if apply button was triggered, close modal if no error message is shown
     elif btn_id == 'opt_btn_apply':
         if not error1 or not error2:
             return [is_open, show_table]
@@ -953,6 +977,8 @@ def updateExtendedOptionModal(ts, btn_open, btn_close, btn_apply, norm_val, erro
 ],
     [dash.dependencies.Input('opt_btn_reset', 'n_clicks'),
      ], prevent_initial_call=True)
+# resets custom rate table in modal
+# reset_btn: n_clicks of reset button
 def resetTable(reset_btn):
     if reset_btn:
         return [0 for i in range(0, 16)]
@@ -985,7 +1011,11 @@ def resetTable(reset_btn):
         dash.dependencies.State('SB', 'value'),
         dash.dependencies.State('BS', 'value'),
     ], prevent_initial_call=True)
-def showErrorMessages(apply_btn, norm_option, ee, ss, ii, mm, bb, si, Is, sm, ms, es, se, hh, hs, sh, sb, bs):
+# show error message, if input in custom rates table is invalid
+# apply_btn: n_clicks of apply button for custom rates
+# norm_option: normalization options (none, for A.thaliana, custom)
+# parameter (e.g. ee,ss,etc. ...): custom rates for 2-mer
+def showErrorMessages(apply_btn, norm_option, ee, ss, ii, mm, bb, si, i_s, sm, ms, es, se, hh, hs, sh, sb, bs):
     hide_error_msg = True
     hide_error_type_msg = True
 
@@ -995,11 +1025,11 @@ def showErrorMessages(apply_btn, norm_option, ee, ss, ii, mm, bb, si, Is, sm, ms
     if triggered_component == 'opt_btn_apply':
         if not norm_option == 'custom_vals':
             return [hide_error_msg, hide_error_type_msg]
-        custom_rates = [ee, ss, ii, mm, bb, si, Is, sm, ms, es, se, hh, hs, sh, sb, bs]
+        custom_rates = [ee, ss, ii, mm, bb, si, i_s, sm, ms, es, se, hh, hs, sh, sb, bs]
         if None in custom_rates:
             hide_error_type_msg = False
             return [hide_error_msg, hide_error_type_msg]
-        check_sum_passed = check_sum(ee, ss, ii, mm, bb, si, Is, sm, ms, es, se, hh, hs, sh, sb, bs)
+        check_sum_passed = check_sum(ee, ss, ii, mm, bb, si, i_s, sm, ms, es, se, hh, hs, sh, sb, bs)
         if not check_sum_passed:
             hide_error_msg = False
     return [hide_error_msg, hide_error_type_msg]
@@ -1008,6 +1038,8 @@ def showErrorMessages(apply_btn, norm_option, ee, ss, ii, mm, bb, si, Is, sm, ms
 @app.callback([dash.dependencies.Output('opt_btn_open', 'disabled'),
                ],
               [dash.dependencies.Input('memory', 'modified_timestamp')])
+# disables 'extended options' button if no structural data is available
+# ts: store timestamp
 def disableButton(ts):
     if ts is None:
         raise PreventUpdate
