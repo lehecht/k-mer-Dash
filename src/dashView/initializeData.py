@@ -54,7 +54,7 @@ def getTemplateSecondaryStructure(process, norm_vector, normalization_option, no
     # get color data based on given template
     heat_map_coloring = SecStructure.createHeatMapColoring(process, file1_template, file2_template,
                                                            no_seq_peak)
-    
+
     # color-vector, highest value in color-vector, not matched 2-mers (should be empty for 2-mer)
     color1, color_domain_max1, not_matched1 = heat_map_coloring[0]
 

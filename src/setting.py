@@ -1,7 +1,7 @@
 class Setting:
     data = None  # data: file input list
     selected = None  # selected: two files, which are processed
-    secStruct_data = None
+    sec_struct_data = None  # sec_struct_data: list of structural data
     feature = None  # feature: number of T or kmer-Frequency for pcas
     k = 0  # k: kmer length
     peak = 0  # peak: peak: peak-position, where sequences should be aligned
@@ -14,7 +14,7 @@ class Setting:
         self.peak = peak
         self.top = top
         self.feature = feature
-        self.secStruct_data = secStruct_data
+        self.sec_struct_data = secStruct_data
 
     def setData(self, data):
         self.data = data
@@ -41,7 +41,7 @@ class Setting:
         return self.data
 
     def getSecStrucData(self):
-        return self.secStruct_data
+        return self.sec_struct_data
 
     def getSelected(self):
         return self.selected

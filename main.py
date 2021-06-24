@@ -55,7 +55,8 @@ def checkSecFileFormat(file):
     record = str(list(SeqIO.parse(file, "fasta"))[0].seq)
 
     if 'A' in record or 'T' in record or 'C' in record or 'G' in record:
-        raise InputValueException("ERROR: Fasta files for secondary structure must only contain element-strings.")
+        raise InputValueException("ERROR: Fasta files for secondary structure must only contain element-strings.\n"
+                                  "For help use option -h.")
 
 
 def checkFileExtension(file, struct):
@@ -67,15 +68,16 @@ def checkFileExtension(file, struct):
 
     if ext not in ext_list:
         if struct:
-            msg = "ERROR: only Fasta-files with file-extension: \'.fa\', \'.fasta\', \'.fsa\' allowed!"
+            msg = "ERROR: only Fasta-files with file-extension: \'.fa\', \'.fasta\', \'.fsa\' allowed!" \
+                  "For help use option -h."
         else:
             msg = "ERROR: only Fasta-files with file-extension: " \
-                  "\'.fa\', \'.fasta\', \'.fna\', \'.fsa\', \'.ffn\' allowed!"
+                  "\'.fa\', \'.fasta\', \'.fna\', \'.fsa\', \'.ffn\' allowed! For help use option -h."
 
         raise InputValueException(msg)
 
     if os.stat(file).st_size is 0:
-        raise FileCountException('ERROR: file(s) is empty.')
+        raise FileCountException('ERROR: file(s) is empty. For help use option -h.')
 
 
 def checkArguments(file_list, f, c, k, fasta_dir, fs_list, sfs, sd, sf):
@@ -85,22 +87,25 @@ def checkArguments(file_list, f, c, k, fasta_dir, fs_list, sfs, sd, sf):
         struct_file_list = sd
 
     if c and (k is None):
-        raise InputValueException("ERROR: k is required in commandline-mode.")
+        raise InputValueException("ERROR: k is required in commandline-mode. For help use option -h.")
     if len(file_list) > 0 and (not f is None):
         raise InputValueException("ERROR: please choose either -fs or -d for interactive mode "
-                                  "or -f for command-line mode.")
+                                  "or -f for command-line mode. For help use option -h.")
     elif len(file_list) > len(set(file_list)):
-        raise InputValueException("ERROR: every nucleotide FASTA-file must be unique.")
+        raise InputValueException("ERROR: every nucleotide FASTA-file must be unique. For help use option -h.")
     elif not struct_file_list is None and len(struct_file_list) > len(set(struct_file_list)):
-        raise InputValueException("ERROR: every structural FASTA-file must be unique.")
+        raise InputValueException("ERROR: every structural FASTA-file must be unique. For help use option -h.")
     elif (not f is None or len(file_list) < 2) and not c:
-        raise InputValueException("ERROR: interactive mode needs at least two files.")
+        raise InputValueException("ERROR: interactive mode needs at least two files. For help use option -h.")
     elif len(file_list) > 0 and c:
-        raise InputValueException("ERROR: commandline-mode requires only single Fasta-file. Please use -f option.")
+        raise InputValueException(
+            "ERROR: commandline-mode requires only single Fasta-file. Please use -f option. For help use option -h.")
     elif (not fasta_dir is None) and (not fs_list is None):
-        raise InputValueException("ERROR: please choose either -fs to commit a list of files or -d for a directory.")
+        raise InputValueException(
+            "ERROR: please choose either -fs to commit a list of files or -d for a directory. For help use option -h.")
     elif not [sfs, sd, sf].count(None) > 1:
-        raise InputValueException("ERROR: please choose either -sfs, -sd or -sf to commit structural data.")
+        raise InputValueException(
+            "ERROR: please choose either -sfs, -sd or -sf to commit structural data. For help use option -h.")
 
 
 def selectAllFastaFiles(dir, struct):
@@ -115,16 +120,16 @@ def selectAllFastaFiles(dir, struct):
 
     if len(file_list) == 0:
         if struct:
-            msg = 'ERROR: {} has no Fasta-files with extension: .fa, .fasta, .fsa'.format(dir)
+            msg = 'ERROR: {} has no Fasta-files with extension: .fa, .fasta, .fsa . For help use option -h.'.format(dir)
         else:
-            msg = 'ERROR: {} has no Fasta-files with extension: .fa, .fasta, .fna, .fsa, .ffn'.format(dir)
+            msg = 'ERROR: {} has no Fasta-files with extension: .fa, .fasta, .fna, .fsa, .ffn . For help use option -h.'.format(dir)
 
         raise FileCountException(msg)
 
     for f in file_list:
         if os.stat(f).st_size is 0:
             raise FileCountException(
-                'ERROR: file(s) in \'{}\' is/are empty.'.format(dir))
+                'ERROR: file(s) in \'{}\' is/are empty. For help use option -h.'.format(dir))
     return file_list
 
 
@@ -138,7 +143,7 @@ def checkTargetLengths(fileList):
         target = f.readline()
         target = f.readline()  # read only first sequence
         if not targetLen == len(target):
-            raise ValueError("ERROR: sequence-length must be equal in all files.")
+            raise ValueError("ERROR: sequence-length must be equal in all files. For help use option -h.")
     f.close()
 
 

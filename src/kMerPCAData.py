@@ -1,13 +1,13 @@
 import os
-
-from src.inputValueException import InputValueException
 from src.processing import Processing
 import pandas as pd
 import re
 from sklearn.decomposition import PCA
 
 
-# counts triplets and number of nucleic acids in kmer
+# counts triplets and number of nucleic acids in k-mer
+# df: given dataframe
+# all_triplets: all 64 triplet combinations of A,C,G,T
 def fillDataFrame(df, all_triplets):
     alphabet = ['A', 'C', 'G', 'T']
     top_list_df = df.copy()
@@ -20,11 +20,11 @@ def fillDataFrame(df, all_triplets):
     for tpl in all_triplets:
         top_list_df[tpl] = 0
 
-    # counts nucleotides in kmer
+    # counts nucleotides in k-mer
     for b in alphabet:
         top_list_df[b] = [kmer.upper().count(b) for kmer in top_list_df.index.tolist()]
 
-    # counts triplets in kmer
+    # counts triplets in k-mer
     for trpl in all_triplets:
         top_list_df[trpl] = [sum(1 for _ in re.finditer('(?={})'.format(trpl), kmer.upper())) for kmer in
                              top_list_df.index.tolist()]
@@ -44,11 +44,11 @@ class KMerPCAData(Processing):
         top_kmer = self.getTopKmer()
         all_triplets = self.getAllTriplets()
 
-        file_name1 = os.path.basename(self.getProfilObj1().getName())  # get filenames
-        file_name2 = os.path.basename(self.getProfilObj2().getName())
+        file_name1 = os.path.basename(self.getProfileObj1().getName())  # get filenames
+        file_name2 = os.path.basename(self.getProfileObj2().getName())
 
-        top_list_file1 = top_kmer.query('File==@file_name1')  # get top kmeres
-        top_list_file2 = top_kmer.query('File==@file_name2')  # get top kmeres
+        top_list_file1 = top_kmer.query('File==@file_name1')  # get top k-mer
+        top_list_file2 = top_kmer.query('File==@file_name2')  # get top k-mer
 
         pca = PCA(n_components=2)
 

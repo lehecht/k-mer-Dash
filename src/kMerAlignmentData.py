@@ -13,35 +13,35 @@ import re
 # implements processData for multiple alignments
 class KMerAlignmentData(Processing):
 
-    def __init__(self, data, selected, k, peak, top, feature,cmd,secStruct_data,no_sec_peak):
-        super().__init__(data, selected, k, peak, top, feature,cmd,secStruct_data,no_sec_peak)
+    def __init__(self, data, selected, k, peak, top, feature, cmd, sec_struct_data, no_sec_peak):
+        super().__init__(data, selected, k, peak, top, feature, cmd, sec_struct_data, no_sec_peak)
 
     # calculates multiple alignments for both files via clustalw
     def processData(self):  # throws FileNotFoundError
         peak = self.getSettings().getPeak()
         top_kmer_list = self.getTopKmer()
-        profil2 = self.getProfilObj2()
+        profile2 = self.getProfileObj2()
 
-        file_name1 = os.path.basename(self.getProfilObj1().getName())
+        file_name1 = os.path.basename(self.getProfileObj1().getName())
         top_kmer_f1 = top_kmer_list.query("File==@file_name1")
         top_kmer_f1.sort_values(by="Frequency", ascending=False)
 
-        if not profil2 is None:
-            file_name2 = os.path.basename(self.getProfilObj2().getName())
+        if profile2 is not None:
+            file_name2 = os.path.basename(self.getProfileObj2().getName())
             top_kmer_f2 = top_kmer_list.query("File==@file_name2")
             top_kmer_f2.sort_values(by="Frequency", ascending=False)
         else:
             file_name2 = None
-
+            top_kmer_f2 = None
 
         alignments = []
 
         if peak is None:
-            if not os.path.exists('./tmp'):  # directory, where top-kmere-fasta files and alignments will be saved
+            if not os.path.exists('./tmp'):  # directory, where top-kmer-fasta files and alignments will be saved
                 # directory will be deleted after program exit
                 os.mkdir('tmp')
 
-            if not profil2 is None:
+            if profile2 is not None:
                 files = [top_kmer_f1, top_kmer_f2]
             else:
                 files = [top_kmer_f1]
@@ -60,7 +60,7 @@ class KMerAlignmentData(Processing):
                     records.append(SeqRecord(Seq(kmer_list[i]), id=str(i), description=current_file_name))
 
                 SeqIO.write(records, input_file_name,
-                            'fasta')  # creates fasta-file from top-kmere list for alignment process
+                            'fasta')  # creates fasta-file from top-kmer list for alignment process
 
                 clustalw = find_executable('clustalw')
                 if clustalw is not None:
@@ -80,7 +80,7 @@ class KMerAlignmentData(Processing):
                 else:
                     if sys.platform == 'linux' or sys.platform == 'linux2':
                         raise FileNotFoundError(
-                            'ERROR: ClustalW not found.'+
+                            'ERROR: ClustalW not found.' +
                             '\nPlease install ClustalW with: \'sudo apt install clustalw\'' +
                             '\nFor more information, see: http://www.clustal.org/clustal2/ ')
                     else:
@@ -92,7 +92,7 @@ class KMerAlignmentData(Processing):
             k = self.getSettings().getK()
             pattern = '[A-Z]'
 
-            if not profil2 is None:
+            if profile2 is not None:
                 files = [top_kmer_f1, top_kmer_f2]
             else:
                 files = [top_kmer_f1]
@@ -100,11 +100,11 @@ class KMerAlignmentData(Processing):
             for file in files:
 
                 top_kmer_index = file.index.values.tolist()
-                peak_kmers = list(filter(lambda s: s if len(re.findall(pattern, s)) > 0 else None, top_kmer_index))
+                peak_kmer = list(filter(lambda s: s if len(re.findall(pattern, s)) > 0 else None, top_kmer_index))
 
                 algnm_list = []
-                for kmer in peak_kmers:
-                    idx = re.search('[A-T]', kmer).span()[0]  # index of peak position within kmer
+                for kmer in peak_kmer:
+                    idx = re.search('[A-T]', kmer).span()[0]  # index of peak position within k-mer
                     shift = (k - 1) - idx  # for alignment, add '-' several times (=shift)
                     algn = "-" * shift + kmer
                     end_gaps = int(2 * k - 1) - len(algn)  # add end gaps

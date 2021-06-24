@@ -9,12 +9,15 @@ import re
 # k: kmer-length
 # peak: peak-position, where sequences should be aligned
 # selected: input files
+# no_sec_peak: status (-1= no structural data available, 0= False, 1= True) if only kmer
+# with peak position should be saved
 def calcFrequency(k, peak, selected, no_sec_peak):
     profile1 = dict()  # for file1
     if no_sec_peak == -1:
         profile2 = dict()  # for file2
-    else:
-        profile2 = [] # saves alphabet of structural fasta-files
+    else:  # if structural data is available, use profile2 as list
+        # therefore method is called twice
+        profile2 = []  # saves alphabet of structural fasta-files
 
     kmer = ''
     for file in selected:  # selects data
@@ -27,24 +30,25 @@ def calcFrequency(k, peak, selected, no_sec_peak):
             seq_length = len(sequence)
             if peak is not None:
                 if seq_length < peak:  # is thrown if peak is greater than sequence length
-                    raise InputValueException('ERROR: Invalid peak. Must be smaller or equal than sequence length')
+                    raise InputValueException(
+                        'ERROR: Invalid peak. Must be smaller or equal than sequence length. For help use option -h.')
                 sequence = createPeakPosition(peak, sequence)
             if seq_length <= k:
                 raise InputValueException(  # is thrown if k is greater or equal than sequence length
-                    "ERROR: Invalid k. Must be smaller than sequence length")
-            # kmer frequency counting:
-            if not (no_sec_peak is -1):
+                    "ERROR: Invalid k. Must be smaller than sequence length. For help use option -h.")
+            # if structural data is available, generate alphabet
+            if no_sec_peak > -1:
                 if no_sec_peak is 1:
                     sequence = sequence.upper()
                 for c in sequence:
-                    # if c not in profile2 and not ((c in "E") or (c in "e")):
                     if c not in profile2:
-                        profile2.append(c)
+                        profile2.append(c)  # profile2 is used as alphabet if profiles for structural data are created
             for i in range(0, (seq_length - k + 1)):
                 if i == 0:
                     kmer = sequence[0:k]  # init first kmer
                 else:
                     kmer = ''.join([kmer[1:], sequence[k + i - 1]])
+                # if peak position for RNA-structure is needed, only save k-mer containing capital letter
                 if no_sec_peak is 0 and not re.findall('[A-Z]', kmer):
                     continue
                 if not profile.get(kmer) is None:
@@ -125,33 +129,35 @@ def createDataFrame(p1, p2, selected):
 # top: number of best values
 # p1/p2: dictionary with kmers and their frequencies
 def calcTopKmer(top, p1, p2):
-    profile1 = p1.getProfile().copy()
-    file_name1 = os.path.basename(p1.getName())
-    profile1 = list(map((lambda e: (e[0], e[1], file_name1)),
-                        list(profile1.items())))  # creates list of triples (kmer, frequency, filename)
-    profile1.sort(key=(lambda item: item[1]), reverse=True)
+    profiles = []
 
-    if not p2 is None:
-        profile2 = p2.getProfile().copy()
-        file_name2 = os.path.basename(p2.getName())
-        profile2 = list(map((lambda e: (e[0], e[1], file_name2)), list(profile2.items())))
-        profile2.sort(key=(lambda item: item[1]), reverse=True)
+    for p in [p1, p2]:
+        if p is not None:
+            profile = p.getProfile().copy()
+            file_name = os.path.basename(p.getName())
+            profile = list(map((lambda e: (e[0], e[1], file_name)), list(profile.items())))
+            profile.sort(key=(lambda item: item[1]), reverse=True)
+        else:
+            profile = None
+        profiles.append(profile)
+
+    profile1, profile2 = profiles
+
+    profile2_top = None
 
     if top is not None:
         profile1_top = profile1[:top]
-        if not p2 is None:
+        if p2 is not None:
             profile2_top = profile2[:top]
-
-        if not p2 is None:
-            profiles = [profile1, profile2]
         else:
             profiles = [profile1]
 
-        # checks if only last of top values appears several times in profile
+        # checks if only last top value appears several times in profile
         for p in profiles:
             dup_kmer_freq = []
             for i in range(top, len(p)):
                 next_kmer_freq = p[i][1]
+                # if next k-mer has same value, add to profile1_top
                 if p[i - 1][1] == next_kmer_freq:
                     dup_kmer_freq.append(p[i])
                 else:
@@ -164,12 +170,12 @@ def calcTopKmer(top, p1, p2):
     else:
         profile1_top = profile1.copy()
 
-        if not p2 is None:
+        if p2 is not None:
             profile2_top = profile2.copy()
 
     all_kmer = profile1_top
 
-    if not p2 is None:
+    if p2 is not None:
         all_kmer.extend(profile2_top)
 
     top_kmer = pd.DataFrame(all_kmer, columns=['', 'Frequency', 'File'])

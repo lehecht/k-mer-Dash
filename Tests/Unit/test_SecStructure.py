@@ -19,11 +19,11 @@ def test_processData():
 
     process = SecStructure(data, data, k, peak, top, feature, cmd, struct_data, no_sec_peak)
 
-    alphabet1 = process.getStructProfil1().getAlphabet()
-    alphabet2 = process.getStructProfil2().getAlphabet()
+    alphabet1 = process.getStructProfile1().getAlphabet()
+    alphabet2 = process.getStructProfile2().getAlphabet()
 
-    kmer_counts1 = process.getStructProfil1().getProfile()
-    kmer_counts2 = process.getStructProfil2().getProfile()
+    kmer_counts1 = process.getStructProfile1().getProfile()
+    kmer_counts2 = process.getStructProfile2().getProfile()
 
     results = SecStructure.processData(process)
 
@@ -60,11 +60,11 @@ def test_processData():
 
     process2 = SecStructure(data, data, k, peak, top, feature, cmd, struct_data, no_sec_peak)
 
-    alphabet1 = process2.getStructProfil1().getAlphabet()
-    alphabet2 = process2.getStructProfil2().getAlphabet()
+    alphabet1 = process2.getStructProfile1().getAlphabet()
+    alphabet2 = process2.getStructProfile2().getAlphabet()
 
-    kmer_counts1 = process2.getStructProfil1().getProfile()
-    kmer_counts2 = process2.getStructProfil2().getProfile()
+    kmer_counts1 = process2.getStructProfile1().getProfile()
+    kmer_counts2 = process2.getStructProfile2().getProfile()
 
     results = SecStructure.processData(process2)
 
@@ -94,8 +94,8 @@ def test_processData():
     assert dotbracket_string2 == "...((()))..."
 
     # Test3: different alphabets
-    sProfile1 = process.getStructProfil1()
-    sProfile2 = process.getStructProfil2()
+    sProfile1 = process.getStructProfile1()
+    sProfile2 = process.getStructProfile2()
 
     # Test3a: alphabets with no multiloop
 

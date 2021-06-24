@@ -2,9 +2,9 @@ from src.profile import Profile
 
 
 class StructProfile(Profile):
-    template_string = None
-    dotbracket_string = None
-    alphabet = None
+    template_string = None  # element-string
+    dotbracket_string = None  # template in dotbracket notation
+    alphabet = None  # alphabet of used elements
 
     def __init__(self, profile, name, alpha):
         super().__init__(profile, name)

@@ -40,7 +40,6 @@ def printKMerFrequency(process):
         top = len(process.getTopKmer())
         entry_count = top
     else:
-        # entry_count = min(top * 2, len(kmer_list))
         entry_count = len(kmer_list)
     print()
     print('Options:')
