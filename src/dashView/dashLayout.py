@@ -504,11 +504,11 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, apply_options_btn, sec
 
     selected_struc = None
 
-    custom_norm_vec = False
+    normalization_status = -1
 
     # if custom rates given, check input
     if apply_options_btn is not None and norm_option == 'custom_vals':
-        custom_norm_vec = True
+        normalization_status = 1
         custom_rates = [ee, ss, ii, mm, bb, si, i_s, sm, ms, es, se, hh, hs, sh, sb, bs]
         # if input contains non-digits, prevent update
         labels = ["EE", "SS", "II", "MM", "BB", "SI", "IS", "SM", "MS", "ES", "SE", "HH", "HS", "SH", "SB", "BS"]
@@ -521,6 +521,8 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, apply_options_btn, sec
         # otherwise prevent update
         else:
             return dash.no_update
+    elif apply_options_btn is not None and norm_option == 'at_db':
+        normalization_status = 0
 
     # translate dropdown value into real value
     top_opt_val = {'0': 10, '1': 20, '2': 50, '3': 100}
@@ -626,7 +628,7 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, apply_options_btn, sec
     if struct_data is not None:
 
         structure_info = initializeData.getTemplateSecondaryStructure(new_process, normalization_vector,
-                                                                      custom_norm_vec, no_sec_peak)
+                                                                      normalization_status, no_sec_peak)
 
         struct1, struct2, color1, color2, color_domain_max1, color_domain_max2, color_scale = structure_info
 

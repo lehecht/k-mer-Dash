@@ -1,7 +1,6 @@
 from src.kMerAlignmentData import KMerAlignmentData
 from src.kMerPCAData import KMerPCAData
 from src.kMerScatterPlotData import KMerScatterPlotData
-from src.secStructure import SecStructure
 from src.processing import Processing
 import src.layout.plot_theme_templates as ptt
 import plotly.express as px
@@ -9,41 +8,54 @@ import plotly.express as px
 from src.secStructure import SecStructure
 
 
-# starts preprocess to calculate kmer-frequencies,etc
+# starts preprocess to calculate k-mer-frequencies,etc
 # data: file list
 # selected: two files, which are processed
-# k: kmer length
+# k: k-mer length
 # peak: peak: peak-position, where sequences should be aligned
 # top: number of best values
-# feature: number of T or kmer-Frequency for pcas
-def initData(data, selected, k, peak, top, feature, secStruct_data, no_sec_peak):
-    process = Processing(data, selected, k, peak, top, feature, False, secStruct_data, no_sec_peak)
+# feature: number of T or k-mer-Frequency for pcas
+def initData(data, selected, k, peak, top, feature, sec_struct_data, no_sec_peak):
+    process = Processing(data, selected, k, peak, top, feature, False, sec_struct_data, no_sec_peak)
     return process
 
 
-def getTemplateSecondaryStructure(process, norm_vector, custom_norm_vec, no_seq_peak):
-    color_scale = px.colors.sequential.Viridis
+# gets RNA-structure template(s), dotbracket-string(s) and color-scale/-vector data
+# process: object containing all information about settings and files
+# norm_vector: normalization vector for element-string 2-mer
+# normalization_option: status (-1= no normalization, 0= for A.thaliana, 1= custom rates) for normalization
+# no_seq_peak: status (-1= no data,0= False,1= True) if peak position in RNA-Structure should be considered
+def getTemplateSecondaryStructure(process, norm_vector, normalization_option, no_seq_peak):
+    color_scale = px.colors.sequential.Viridis  # used color-scale
 
-    if custom_norm_vec:
+    # checks if and how normalization should be done
+    if normalization_option == 1:
         process.setNormVector(norm_vector)
-    else:
+    elif normalization_option == 0:
         at_norm_vector = process.getATnormVector()
         process.setNormVector(at_norm_vector)
 
+    # initialize SecStructure object to calculate RNA-Structure data
+    # list containing template(s) and dotbracket-string representation(s)
     templates_dotbrs = SecStructure.processData(process)
 
+    # method is called if at least one structural data file is available
     file1_t_d = templates_dotbrs[0]
     file2_t_d = None
     file1_template = file1_t_d[0]
 
     file2_template = None
+
+    # check if more than one template was generated (=> more than one structural data file available)
     if len(templates_dotbrs) > 1:
         file2_t_d = templates_dotbrs[1]
         file2_template = file2_t_d[0]
 
+    # get color data based on given template
     heat_map_coloring = SecStructure.createHeatMapColoring(process, file1_template, file2_template,
                                                            no_seq_peak)
-
+    
+    # color-vector, highest value in color-vector, not matched 2-mers (should be empty for 2-mer)
     color1, color_domain_max1, not_matched1 = heat_map_coloring[0]
 
     color2, color_domain_max2, not_matched2 = [None, None, None]
@@ -73,7 +85,7 @@ def getAlignmentData(process):
 def getScatterPlot(process):
     result = KMerScatterPlotData.processData(process)
     df = result[0]
-    # list of kmers
+    # list of k-mers
     label = result[1]
     file_names = result[2]
 
@@ -104,7 +116,7 @@ def getPCA(process):
     top_list1 = pca_dfs[4]
     top_list2 = pca_dfs[5]
 
-    # if feature was changed, name for colorscale and highlighting must also be changed
+    # if feature was changed, name for color-scale and highlighting must also be changed
     feature = process.getSettings().getFeature()
     if feature is "1":
         feature_name = 'Frequency'
