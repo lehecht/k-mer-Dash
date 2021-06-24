@@ -119,7 +119,7 @@ Scatterplot: k-mer frequencies of selected files are visualized as point in coor
 
 RNA-Structure Heatmap:
 Arbitrary RNA-Structure based on alphabet of element-string. For example if alphabet contains no "i" or "I" (internal-loops), no internal-loops are visualized.
-For heatmap highlighting k-mer frequency is used.
+For heatmap highlighting k-mer frequency is used. Only first occurrence of k-mer in RNA-Structure is highlighted.
 K-mer frequencies of element-sequences can be normalized by using 'extended options'-button.
 #### Settings
 **Menu:**
@@ -141,6 +141,8 @@ Tables:
 Plots:
 
 * Dash-Features: Image-download, Zooming, Scaling, etc...
+
+Tooltips: Information boxes for some GUI elements
 
 ## License
 MIT
