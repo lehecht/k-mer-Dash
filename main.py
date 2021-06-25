@@ -12,7 +12,7 @@ from src.fileCountException import FileCountException
 
 
 # checks if input is a digit greater than zero
-# value: peak, k or top
+# value: input peak, k or top value
 def checkValue(value):
     if not value.isdigit():
         raise argparse.ArgumentTypeError("Invalid Value: Value must be integer.\nFor help use option -h.")
@@ -22,7 +22,7 @@ def checkValue(value):
 
 
 # checks if port is valid number and port status
-# port: port number
+# port: input port number
 def checkPort(port):
     if not port.isdigit():
         raise argparse.ArgumentTypeError("Invalid Value: Port must be integer.\nFor help use option -h.")
@@ -41,6 +41,18 @@ def checkPort(port):
             "ERROR: Port {} is already in use or cannot be used.\nFor help use option -h.".format(p))
 
     return p
+
+
+# checks if value is boolean
+# b: input value
+def checkBool(b):
+    if b in ["True", "true", "1"]:
+        return True
+    elif b in ["False", "false", "0"]:
+        return False
+    else:
+        raise argparse.ArgumentTypeError("ERROR: -c option must be a boolean value: True or False (Default).\n"
+                                         "For help use option -h.")
 
 
 argparser = argparse.ArgumentParser()
@@ -70,10 +82,11 @@ argparser.add_argument('-p', '--peak', dest='peak', action='store', type=checkVa
 argparser.add_argument('-t', '--top', dest='top', default=10, action='store', type=checkValue,
                        help="(optional) Number of displayed top kmers (Default: 10). "
                             "Required in commandline-mode only.")
-argparser.add_argument('-c', '--console', dest='console', default=False, action='store', type=bool,
+argparser.add_argument('-c', '--console', dest='console', default=False, action='store', type=checkBool,
                        help="Starts program with GUI (Default: False) or on commandline (=True).")
 argparser.add_argument('-pt', '--port', dest='port', default=8088, action='store', type=checkPort,
-                       help="(optional) Port on which dash app runs. Must be in range of 1 to 65535 (Default: 8088).")
+                       help="(optional) Port on which interactive dash app runs. "
+                            "Must be in range of 1 to 65535 (Default: 8088).")
 
 
 def checkSecFileFormat(f):
@@ -286,9 +299,7 @@ if __name__ == '__main__':
 
     # -------------------------------------------- program start ------------------------------------------------------
 
-    console = str(args.console)
-
-    if console in ["True", "true"]:
+    if args.console:
         if args.console and (args.sd or args.sf or args.sfs):
             print("INFO: Console mode does not support visualization for structural data.")
             print()
@@ -300,14 +311,14 @@ if __name__ == '__main__':
             print(ive.args[0])
         except FileNotFoundError as fnf:
             print(fnf.args[0])
-    elif console in ["False", "false"]:
+    else:
         try:
             dashLayout.startDash(file_list, args.port, struct_list)
         except InputValueException as ive:
             print(ive.args[0])
         except FileNotFoundError as fnf:
             print(fnf.args[0])
-    else:
-        print("ERROR: -c option must be boolean values: True or False (Default).\nFor help use option -h.")
+    # else:
+    #     print("ERROR: -c option must be a boolean value: True or False (Default).\nFor help use option -h.")
     if os.path.exists('./tmp/'):
         subprocess.run(['rm', '-r', './tmp/'])
