@@ -2,21 +2,45 @@ import argparse
 import os
 import subprocess
 import sys
+import socket
 from pathlib import Path
 from Bio import SeqIO
-
 from src.console_output import printData
 from src.dashView import dashLayout
 from src.inputValueException import InputValueException
 from src.fileCountException import FileCountException
 
 
+# checks if input is a digit greater than zero
+# value: peak, k or top
 def checkValue(value):
     if not value.isdigit():
-        raise argparse.ArgumentTypeError("Invalid Value: Value must be integer.")
+        raise argparse.ArgumentTypeError("Invalid Value: Value must be integer.\nFor help use option -h.")
     elif int(value) <= 0:
-        raise argparse.ArgumentTypeError("Invalid Value: Must be greater than 0.")
+        raise argparse.ArgumentTypeError("Invalid Value: Must be greater than 0.\nFor help use option -h.")
     return int(value)
+
+
+# checks if port is valid number and port status
+# port: port number
+def checkPort(port):
+    if not port.isdigit():
+        raise argparse.ArgumentTypeError("Invalid Value: Port must be integer.\nFor help use option -h.")
+    p = int(port)
+    if p not in list(range(1, 65535 + 1)):
+        raise argparse.ArgumentTypeError("Invalid Value: Port must be in range of 1 to 65535.\n"
+                                         "For help use option -h.")
+    # test if port is open
+    try:
+        ip = "0.0.0.0"
+        serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        serv.bind((ip, p))
+        serv.close()
+    except OSError:
+        raise argparse.ArgumentTypeError(
+            "ERROR: Port {} is already in use or cannot be used.\nFor help use option -h.".format(p))
+
+    return p
 
 
 argparser = argparse.ArgumentParser()
@@ -44,23 +68,24 @@ argparser.add_argument('-p', '--peak', dest='peak', action='store', type=checkVa
                        help="(optional) Peak position in sequence. Must be smaller or equal than given sequence length."
                             + " Required in commandline-mode only.")
 argparser.add_argument('-t', '--top', dest='top', default=10, action='store', type=checkValue,
-                       help="(optional) Number of displayed top kmers (Default: 10). Required in commandline-mode only.")
+                       help="(optional) Number of displayed top kmers (Default: 10). "
+                            "Required in commandline-mode only.")
 argparser.add_argument('-c', '--console', dest='console', default=False, action='store', type=bool,
-                       help="Starts program with GUI (= False (Default)) or on commandline (= True).")
-argparser.add_argument('-pt', '--port', dest='port', default=8088, action='store', type=int,
-                       help="(optional) Port on which dash app runs")
+                       help="Starts program with GUI (Default: False) or on commandline (=True).")
+argparser.add_argument('-pt', '--port', dest='port', default=8088, action='store', type=checkPort,
+                       help="(optional) Port on which dash app runs. Must be in range of 1 to 65535 (Default: 8088).")
 
 
-def checkSecFileFormat(file):
-    record = str(list(SeqIO.parse(file, "fasta"))[0].seq)
+def checkSecFileFormat(f):
+    record = str(list(SeqIO.parse(f, "fasta"))[0].seq)
 
     if 'A' in record or 'T' in record or 'C' in record or 'G' in record:
         raise InputValueException("ERROR: Fasta files for secondary structure must only contain element-strings.\n"
                                   "For help use option -h.")
 
 
-def checkFileExtension(file, struct):
-    ext = os.path.splitext(file)[1]
+def checkFileExtension(f, struct):
+    ext = os.path.splitext(f)[1]
     if struct:
         ext_list = [".fa", ".fasta", ".fsa"]
     else:
@@ -68,87 +93,88 @@ def checkFileExtension(file, struct):
 
     if ext not in ext_list:
         if struct:
-            msg = "ERROR: only Fasta-files with file-extension: \'.fa\', \'.fasta\', \'.fsa\' allowed!" \
+            msg = "ERROR: only Fasta-files with file-extension: \'.fa\', \'.fasta\', \'.fsa\' allowed!\n" \
                   "For help use option -h."
         else:
             msg = "ERROR: only Fasta-files with file-extension: " \
-                  "\'.fa\', \'.fasta\', \'.fna\', \'.fsa\', \'.ffn\' allowed! For help use option -h."
+                  "\'.fa\', \'.fasta\', \'.fna\', \'.fsa\', \'.ffn\' allowed!\nFor help use option -h."
 
         raise InputValueException(msg)
 
-    if os.stat(file).st_size is 0:
-        raise FileCountException('ERROR: file(s) is empty. For help use option -h.')
+    if os.stat(f).st_size is 0:
+        raise FileCountException('ERROR: file(s) is empty.\nFor help use option -h.')
 
 
-def checkArguments(file_list, f, c, k, fasta_dir, fs_list, sfs, sd, sf):
-    if not sfs is None:
+def checkArguments(f_list, f, c, k, fasta_dir, fs_list, sfs, sd, sf):
+    if sfs is not None:
         struct_file_list = sfs
     else:
         struct_file_list = sd
 
     if c and (k is None):
-        raise InputValueException("ERROR: k is required in commandline-mode. For help use option -h.")
-    if len(file_list) > 0 and (not f is None):
+        raise InputValueException("ERROR: k is required in commandline-mode.\nFor help use option -h.")
+    if len(f_list) > 0 and (f is not None):
         raise InputValueException("ERROR: please choose either -fs or -d for interactive mode "
-                                  "or -f for command-line mode. For help use option -h.")
-    elif len(file_list) > len(set(file_list)):
-        raise InputValueException("ERROR: every nucleotide FASTA-file must be unique. For help use option -h.")
-    elif not struct_file_list is None and len(struct_file_list) > len(set(struct_file_list)):
-        raise InputValueException("ERROR: every structural FASTA-file must be unique. For help use option -h.")
-    elif (not f is None or len(file_list) < 2) and not c:
-        raise InputValueException("ERROR: interactive mode needs at least two files. For help use option -h.")
-    elif len(file_list) > 0 and c:
+                                  "or -f for command-line mode.\nFor help use option -h.")
+    elif len(f_list) > len(set(f_list)):
+        raise InputValueException("ERROR: every nucleotide FASTA-file name must be unique.\nFor help use option -h.")
+    elif struct_file_list is not None and len(struct_file_list) > len(set(struct_file_list)):
+        raise InputValueException("ERROR: every structural FASTA-file name must be unique.\nFor help use option -h.")
+    elif (f is not None or len(f_list) < 2) and not c:
+        raise InputValueException("ERROR: interactive mode needs at least two files.\nFor help use option -h.")
+    elif len(f_list) > 0 and c:
         raise InputValueException(
-            "ERROR: commandline-mode requires only single Fasta-file. Please use -f option. For help use option -h.")
-    elif (not fasta_dir is None) and (not fs_list is None):
+            "ERROR: commandline-mode requires only single Fasta-file.\nPlease use -f option. For help use option -h.")
+    elif (fasta_dir is not None) and (fs_list is not None):
         raise InputValueException(
-            "ERROR: please choose either -fs to commit a list of files or -d for a directory. For help use option -h.")
+            "ERROR: please choose either -fs to commit a list of files or -d for a directory.\nFor help use option -h.")
     elif not [sfs, sd, sf].count(None) > 1:
         raise InputValueException(
-            "ERROR: please choose either -sfs, -sd or -sf to commit structural data. For help use option -h.")
+            "ERROR: please choose either -sfs, -sd or -sf to commit structural data.\nFor help use option -h.")
 
 
-def selectAllFastaFiles(dir, struct):
-    file_list = []
+def selectAllFastaFiles(drctry, struct):
+    files_list = []
     if struct:
         ext_list = [".fa", ".fasta", ".fsa"]
     else:
         ext_list = [".fa", ".fasta", ".fna", ".fsa", ".ffn"]
 
     for ext in ext_list:
-        file_list.extend(Path(dir).glob('*{}'.format(ext)))
+        files_list.extend(Path(drctry).glob('*{}'.format(ext)))
 
-    if len(file_list) == 0:
+    if len(files_list) == 0:
         if struct:
-            msg = 'ERROR: {} has no Fasta-files with extension: .fa, .fasta, .fsa . For help use option -h.'.format(dir)
+            msg = 'ERROR: \'{}\' has no Fasta-files with extension: .fa, .fasta, .fsa .\n' \
+                  'For help use option -h.'.format(drctry)
         else:
-            msg = 'ERROR: {} has no Fasta-files with extension: .fa, .fasta, .fna, .fsa, .ffn . For help use option -h.'.format(dir)
+            msg = 'ERROR: \'{}\' has no Fasta-files with extension: .fa, .fasta, .fna, .fsa, .ffn .\n' \
+                  'For help use option -h.'.format(drctry)
 
         raise FileCountException(msg)
 
-    for f in file_list:
+    for f in files_list:
         if os.stat(f).st_size is 0:
             raise FileCountException(
-                'ERROR: file(s) in \'{}\' is/are empty. For help use option -h.'.format(dir))
-    return file_list
+                'ERROR: file(s) in \'{}\' is/are empty.\nFor help use option -h.'.format(drctry))
+    return files_list
 
 
-def checkTargetLengths(fileList):
-    f = open(fileList[0])
+def checkTargetLengths(files_list):
+    f = open(files_list[0])
     target = f.readline()
     target = f.readline()  # read only first sequence
-    targetLen = len(target)
-    for file in fileList[1:]:
-        f = open(file)
+    target_len = len(target)
+    for f in files_list[1:]:
+        f = open(f)
         target = f.readline()
         target = f.readline()  # read only first sequence
-        if not targetLen == len(target):
-            raise ValueError("ERROR: sequence-length must be equal in all files. For help use option -h.")
+        if not target_len == len(target):
+            raise ValueError("ERROR: sequence-length must be equal in all files.\nFor help use option -h.")
     f.close()
 
 
 if __name__ == '__main__':
-    # exit = False
     args = argparser.parse_args()
 
     # ------------------------------------------ save files ------------------------------------------------------------
@@ -158,7 +184,7 @@ if __name__ == '__main__':
     struct_sf_list = None
     struct_list = None
 
-    if not args.fs is None:  # if file-list option is used
+    if args.fs is not None:  # if file-list option is used
         file_list = [f.name for f in args.fs]
         try:
             checkTargetLengths(file_list)  # check if all files own sequences with equal lengths
@@ -171,7 +197,7 @@ if __name__ == '__main__':
             print(fce.args[0])
             sys.exit(0)
 
-    elif not args.d is None:  # if directory option is used
+    elif args.d is not None:  # if directory option is used
         if os.path.isdir(args.d):
             try:
                 file_list = selectAllFastaFiles(args.d, False)  # select all Fasta-files
@@ -183,12 +209,12 @@ if __name__ == '__main__':
                 print(fce.args[0])
                 sys.exit(0)
         else:
-            print('ERROR: directiory {} was not found or does not exist.'.format(args.d))
+            print('ERROR: directory \'{}\' was not found or does not exist.\nFor help use option -h.'.format(args.d))
             sys.exit(0)
     else:  # if single file option was used
         file_list = []
 
-    if not args.sfs is None:  # if file-list option is used
+    if args.sfs is not None:  # if file-list option is used
         struct_sfs_list = [f.name for f in args.sfs]
         struct_list = struct_sfs_list
         try:
@@ -205,7 +231,7 @@ if __name__ == '__main__':
             print(ive.args[0])
             sys.exit(0)
 
-    if not args.sd is None:  # if directory option is used
+    if args.sd is not None:  # if directory option is used
         if os.path.isdir(args.sd):
             try:
                 struct_sd_list = selectAllFastaFiles(args.sd, True)  # select all Fasta-files
@@ -221,7 +247,10 @@ if __name__ == '__main__':
             except InputValueException as ive:
                 print(ive.args[0])
                 sys.exit(0)
-    if not args.sf is None:  # if single file option was used
+        else:
+            print('ERROR: directory \'{}\' was not found or does not exist.\nFor help use option -h.'.format(args.sd))
+            sys.exit(0)
+    if args.sf is not None:  # if single file option was used
         struct_sf_list = [args.sf.name]
         struct_list = struct_sf_list
         try:
@@ -233,7 +262,7 @@ if __name__ == '__main__':
     try:
         checkArguments(file_list, args.f, args.console, args.k, args.d, args.fs, struct_sfs_list, struct_sd_list,
                        struct_sf_list)
-        if not struct_list is None:
+        if struct_list is not None:
             checkTargetLengths(struct_list)
     except InputValueException as ive:
         print(ive.args[0])
@@ -255,13 +284,14 @@ if __name__ == '__main__':
     else:
         files = [file_list[0], file_list[1]]
 
-    if args.console and (args.sd or args.sf or args.sfs):
-        print("INFO: Console mode does not support visualization for structural data.")
-        print()
-
     # -------------------------------------------- program start ------------------------------------------------------
 
-    if args.console:
+    console = str(args.console)
+
+    if console in ["True", "true"]:
+        if args.console and (args.sd or args.sf or args.sfs):
+            print("INFO: Console mode does not support visualization for structural data.")
+            print()
         try:
             printData(files, args.k, args.peak, args.top)
         except FileCountException as fce:
@@ -270,12 +300,14 @@ if __name__ == '__main__':
             print(ive.args[0])
         except FileNotFoundError as fnf:
             print(fnf.args[0])
-    else:
+    elif console in ["False", "false"]:
         try:
             dashLayout.startDash(file_list, args.port, struct_list)
         except InputValueException as ive:
             print(ive.args[0])
         except FileNotFoundError as fnf:
             print(fnf.args[0])
+    else:
+        print("ERROR: -c option must be boolean values: True or False (Default).\nFor help use option -h.")
     if os.path.exists('./tmp/'):
         subprocess.run(['rm', '-r', './tmp/'])
