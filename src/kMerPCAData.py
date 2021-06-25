@@ -41,6 +41,7 @@ class KMerPCAData(Processing):
 
     # processes data to display pca as scatterplot
     def processData(self):
+        pca_dimension = 2
         top_kmer = self.getTopKmer()
         all_triplets = self.getAllTriplets()
 
@@ -50,7 +51,7 @@ class KMerPCAData(Processing):
         top_list_file1 = top_kmer.query('File==@file_name1')  # get top k-mer
         top_list_file2 = top_kmer.query('File==@file_name2')  # get top k-mer
 
-        pca = PCA(n_components=2)
+        pca = PCA(n_components=pca_dimension)
 
         pca_df1 = None
         pca_df2 = None

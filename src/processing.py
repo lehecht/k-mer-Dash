@@ -38,8 +38,12 @@ class Processing:
 
         # don't run commandline mode
         if not cmd:
-            self.profile1 = Profile(calcFrequency(k, peak, selected, -1)[0], selected[0])
-            self.profile2 = Profile(calcFrequency(k, peak, selected, -1)[1], selected[1])
+            status_no_struct_data = -1
+            triplet_length = 3
+            two_mer_length = 2
+
+            self.profile1 = Profile(calcFrequency(k, peak, selected, status_no_struct_data)[0], selected[0])
+            self.profile2 = Profile(calcFrequency(k, peak, selected, status_no_struct_data)[1], selected[1])
 
             len_p1 = len(self.profile1.getProfile())  # dict length
             len_p2 = len(self.profile2.getProfile())
@@ -58,7 +62,7 @@ class Processing:
 
             # calculates all possible triples from dna-bases
             self.all_triplets = []
-            triplet_comb = list(combinations_with_replacement(['A', 'C', 'G', 'T'], r=3))
+            triplet_comb = list(combinations_with_replacement(['A', 'C', 'G', 'T'], r=triplet_length))
 
             for trip in triplet_comb:
                 comb = list(set(permutations(trip)))
@@ -67,10 +71,12 @@ class Processing:
             # calculates profiles for structural data
             if struct_data is not None:
                 self.no_sec_peak = no_sec_peak
-                struct_kmer_list1, struct_alphabet1 = calcFrequency(2, None, [str(struct_data[0])], no_sec_peak)
+                struct_kmer_list1, struct_alphabet1 = calcFrequency(two_mer_length, None, [str(struct_data[0])],
+                                                                    no_sec_peak)
                 self.struct_profile1 = StructProfile(struct_kmer_list1, str(struct_data[0]), struct_alphabet1)
                 if len(struct_data) > 1:
-                    struct_kmer_list2, struct_alphabet2 = calcFrequency(2, None, [str(struct_data[1])], no_sec_peak)
+                    struct_kmer_list2, struct_alphabet2 = calcFrequency(two_mer_length, None, [str(struct_data[1])],
+                                                                        no_sec_peak)
                     self.struct_profile2 = StructProfile(struct_kmer_list2, str(struct_data[1]), struct_alphabet2)
 
         # run commandline-mode

@@ -21,6 +21,8 @@ def printData(data, k, peak, top):
 # gets data and prints kmer-frequency table to stdout
 # process: object, which contains information for further calculation-processes
 def printKMerFrequency(process):
+    char_space_ten = 10
+    scaling_factor = 5
     top = process.getSettings().getTop()
     k = process.getSettings().getK()
     peak = process.getSettings().getPeak()
@@ -30,8 +32,8 @@ def printKMerFrequency(process):
     freq_list = result['Frequency'].values.tolist()
     char_space = len(str(max(freq_list)))  # ascertains column space to maintain table readability
     tabs = 1
-    if char_space >= 10:  # calculate tab count to maintain readability
-        tabs = math.ceil(char_space / 5)
+    if char_space >= char_space_ten:  # calculate tab count to maintain readability
+        tabs = math.ceil(char_space / scaling_factor)
 
     file_list = result['File'].values.tolist()
     kmer_list = result.index.tolist()

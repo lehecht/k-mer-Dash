@@ -13,6 +13,7 @@ class KMerScatterPlotData(Processing):
     def processData(self):
         top_kmer = self.getTopKmer()
         data = self.getDF()  # get top k-mer
+        threshold = 0.01
 
         file_name1 = data.columns.tolist()[0]  # get column names
         file_name2 = data.columns.tolist()[1]
@@ -33,14 +34,14 @@ class KMerScatterPlotData(Processing):
         result_df['highlight'] = ["TOP {}-mer".format(k) if all_kmer_dict[kmer] else "{}-mer".format(k) for
                                   kmer in result_df.index.tolist()]  # save highlight-values for legend
 
-        max_score = result_df[file_name1].max() * result_df[file_name2].max()
+        max_score = result_df[file_name1].max() * result_df[file_name2].max()  # is used in next line
 
         # calculates scores for point size in diagram
         result_df = pd.eval("size_score = (result_df[file_name1] * result_df[file_name2])/max_score", target=result_df)
 
         # overwrite all point sizes < 0.01 with 0.01
-        small_freq = result_df.query("size_score < 0.01").index.tolist()
-        result_df.loc[small_freq, ["size_score"]] = 0.01
+        small_freq = result_df.query("size_score < @threshold").index.tolist()
+        result_df.loc[small_freq, ["size_score"]] = threshold
 
         size_score = result_df["size_score"].tolist()
 

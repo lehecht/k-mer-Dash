@@ -222,79 +222,79 @@ app.layout = dbc.Container([
                                             html.Td(children=[
                                                 html.Div("EE"),
                                                 dbc.Input(id="EE", type="number", style={'width': '100px'}, max=1,
-                                                          min=0, step=0.0001, value=0)], ),
+                                                          min=0, step=0.001, value=0)], ),
                                             html.Td(children=[
                                                 html.Div("ES"),
                                                 dbc.Input(id="ES", type="number", style={'width': '100px'}, max=1,
-                                                          min=0, step=0.0001, value=0)], ),
+                                                          min=0, step=0.001, value=0)], ),
                                             html.Td(children=[
                                                 html.Div("SS"),
                                                 dbc.Input(id="SS", type="number", style={'width': '100px'}, max=1,
-                                                          min=0, step=0.0001, value=0)], )
+                                                          min=0, step=0.001, value=0)], )
                                         ]),
                                         html.Tr(children=[
                                             html.Td(children=[
                                                 html.Div("SI"),
                                                 dbc.Input(id="SI", type="number", style={'width': '100px'}, max=1,
-                                                          min=0, step=0.0001, value=0), ], ),
+                                                          min=0, step=0.001, value=0), ], ),
                                             html.Td(children=[
                                                 html.Div("IS"),
                                                 dbc.Input(id="IS", type="number", style={'width': '100px'}, max=1,
-                                                          min=0, step=0.0001, value=0), ], ),
+                                                          min=0, step=0.001, value=0), ], ),
                                             html.Td(children=[
                                                 html.Div("II"),
                                                 dbc.Input(id="II", type="number", style={'width': '100px'}, max=1,
-                                                          min=0, step=0.0001, value=0), ], )
+                                                          min=0, step=0.001, value=0), ], )
                                         ]),
                                         html.Tr(children=[
                                             html.Td(children=[
                                                 html.Div("SH"),
                                                 dbc.Input(id="SH", type="number", style={'width': '100px'}, max=1,
-                                                          min=0, step=0.0001, value=0), ], ),
+                                                          min=0, step=0.001, value=0), ], ),
                                             html.Td(children=[
                                                 html.Div("HS"),
                                                 dbc.Input(id="HS", type="number", style={'width': '100px'}, max=1,
-                                                          min=0, step=0.0001, value=0), ], ),
+                                                          min=0, step=0.001, value=0), ], ),
                                             html.Td(children=[
                                                 html.Div("HH"),
                                                 dbc.Input(id="HH", type="number", style={'width': '100px'}, max=1,
-                                                          min=0, step=0.0001, value=0), ], )
+                                                          min=0, step=0.001, value=0), ], )
                                         ]),
                                         html.Tr(children=[
                                             html.Td(children=[
                                                 html.Div("SM"),
                                                 dbc.Input(id="SM", type="number", style={'width': '100px'}, max=1,
-                                                          min=0, step=0.0001, value=0), ], ),
+                                                          min=0, step=0.001, value=0), ], ),
                                             html.Td(children=[
                                                 html.Div("MS"),
                                                 dbc.Input(id="MS", type="number", style={'width': '100px'}, max=1,
-                                                          min=0, step=0.0001, value=0), ], ),
+                                                          min=0, step=0.001, value=0), ], ),
                                             html.Td(children=[
                                                 html.Div("SE"),
                                                 dbc.Input(id="SE", type="number", style={'width': '100px'}, max=1,
-                                                          min=0, step=0.0001, value=0), ], ),
+                                                          min=0, step=0.001, value=0), ], ),
 
                                         ]),
                                         html.Tr(children=[
                                             html.Td(children=[
                                                 html.Div("BB"),
                                                 dbc.Input(id="BB", type="number", style={'width': '100px'}, max=1,
-                                                          min=0, step=0.0001, value=0), ], ),
+                                                          min=0, step=0.001, value=0), ], ),
                                             html.Td(children=[
                                                 html.Div("BS"),
                                                 dbc.Input(id="BS", type="number", style={'width': '100px'}, max=1,
-                                                          min=0, step=0.0001, value=0), ], ),
+                                                          min=0, step=0.001, value=0), ], ),
                                             html.Td(children=[
                                                 html.Div("SB"),
                                                 dbc.Input(id="SB", type="number", style={'width': '100px'}, max=1,
-                                                          min=0, step=0.0001, value=0), ], ),
+                                                          min=0, step=0.001, value=0), ], ),
 
                                         ]),
                                         html.Tr(children=[
                                             html.Td(children=[
                                                 html.Div("MM"),
                                                 dbc.Input(id="MM", type="number", style={'width': '100px'}, max=1,
-                                                          min=0, step=0.0001, value=0), ], ),
+                                                          min=0, step=0.001, value=0), ], ),
                                             html.Td(children=[]),
                                             html.Td(children=[
                                                 html.Br(),
@@ -506,6 +506,12 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, apply_options_btn, sec
 
     normalization_status = -1
 
+    no_peak = 0
+
+    no_sec_peak_false = 0
+
+    no_sec_peak_true = 1
+
     # if custom rates given, check input
     if apply_options_btn is not None and norm_option == 'custom_vals':
         normalization_status = 1
@@ -529,13 +535,13 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, apply_options_btn, sec
 
     top = top_opt_val[top]
 
-    if peak is 0:
+    if peak == no_peak:
         peak = None
 
     if sec_peak == ['peaking']:
-        no_sec_peak = 0  # =False
+        no_sec_peak = no_sec_peak_false  # =False
     else:
-        no_sec_peak = 1  # =True
+        no_sec_peak = no_sec_peak_true  # =True
 
     # initialize (structural) data for calculations
     if data is None:
