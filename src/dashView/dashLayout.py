@@ -26,7 +26,7 @@ def startDash(files, port, sec_struct_data):
     global struct_data
     file_list = files
     struct_data = sec_struct_data
-    app.run_server(debug=True, host='0.0.0.0', port=port)
+    app.run_server(debug=False, host='0.0.0.0', port=port)
 
 
 # calculates slider ranges
