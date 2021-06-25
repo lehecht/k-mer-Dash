@@ -121,28 +121,21 @@ def getPCA(process):
     if feature is "1":
         feature_name = 'Frequency'
         colorscale_feat_name = feature_name
-        feature_df1 = top_list1.Frequency
-        feature_df2 = top_list2.Frequency
     elif feature is "2":
         feature_name = 'T'
         colorscale_feat_name = '#T'
-        feature_df1 = top_list1['T']
-        feature_df2 = top_list2['T']
     elif feature is "3":
         feature_name = 'A'
         colorscale_feat_name = '#A'
-        feature_df1 = top_list1['A']
-        feature_df2 = top_list2['A']
     elif feature is "4":
         feature_name = 'C'
         colorscale_feat_name = '#C'
-        feature_df1 = top_list1['C']
-        feature_df2 = top_list2['C']
     else:
         feature_name = 'G'
         colorscale_feat_name = '#G'
-        feature_df1 = top_list1['G']
-        feature_df2 = top_list2['G']
+
+    feature_df1 = top_list1[feature_name]
+    feature_df2 = top_list2[feature_name]
 
     pca_df1 = pca_df1.join(feature_df1)
     pca_df2 = pca_df2.join(feature_df2)
