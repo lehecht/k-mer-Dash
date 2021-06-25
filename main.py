@@ -180,7 +180,7 @@ def checkTargetLengths(files_list):
     target_len = len(target)
     for f in files_list[1:]:
         f = open(f)
-        target = f.readline()
+        f.readline()
         target = f.readline()  # read only first sequence
         if not target_len == len(target):
             raise ValueError("ERROR: sequence-length must be equal in all files.\nFor help use option -h.")
@@ -318,7 +318,5 @@ if __name__ == '__main__':
             print(ive.args[0])
         except FileNotFoundError as fnf:
             print(fnf.args[0])
-    # else:
-    #     print("ERROR: -c option must be a boolean value: True or False (Default).\nFor help use option -h.")
     if os.path.exists('./tmp/'):
         subprocess.run(['rm', '-r', './tmp/'])
