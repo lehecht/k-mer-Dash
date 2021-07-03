@@ -828,6 +828,14 @@ def show_selected_sequences(data, f3, f4):
     color_domain_max1 = data['color_max'][0]
     color_domain_max2 = data['color_max'][1]
 
+    # to compare both heatmaps, both color-maxima must be the same
+    # too big differences can cause problems in evaluation of heatmaps
+    # a switch can solve this problem
+    if not color_domain_max1 == color_domain_max2:
+        min_color_domain = min([color_domain_max1,color_domain_max2])
+        color_domain_max1 = min_color_domain
+        color_domain_max2 = min_color_domain
+
     color_range = data['color_scale']
 
     # disable tab for files if no or only one structural file is given
