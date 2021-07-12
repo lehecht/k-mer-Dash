@@ -2,6 +2,7 @@ from src.setting import *
 from src.calcKmerLists import *
 from src.profile import Profile
 from src.structProfile import StructProfile
+from src.readATdata import *
 from itertools import combinations_with_replacement, permutations
 
 
@@ -78,6 +79,8 @@ class Processing:
                     struct_kmer_list2, struct_alphabet2 = calcFrequency(two_mer_length, None, [str(struct_data[1])],
                                                                         no_sec_peak)
                     self.struct_profile2 = StructProfile(struct_kmer_list2, str(struct_data[1]), struct_alphabet2)
+
+            self.at_norm_vector = readAthalianaData()
 
         # run commandline-mode
         else:
