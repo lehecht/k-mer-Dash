@@ -832,7 +832,7 @@ def show_selected_sequences(data, f3, f4):
     # too big differences can cause problems in evaluation of heatmaps
     # a switch can solve this problem
     if not color_domain_max1 == color_domain_max2:
-        min_color_domain = min([color_domain_max1,color_domain_max2])
+        min_color_domain = int(round(((color_domain_max1 + color_domain_max2) / 2)))
         color_domain_max1 = min_color_domain
         color_domain_max2 = min_color_domain
 
