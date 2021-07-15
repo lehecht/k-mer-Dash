@@ -143,7 +143,7 @@ def createColorVector(k, tree, kmer_list, color_hm, no_sec_peak, norm_vector):
 
     for kmer in kmer_list.keys():
         # find index of kmer in template
-        idx = tree.find(kmer.upper())
+        indices_list = tree.find_all(kmer.upper())
         if norm_vector is None:
             norm = 1
         else:
@@ -151,19 +151,20 @@ def createColorVector(k, tree, kmer_list, color_hm, no_sec_peak, norm_vector):
             if norm == 0:
                 norm = 1
         # if k-mer was found in template
-        if idx >= 0:
-            # use only peak-position in 2-mer for visualization
-            if no_sec_peak == 0:
-                idx = [idx + i for i in range(0, len(kmer)) if kmer[i].isupper()][0]
-                color_hm[str(idx + 1)] += (kmer_list[kmer] / norm)
+        for idx in indices_list:
+            if idx >= 0:
+                # use only peak-position in 2-mer for visualization
+                if no_sec_peak == 0:
+                    idx = [idx + i for i in range(0, len(kmer)) if kmer[i].isupper()][0]
+                    color_hm[str(idx + 1)] += (kmer_list[kmer] / norm)
+                else:
+                    for i in range(0, k):
+                        color_hm[str(idx + i + 1)] += (kmer_list[kmer] / norm)
             else:
-                for i in range(0, k):
-                    color_hm[str(idx + i + 1)] += (kmer_list[kmer] / norm)
-        else:
-            not_matched_kmer.append(kmer)
+                not_matched_kmer.append(kmer)
 
     # scale values in color-vector
-    color_hm = {x: round(math.log(y, 2)) if y > 0 else y for x, y in color_hm.items()}
+    color_hm = {x: round(math.log(y,2)) if y > 0 else y for x, y in color_hm.items()}
     color_domain_max = max(color_hm.values())
 
     return color_hm, not_matched_kmer, color_domain_max
