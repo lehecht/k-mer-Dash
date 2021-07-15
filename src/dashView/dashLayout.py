@@ -41,6 +41,18 @@ def markSliderRange(min_val, max_val, peak):
     return mark
 
 
+# range() function for floats
+# start: start-value which is head of list
+# step: steps between two values
+# run: number of loop runs
+def float_range(start, step, run):
+    for_list = [start]
+    for i in range(1, run):
+        next_step = start + step * i
+        for_list.append(next_step)
+    return for_list
+
+
 # checks if custom normalization rates sum up to one
 # parameters (e.g. ee,ss,etc. ..): rate for 2-mer
 def check_sum(ee, ss, ii, mm, bb, si, i_s, sm, ms, es, se, hh, hs, sh, sb, bs):
@@ -828,13 +840,19 @@ def show_selected_sequences(data, f3, f4):
     color_domain_max1 = data['color_max'][0]
     color_domain_max2 = data['color_max'][1]
 
-    # to compare both heatmaps, both color-maxima must be the same
-    # too big differences can cause problems in evaluation of heatmaps
-    # a switch can solve this problem
-    if not color_domain_max1 == color_domain_max2:
-        min_color_domain = int(round(((color_domain_max1 + color_domain_max2) / 2)))
-        color_domain_max1 = min_color_domain
-        color_domain_max2 = min_color_domain
+    color_domain_max = ((color_domain_max1 + color_domain_max2) / 2)
+
+    color_vals1 = list(set(data['colors'][0].values()))
+    if 0 in color_vals1:
+        color_vals1.remove(0)
+    color_domain_min1 = min(color_vals1)
+
+    color_vals2 = list(set(data['colors'][1].values()))
+    if 0 in color_vals2:
+        color_vals2.remove(0)
+    color_domain_min2 = min(color_vals2)
+
+    color_domain_min = (color_domain_min1 + color_domain_min2) / 2
 
     color_range = data['color_scale']
 
@@ -849,14 +867,14 @@ def show_selected_sequences(data, f3, f4):
     tab1_label = "RNA-Structure Heatmap 1"
     tab2_label = "RNA-Structure Heatmap 2"
 
+    steps = ((color_domain_max - color_domain_min) / (len(color_range) - 1))
+    if steps == 0:
+        steps = 1
+
+    color_domain = [i for i in float_range(color_domain_min, steps, (len(color_range) - 1))]
+    color_domain.append(color_domain_max)
+
     if struct_data is not None:
-        steps1 = round(color_domain_max1 / len(color_range))
-        if steps1 == 0:
-            steps1 = 1
-        color_domain1 = [i for i in range(0, color_domain_max1, steps1)]
-        color_domain1.append(color_domain_max1)
-        # list defining color sections for given data
-        color_domain1 = list(set(color_domain1))  # set() because round() can create duplicates
 
         color1 = data['colors'][0]
 
@@ -864,7 +882,7 @@ def show_selected_sequences(data, f3, f4):
 
         # create color-vector-object for FornaContainer
         custom_colors = {
-            'domain': color_domain1,
+            'domain': color_domain,
             'range': color_range,
             'colorValues': {
                 'template1': color1,
@@ -879,18 +897,12 @@ def show_selected_sequences(data, f3, f4):
         }]
 
         if len(template_list) > 1:  # more than one structure file committed
-            steps2 = round(color_domain_max2 / len(color_range))
-            if steps2 == 0:
-                steps2 = 1
-            color_domain2 = [i for i in range(0, color_domain_max2, steps2)]
-            color_domain2.append(color_domain_max2)
-            color_domain2 = list(set(color_domain2))
             color2 = data['colors'][1]
 
             tab2_label = os.path.basename(struct_data[int(f4)]) + " Structure Heatmap"
 
             custom_colors2 = {
-                'domain': color_domain2,
+                'domain': color_domain,
                 'range': color_range,
                 'colorValues': {
                     'template2': color2,

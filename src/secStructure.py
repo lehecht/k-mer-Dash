@@ -141,6 +141,10 @@ class SecStructure(Processing):
 def createColorVector(k, tree, kmer_list, color_hm, no_sec_peak, norm_vector):
     not_matched_kmer = []
 
+    last_idx = -1
+
+    last_kmer = ""
+
     for kmer in kmer_list.keys():
         # find index of kmer in template
         indices_list = tree.find_all(kmer.upper())
@@ -159,12 +163,17 @@ def createColorVector(k, tree, kmer_list, color_hm, no_sec_peak, norm_vector):
                     color_hm[str(idx + 1)] += (kmer_list[kmer] / norm)
                 else:
                     for i in range(0, k):
+                        # prevent double counts for overlap-positions
+                        if last_idx + 2 == idx + i + 1 and last_kmer == kmer:
+                            continue
                         color_hm[str(idx + i + 1)] += (kmer_list[kmer] / norm)
+                last_idx = idx
+                last_kmer = kmer
             else:
                 not_matched_kmer.append(kmer)
 
     # scale values in color-vector
-    color_hm = {x: round(math.log(y,2)) if y > 0 else y for x, y in color_hm.items()}
+    color_hm = {x: math.log(y, 2) if y > 0 else y for x, y in color_hm.items()}
     color_domain_max = max(color_hm.values())
 
     return color_hm, not_matched_kmer, color_domain_max
