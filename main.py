@@ -97,6 +97,13 @@ def checkSecFileFormat(f):
                                   "For help use option -h.")
 
 
+def checkFastaFileFormat(f):
+    sequence = str(list(SeqIO.parse(f, "fasta"))[0].seq)
+    for c in sequence:
+        if c not in ["A", "C", "G", "T", "a", "c", "g", "t"]:
+            raise InputValueException()
+
+
 def checkFileExtension(f, struct):
     ext = os.path.splitext(f)[1]
     if struct:
@@ -203,11 +210,15 @@ if __name__ == '__main__':
             checkTargetLengths(file_list)  # check if all files own sequences with equal lengths
             for f in file_list:
                 checkFileExtension(f, False)  # check file extension
+                checkFastaFileFormat(f)
         except ValueError as ve:
             print(ve.args[0])
             sys.exit(0)
         except FileCountException as fce:
             print(fce.args[0])
+            sys.exit(0)
+        except (IndexError,InputValueException):
+            print("File(s) does not match Fasta-format. For help use option -h.")
             sys.exit(0)
 
     elif args.d is not None:  # if directory option is used
@@ -215,12 +226,18 @@ if __name__ == '__main__':
             try:
                 file_list = selectAllFastaFiles(args.d, False)  # select all Fasta-files
                 checkTargetLengths(file_list)
+                for f in file_list:
+                    checkFastaFileFormat(f)
             except ValueError as ve:
                 print(ve.args[0])
                 sys.exit(0)
             except FileCountException as fce:
                 print(fce.args[0])
                 sys.exit(0)
+            except (IndexError,InputValueException):
+                print("File(s) does not match Fasta-format. For help use option -h.")
+                sys.exit(0)
+
         else:
             print('ERROR: directory \'{}\' was not found or does not exist.\nFor help use option -h.'.format(args.d))
             sys.exit(0)
@@ -234,6 +251,7 @@ if __name__ == '__main__':
             for f in struct_sfs_list:
                 checkFileExtension(f, True)  # check file extension
                 checkSecFileFormat(f)
+                checkFastaFileFormat(f)
         except ValueError as ve:
             print(ve.args[0])
             sys.exit(0)
@@ -243,6 +261,9 @@ if __name__ == '__main__':
         except InputValueException as ive:
             print(ive.args[0])
             sys.exit(0)
+        except (IndexError,InputValueException):
+            print("File(s) does not match Fasta-format. For help use option -h.")
+            sys.exit(0)
 
     if args.sd is not None:  # if directory option is used
         if os.path.isdir(args.sd):
@@ -251,6 +272,7 @@ if __name__ == '__main__':
                 struct_list = struct_sd_list
                 for f in struct_sd_list:
                     checkSecFileFormat(f)
+                    checkFastaFileFormat(f)
             except ValueError as ve:
                 print(ve.args[0])
                 sys.exit(0)
@@ -260,6 +282,9 @@ if __name__ == '__main__':
             except InputValueException as ive:
                 print(ive.args[0])
                 sys.exit(0)
+            except (IndexError,InputValueException):
+                print("File(s) does not match Fasta-format. For help use option -h.")
+                sys.exit(0)
         else:
             print('ERROR: directory \'{}\' was not found or does not exist.\nFor help use option -h.'.format(args.sd))
             sys.exit(0)
@@ -268,6 +293,7 @@ if __name__ == '__main__':
         struct_list = struct_sf_list
         try:
             checkSecFileFormat(args.sf)
+            checkFastaFileFormat(args.sf)
         except InputValueException as ive:
             print(ive.args[0])
             sys.exit(0)
@@ -290,8 +316,12 @@ if __name__ == '__main__':
         file = args.f.name
         try:
             checkFileExtension(file, False)
+            checkFastaFileFormat(file)
         except FileCountException as fce:
             print(fce.args[0])
+            sys.exit(0)
+        except (IndexError, InputValueException):
+            print("File(s) does not match Fasta-format. For help use option -h.")
             sys.exit(0)
         files = [file]
     else:
