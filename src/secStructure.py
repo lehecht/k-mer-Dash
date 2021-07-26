@@ -147,7 +147,8 @@ def createColorVector(k, tree, kmer_list, color_hm, no_sec_peak, norm_vector):
 
     for kmer in kmer_list.keys():
         # find index of kmer in template
-        indices_list = tree.find_all(kmer.upper())
+        indices_list = list(tree.find_all(kmer.upper()))
+        indices_list.sort()
         if norm_vector is None:
             norm = 1
         else:

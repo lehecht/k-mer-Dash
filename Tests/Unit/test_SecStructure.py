@@ -1,6 +1,7 @@
 from src.secStructure import *
 from suffix_trees import STree
 import math
+import re
 
 
 def test_processData():
@@ -183,11 +184,11 @@ def test_createColorVector():
     for i in color_hm.keys():
         x = color_hm[i]
         if x > 0:
-            assert new_color_hm1[i] == round(math.log(x, 2))
+            assert new_color_hm1[i] == math.log(x, 2)
         else:
             assert new_color_hm1[i] == 0
     assert len(not_matched1) == 0
-    assert color_domain_max1 == 5
+    assert color_domain_max1 == 4.954196310386876
 
     # Test2: with normalization vector
 
@@ -200,17 +201,26 @@ def test_createColorVector():
     new_color_hm2, not_matched2, color_domain_max2 = createColorVector(k, template_sTree, kmer_counts, color_hm,
                                                                        no_sec_peak, normalization_vector2)
 
+    last_idx = -1
+    last_kmer = ""
+
     test_color_hm = {str(i): 0 for i in range(1, len(template) + 1)}
     for kmer in normalization_vector2:
-        idx = template.find(kmer)
+        indices_list = [t.start() for t in re.finditer('(?={0})'.format(re.escape(kmer)), template)]
+        indices_list.sort()
         norm = normalization_vector2[kmer]
         if norm == 0:
             norm = 1
-        for i in range(0, k):
-            current_idx = str(idx + i + 1)
-            test_color_hm[current_idx] += (kmer_counts[kmer] / norm)
+        for idx in indices_list:
+            for i in range(0, k):
+                current_idx = str(idx + i + 1)
+                if last_idx + 2 == int(current_idx) and last_kmer == kmer:
+                    continue
+                test_color_hm[current_idx] += (kmer_counts[kmer] / norm)
+            last_idx = idx
+            last_kmer = kmer
 
-    test_color_hm = {x: round(math.log(y, 2)) if y > 0 else y for x, y in test_color_hm.items()}
+    test_color_hm = {x: math.log(y, 2) if y > 0 else y for x, y in test_color_hm.items()}
     test_color_domain_max = max(test_color_hm.values())
 
     # Testing
@@ -222,7 +232,7 @@ def test_createColorVector():
     for i in new_color_hm2.keys():
         assert new_color_hm2[i] == test_color_hm[i]
 
-    # Test3: normalization vector and secondary peak position wanted
+    # Test3: normalization vector and secondary peak position
 
     kmer_counts2 = {"Ee": 5, "eS": 7, "sS": 20, "Si": 10, "iI": 15, "iS": 11, "Sb": 5, "Bb": 6, "bS": 5, "sH": 4,
                     "Hh": 5, "hS": 4, "Se": 7}
@@ -235,19 +245,18 @@ def test_createColorVector():
                                                                        no_sec_peak2, normalization_vector2)
 
     test_color_hm2 = {str(i): 0 for i in range(1, len(template) + 1)}
-    for k in kmer_counts2.keys():
-        kmer = k.upper()
-        idx = template.find(kmer)
-        if k[1].isupper():
-            idx += 1
-        print(k, idx)
-        norm = normalization_vector2[kmer]
+    for kmer in kmer_counts2.keys():
+        indices_list = [t.start() for t in re.finditer('(?={0})'.format(re.escape(kmer.upper())), template)]
+        indices_list.sort()
+        norm = normalization_vector2[kmer.upper()]
         if norm == 0:
             norm = 1
-        current_idx = str(idx + 1)
-        test_color_hm2[current_idx] += (kmer_counts2[k] / norm)
+        for idx in indices_list:
+            # use only peak-position in 2-mer for visualization
+            idx = [idx + i for i in range(0, len(kmer)) if kmer[i].isupper()][0]
+            test_color_hm2[str(idx + 1)] += (kmer_counts2[kmer] / norm)
 
-    test_color_hm2 = {x: round(math.log(y, 2)) if y > 0 else y for x, y in test_color_hm2.items()}
+    test_color_hm2 = {x: math.log(y, 2) if y > 0 else y for x, y in test_color_hm2.items()}
     test_color_domain_max2 = max(test_color_hm2.values())
 
     # Testing
