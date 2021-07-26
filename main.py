@@ -92,9 +92,10 @@ argparser.add_argument('-pt', '--port', dest='port', default=8088, action='store
 def checkSecFileFormat(f):
     record = str(list(SeqIO.parse(f, "fasta"))[0].seq)
 
-    if 'A' in record or 'T' in record or 'C' in record or 'G' in record:
-        raise InputValueException("ERROR: Fasta files for secondary structure must only contain element-strings.\n"
-                                  "For help use option -h.")
+    for c in record:
+        if c not in ['E', 'e', 'S', 's', 'B', 'b', 'I', 'i','M','m','H','h']:
+            raise InputValueException("ERROR: Fasta files for secondary structure must only contain element-strings.\n"
+                                      "For help use option -h.")
 
 
 def checkFastaFileFormat(f):
@@ -217,7 +218,7 @@ if __name__ == '__main__':
         except FileCountException as fce:
             print(fce.args[0])
             sys.exit(0)
-        except (IndexError,InputValueException):
+        except (IndexError, InputValueException):
             print("File(s) does not match Fasta-format. For help use option -h.")
             sys.exit(0)
 
@@ -234,7 +235,7 @@ if __name__ == '__main__':
             except FileCountException as fce:
                 print(fce.args[0])
                 sys.exit(0)
-            except (IndexError,InputValueException):
+            except (IndexError, InputValueException):
                 print("File(s) does not match Fasta-format. For help use option -h.")
                 sys.exit(0)
 
@@ -261,9 +262,6 @@ if __name__ == '__main__':
         except InputValueException as ive:
             print(ive.args[0])
             sys.exit(0)
-        except (IndexError,InputValueException):
-            print("File(s) does not match Fasta-format. For help use option -h.")
-            sys.exit(0)
 
     if args.sd is not None:  # if directory option is used
         if os.path.isdir(args.sd):
@@ -272,7 +270,6 @@ if __name__ == '__main__':
                 struct_list = struct_sd_list
                 for f in struct_sd_list:
                     checkSecFileFormat(f)
-                    checkFastaFileFormat(f)
             except ValueError as ve:
                 print(ve.args[0])
                 sys.exit(0)
@@ -282,9 +279,6 @@ if __name__ == '__main__':
             except InputValueException as ive:
                 print(ive.args[0])
                 sys.exit(0)
-            except (IndexError,InputValueException):
-                print("File(s) does not match Fasta-format. For help use option -h.")
-                sys.exit(0)
         else:
             print('ERROR: directory \'{}\' was not found or does not exist.\nFor help use option -h.'.format(args.sd))
             sys.exit(0)
@@ -293,7 +287,6 @@ if __name__ == '__main__':
         struct_list = struct_sf_list
         try:
             checkSecFileFormat(args.sf)
-            checkFastaFileFormat(args.sf)
         except InputValueException as ive:
             print(ive.args[0])
             sys.exit(0)
