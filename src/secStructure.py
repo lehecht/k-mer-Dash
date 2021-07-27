@@ -77,12 +77,8 @@ class SecStructure(Processing):
                 dotbracket_string.extend(element2dotbracket(template, k, l2 + 1, l3, False))
 
             l4 = len(template)
-            template.append(k * "S")
+            template.extend([k * "S", k * "E"])
             dotbracket_string.extend(element2dotbracket(template, k, l4, len(template) - 1, False))
-
-            l5 = len(template)
-            template.append(k * "E")
-            dotbracket_string.extend(element2dotbracket(template, k, l5, len(template) - 1, False))
 
             # convert into strings
             template = ''.join(template)
