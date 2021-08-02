@@ -679,23 +679,6 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, apply_options_btn, sec
 
 # --------------------------------------- File Dropdown Updater --------------------------------------------------------
 @app.callback([
-    dash.dependencies.Output("file1", "value"),
-    dash.dependencies.Output("file2", "value"),
-    dash.dependencies.Input('memory', 'modified_timestamp'),
-])
-# initializes data dropdowns
-# ts: store timestamp
-def initialSelect(ts):
-    if ts is None:
-        f1 = "0"
-        f2 = "1"
-    else:
-        raise PreventUpdate
-
-    return f1, f2
-
-
-@app.callback([
     dash.dependencies.Output("file1", "options"),
     dash.dependencies.Input("file2", "value"),
 ])
@@ -735,23 +718,6 @@ def updateFileList(val, struct):
 
 
 # --------------------------------------- Structure File Dropdown Updater ----------------------------------------------
-@app.callback([
-    dash.dependencies.Output("file3", "value"),
-    dash.dependencies.Output("file4", "value"),
-    dash.dependencies.Input('memory', 'modified_timestamp'),
-])
-# initializes structural data dropdowns
-# ts: store timestamp
-def initialStructSelect(ts):
-    if ts is None and struct_data is not None:
-        f3 = "0"
-        f4 = "1"
-    else:
-        raise PreventUpdate
-
-    return f3, f4
-
-
 @app.callback([
     dash.dependencies.Output("file3", "options"),
     dash.dependencies.Input("file4", "value"),
