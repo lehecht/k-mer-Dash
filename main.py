@@ -93,7 +93,7 @@ def checkSecFileFormat(f):
     record = str(list(SeqIO.parse(f, "fasta"))[0].seq)
 
     for c in record:
-        if c not in ['E', 'e', 'S', 's', 'B', 'b', 'I', 'i','M','m','H','h']:
+        if c not in ['E', 'e', 'S', 's', 'B', 'b', 'I', 'i', 'M', 'm', 'H', 'h']:
             raise InputValueException("ERROR: Fasta files for secondary structure must only contain element-strings.\n"
                                       "For help use option -h.")
 
@@ -102,7 +102,9 @@ def checkFastaFileFormat(f):
     sequence = str(list(SeqIO.parse(f, "fasta"))[0].seq)
     for c in sequence:
         if c not in ["A", "C", "G", "T", "a", "c", "g", "t"]:
-            raise InputValueException()
+            raise InputValueException(
+                "ERROR: DNA nucleotide Fasta files conains invalid character. Only \'A,a,C,c,G,g,T,t\' can be used.\n"
+                "For help use option -h.")
 
 
 def checkFileExtension(f, struct):
@@ -252,7 +254,6 @@ if __name__ == '__main__':
             for f in struct_sfs_list:
                 checkFileExtension(f, True)  # check file extension
                 checkSecFileFormat(f)
-                checkFastaFileFormat(f)
         except ValueError as ve:
             print(ve.args[0])
             sys.exit(0)
