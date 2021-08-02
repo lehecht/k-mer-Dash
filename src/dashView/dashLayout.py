@@ -1091,7 +1091,7 @@ def updateScatter(ts, data):
               dash.dependencies.State('memory', 'data'))
 # ts: timestamp when data was modified
 # data: storage to share data between callbacks
-def updateScatter(ts, data):
+def updatePCAs(ts, data):
     if ts is None:
         raise PreventUpdate
     pca_data = data.get('pcas', 0)
