@@ -82,7 +82,7 @@ app.layout = dbc.Container([
                     html.H3("Menu"),
                     html.Br(),
                     # ------------------------------------- Select File1 And File 2 ------------------------------------
-                    html.H6("Selected Files:", id="sel_files_header"),
+                    html.H6("Selected files:", id="sel_files_header"),
                     dbc.Select(
                         id="file1",
                         options=[]),
@@ -96,7 +96,7 @@ app.layout = dbc.Container([
                     html.Br(),
                     html.Br(),
                     # ------------------------------------- Select Structure Files -------------------------------------
-                    html.H6("Selected Structure Files:", id="struc_files_header"),
+                    html.H6("Selected structure files:", id="struc_files_header"),
                     dbc.Select(
                         id="file3",
                         options=[{"label": "-", "value": "0"}],
