@@ -161,7 +161,7 @@ app.layout = dbc.Container([
                     html.Br(),
                     html.Br(),
                     # -------------------------------- Highlighted Feature ---------------------------------------------
-                    html.H6("Highlighted Feature:", id="feature_header"),
+                    html.H6("Highlighted feature:", id="feature_header"),
                     dbc.Select(
                         id="Feature",
                         options=[
