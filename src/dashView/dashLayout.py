@@ -85,10 +85,12 @@ app.layout = dbc.Container([
                     html.H6("Selected files:", id="sel_files_header"),
                     dbc.Select(
                         id="file1",
-                        options=[]),
+                        options=[],
+                        value="0"),
                     dbc.Select(
                         id="file2",
-                        options=[]),
+                        options=[],
+                        value="1"),
                     dbc.Tooltip(
                         "Files containing DNA nucleotide-sequences used for k-mer visualization",
                         target="sel_files_header"
@@ -104,7 +106,7 @@ app.layout = dbc.Container([
                     dbc.Select(
                         id="file4",
                         options=[{"label": "-", "value": "0"}],
-                        value="0"),
+                        value="1"),
                     dbc.Tooltip(
                         "Files containing element-strings used for RNA structure heatmaps(s)",
                         target="struc_files_header"
@@ -840,21 +842,49 @@ def show_selected_sequences(data, f3, f4):
     color_domain_max1 = data['color_max'][0]
     color_domain_max2 = data['color_max'][1]
 
-    color_domain_max = ((color_domain_max1 + color_domain_max2) / 2)
+    # if only one structural file is given, color_domain_max and color_domain_min are not changed
+    domain_nbr = 2
+    if color_domain_max1 is None:
+        color_domain_max1 = 0
+        domain_nbr = 1
+    if color_domain_max2 is None:
+        color_domain_max2 = 0
+        domain_nbr = 1
 
-    color_vals1 = list(set(data['colors'][0].values()))
-    if 0 in color_vals1:
-        color_vals1.remove(0)
-    color_domain_min1 = min(color_vals1)
+    color_domain_max = ((color_domain_max1 + color_domain_max2) / domain_nbr)
 
-    color_vals2 = list(set(data['colors'][1].values()))
-    if 0 in color_vals2:
-        color_vals2.remove(0)
-    color_domain_min2 = min(color_vals2)
+    if data['colors'][0] is not None:
+        color_vals1 = list(set(data['colors'][0].values()))
+        if 0 in color_vals1:
+            color_vals1.remove(0)
+        color_domain_min1 = min(color_vals1)
+    else:
+        color_domain_min1 = 0
 
-    color_domain_min = (color_domain_min1 + color_domain_min2) / 2
+    if data['colors'][1] is not None:
+        color_vals2 = list(set(data['colors'][1].values()))
+        if 0 in color_vals2:
+            color_vals2.remove(0)
+        color_domain_min2 = min(color_vals2)
+    else:
+        color_domain_min2 = 0
+
+    color_domain_min = (color_domain_min1 + color_domain_min2) / domain_nbr
 
     color_range = data['color_scale']
+    if color_range is None:
+        # prevents divideByZero error
+        # has no effect because if scale is None then there is not structural data
+        color_range_length = 2
+    else:
+        color_range_length = len(color_range)
+
+    steps = ((color_domain_max - color_domain_min) / (color_range_length - 1))
+    if steps == 0:
+        steps = 1
+
+    color_domain = [i for i in float_range(color_domain_min, steps, (color_range_length - 1))]
+    color_domain.append(color_domain_max)
 
     # disable tab for files if no or only one structural file is given
     disable_t1 = False
@@ -866,13 +896,6 @@ def show_selected_sequences(data, f3, f4):
 
     tab1_label = "RNA-Structure Heatmap 1"
     tab2_label = "RNA-Structure Heatmap 2"
-
-    steps = ((color_domain_max - color_domain_min) / (len(color_range) - 1))
-    if steps == 0:
-        steps = 1
-
-    color_domain = [i for i in float_range(color_domain_min, steps, (len(color_range) - 1))]
-    color_domain.append(color_domain_max)
 
     if struct_data is not None:
 
