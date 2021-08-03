@@ -51,7 +51,7 @@ def calcFrequency(k, peak, selected, no_sec_peak):
                 # if peak position for RNA-structure is needed, only save k-mer containing capital letter
                 if no_sec_peak is 0 and not re.findall('[A-Z]', kmer):
                     continue
-                if not profile.get(kmer) is None:
+                if profile.get(kmer) is not None:
                     profile[kmer] += 1
                 else:
                     profile[kmer] = 1
@@ -152,12 +152,14 @@ def calcTopKmer(top, p1, p2):
         else:
             profiles = [profile1]
 
-        # checks if only last top value appears several times in profile
+        # checks if only last top value
+        # appears several times in profile
         for p in profiles:
             dup_kmer_freq = []
             for i in range(top, len(p)):
                 next_kmer_freq = p[i][1]
-                # if next k-mer has same value, add to profile1_top
+                # if next k-mer has same value,
+                # add to profile1_top
                 if p[i - 1][1] == next_kmer_freq:
                     dup_kmer_freq.append(p[i])
                 else:
@@ -178,7 +180,8 @@ def calcTopKmer(top, p1, p2):
     if p2 is not None:
         all_kmer.extend(profile2_top)
 
-    top_kmer = pd.DataFrame(all_kmer, columns=['', 'Frequency', 'File'])
+    top_kmer = pd.DataFrame(all_kmer,
+                            columns=['', 'Frequency', 'File'])
     top_kmer = top_kmer.set_index('')
 
     return top_kmer
