@@ -64,8 +64,8 @@ class KMerAlignmentData(Processing):
 
                 clustalw = find_executable('clustalw')
                 if clustalw is not None:
-                    infile = "-INFILE={i}".format(i=input_file_name)
-                    outfile = '-OUTFILE={f}'.format(f=output_file_name)
+                    infile = "-INFILE={}".format(input_file_name)
+                    outfile = '-OUTFILE={}'.format(output_file_name)
                     # executes clustalw multiple alignment
                     subprocess.run([clustalw, infile, outfile],
                                    stdout=subprocess.DEVNULL)
