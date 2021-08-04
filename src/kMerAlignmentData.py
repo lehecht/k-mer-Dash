@@ -42,21 +42,22 @@ class KMerAlignmentData(Processing):
                 os.mkdir('tmp')
 
             if profile2 is not None:
-                files = [top_kmer_f1, top_kmer_f2]
+                # list of separated top k-mer lists
+                sep_top_kmer_df = [top_kmer_f1, top_kmer_f2]
             else:
-                files = [top_kmer_f1]
+                sep_top_kmer_df = [top_kmer_f1]
 
-            for file in files:
+            for sep_top_kmer_df in sep_top_kmer_df:
 
-                current_file_name = file.iloc[0]["File"]
+                current_file_name = sep_top_kmer_df.iloc[0]["File"]
                 current_file_name = current_file_name.split(".")[0]
 
                 input_file_name = ('tmp/' + current_file_name + '.fa')
                 output_file_name = ('tmp/' + current_file_name + '.aln')
-                kmer_list = file.index.tolist()
+                kmer_list = sep_top_kmer_df.index.tolist()
 
                 records = []
-                for i in range(0, len(file)):
+                for i in range(0, len(sep_top_kmer_df)):
                     records.append(SeqRecord(Seq(kmer_list[i]), id=str(i), description=current_file_name))
 
                 SeqIO.write(records, input_file_name,
@@ -87,14 +88,17 @@ class KMerAlignmentData(Processing):
             pattern = '[A-Z]'
 
             if profile2 is not None:
-                files = [top_kmer_f1, top_kmer_f2]
+                sep_top_kmer_df = [top_kmer_f1, top_kmer_f2]
             else:
-                files = [top_kmer_f1]
+                sep_top_kmer_df = [top_kmer_f1]
 
-            for file in files:
+            for sep_top_kmer_df in sep_top_kmer_df:
 
-                top_kmer_index = file.index.values.tolist()
-                peak_kmer = list(filter(lambda s: s if len(re.findall(pattern, s)) > 0 else None, top_kmer_index))
+                top_kmer_index = sep_top_kmer_df.index.values.tolist()
+                peak_kmer = list(filter(lambda s: s if len(re.findall(pattern, s)) == 1 else None, top_kmer_index))
+
+                if None in peak_kmer:
+                    peak_kmer.remove(None)
 
                 algnm_list = []
                 for kmer in peak_kmer:
