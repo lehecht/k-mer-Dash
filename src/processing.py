@@ -6,7 +6,6 @@ from src.readATdata import *
 from itertools import combinations_with_replacement, permutations
 
 
-# abstract class
 class Processing:
     profile1 = None  # dictionary for k-mer and their frequencies for file1
     profile2 = None  # dictionary for k-mer and their frequencies for file2
@@ -97,11 +96,6 @@ class Processing:
             self.top_kmer_df = calcTopKmer(top, self.profile1, None)
 
         self.seq_len = getSeqLength(selected[0])
-
-        # abstract method
-
-    def processData(self):
-        pass
 
     def getProfileObj1(self):
         return self.profile1
