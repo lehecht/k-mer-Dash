@@ -164,6 +164,7 @@ def createColorVector(k, tree, kmer_list, color_hm, no_sec_peak, norm_vector):
                 else:
                     for i in range(0, k):
                         # prevent double counts for overlap-positions
+                        # loop index 'i' prevents to skip non-overlap positions
                         if last_idx + 2 == idx + i + 1 and last_kmer == kmer:
                             continue
                         color_hm[str(idx + i + 1)] += (kmer_list[kmer] / norm)

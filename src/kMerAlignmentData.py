@@ -103,8 +103,13 @@ class KMerAlignmentData(Processing):
                 algnm_list = []
                 for kmer in peak_kmer:
                     idx = re.search(pattern, kmer).span()[0]  # index of peak position within k-mer
-                    shift = (k - 1) - idx  # for alignment, add '-' several times (=shift)
+                    # Assume k-mer character are rotated until peak-position is at the end.
+                    # Shift is the number of dashes and equal to number of character before peak-position.
+                    # It is calculated through the difference between k-Mer length and peak-position.
+                    shift = (k - 1) - idx
                     algn = "-" * shift + kmer
+                    # Assume string length for alignment is two times k.
+                    # For number of end dashes calculate the difference between total length and length of algn
                     end_gaps = int(2 * k - 1) - len(algn)  # add end gaps
                     algn = algn + "-" * end_gaps
                     algnm_list.append(algn)
