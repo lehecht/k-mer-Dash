@@ -98,7 +98,7 @@ class KMerAlignmentData(Processing):
 
                 algnm_list = []
                 for kmer in peak_kmer:
-                    idx = re.search('[A-T]', kmer).span()[0]  # index of peak position within k-mer
+                    idx = re.search(pattern, kmer).span()[0]  # index of peak position within k-mer
                     shift = (k - 1) - idx  # for alignment, add '-' several times (=shift)
                     algn = "-" * shift + kmer
                     end_gaps = int(2 * k - 1) - len(algn)  # add end gaps
