@@ -25,6 +25,9 @@ class SecStructure(Processing):
 
         results = []
 
+        forward = True
+        backward = False
+
         for alphabet in alphabets:
             hairpin = bool("H" in alphabet)
             multiloop = bool("M" in alphabet)
@@ -39,15 +42,15 @@ class SecStructure(Processing):
             dotbracket_string = list()
 
             # translate change in template to dotbracket string
-            dotbracket_string.extend(element2dotbracket(template, k, 0, l0, True))
+            dotbracket_string.extend(element2dotbracket(template, k, 0, l0, forward))
 
             l1 = len(template)
 
             # add internal-loops and bulges if needed
-            template = helpAddIBloop(k, template, internalloop, bulge, True)
+            template = helpAddIBloop(k, template, internalloop, bulge, forward)
 
             # add hairpin if needed
-            if "H" in alphabet:
+            if hairpin:
                 hp = [k * "S", k * "H"]
                 template.extend(hp)
             else:
@@ -55,30 +58,30 @@ class SecStructure(Processing):
 
             # translate change in template to dotbracket string
             l2 = len(template) - 1
-            dotbracket_string.extend(element2dotbracket(template, k, l1, l2, True))
+            dotbracket_string.extend(element2dotbracket(template, k, l1, l2, forward))
 
-            template = helpAddIBloop(k, template, internalloop, bulge, False)
+            template = helpAddIBloop(k, template, internalloop, bulge, backward)
 
             # add multiloop and second hairpin if needed
             if multiloop and hairpin:
                 template.extend([k * "S", k * "M"])
 
                 l3 = len(template) - 1
-                dotbracket_string.extend(element2dotbracket(template, k, l2 + 1, l3, False))
+                dotbracket_string.extend(element2dotbracket(template, k, l2 + 1, l3, backward))
 
                 hp = [k * "S", k * "H"]
                 template.extend(hp)
 
                 l4 = len(template) - 1
-                dotbracket_string.extend(element2dotbracket(template, k, l3 + 1, l4, True))
+                dotbracket_string.extend(element2dotbracket(template, k, l3 + 1, l4, forward))
 
             else:
                 l3 = len(template) - 1
-                dotbracket_string.extend(element2dotbracket(template, k, l2 + 1, l3, False))
+                dotbracket_string.extend(element2dotbracket(template, k, l2 + 1, l3, backward))
 
             l4 = len(template)
             template.extend([k * "S", k * "E"])
-            dotbracket_string.extend(element2dotbracket(template, k, l4, len(template) - 1, False))
+            dotbracket_string.extend(element2dotbracket(template, k, l4, len(template) - 1, backward))
 
             # convert into strings
             template = ''.join(template)
