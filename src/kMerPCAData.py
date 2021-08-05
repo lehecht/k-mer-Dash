@@ -33,7 +33,6 @@ def fillDataFrame(df, all_triplets):
 
 
 # inherits from process
-# implements processData for pca
 class KMerPCAData(Processing):
 
     def __init__(self, data, selected, k, peak, top, feature, cmd, secStruct_data, no_sec_peak):

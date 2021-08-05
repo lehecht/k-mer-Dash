@@ -3,6 +3,7 @@ from suffix_trees import STree
 import math
 
 
+# inherits from process
 class SecStructure(Processing):
 
     def __init__(self, data, selected, k, peak, top, feature, cmd, sec_struct_data, no_sec_peak):

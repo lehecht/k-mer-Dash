@@ -10,7 +10,6 @@ import re
 
 
 # inherits from process
-# implements processData for multiple alignments
 class KMerAlignmentData(Processing):
 
     def __init__(self, data, selected, k, peak, top, feature, cmd, sec_struct_data, no_sec_peak):

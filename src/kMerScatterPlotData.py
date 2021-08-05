@@ -3,7 +3,6 @@ import pandas as pd
 
 
 # inherits from process
-# implements processData for scatterplot of frequencies
 class KMerScatterPlotData(Processing):
 
     def __init__(self, data, selected, k, peak, top, feature, cmd, sec_struct_data, no_sec_peak):
