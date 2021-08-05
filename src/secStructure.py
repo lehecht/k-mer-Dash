@@ -161,14 +161,16 @@ def createColorVector(k, tree, kmer_list, color_hm, no_sec_peak, norm_vector):
                 # use only peak-position in 2-mer for visualization
                 if no_sec_peak == 0:
                     idx = [idx + i for i in range(0, len(kmer)) if kmer[i].isupper()][0]
-                    color_hm[str(idx + 1)] += (kmer_list[kmer] / norm)
+                    str_idx = str(idx + 1)
+                    color_hm[str_idx] += (kmer_list[kmer] / norm)
                 else:
                     for i in range(0, k):
                         # prevent double counts for overlap-positions
                         # loop index 'i' prevents to skip non-overlap positions
                         if last_idx + 2 == idx + i + 1 and last_kmer == kmer:
                             continue
-                        color_hm[str(idx + i + 1)] += (kmer_list[kmer] / norm)
+                        str_idx = str(idx + i + 1)
+                        color_hm[str_idx] += (kmer_list[kmer] / norm)
                 last_idx = idx
                 last_kmer = kmer
             else:

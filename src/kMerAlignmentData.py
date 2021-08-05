@@ -91,9 +91,9 @@ class KMerAlignmentData(Processing):
             else:
                 sep_top_kmer_df = [top_kmer_f1]
 
-            for sep_top_kmer_df in sep_top_kmer_df:
+            for top_df in sep_top_kmer_df:
 
-                top_kmer_index = sep_top_kmer_df.index.values.tolist()
+                top_kmer_index = top_df.index.tolist()
                 peak_kmer = list(filter(lambda s: s if len(re.findall(pattern, s)) == 1 else None, top_kmer_index))
 
                 if None in peak_kmer:
