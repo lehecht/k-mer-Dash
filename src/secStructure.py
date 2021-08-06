@@ -141,14 +141,14 @@ class SecStructure(Processing):
 def createColorVector(k, tree, kmer_list, color_hm, no_sec_peak, norm_vector):
     not_matched_kmer = []
 
-    last_idx = -1
+    last_pos = -1
 
     last_kmer = ""
 
     for kmer in kmer_list.keys():
         # find index of kmer in template
-        indices_list = list(tree.find_all(kmer.upper()))
-        indices_list.sort()
+        positions_list = list(tree.find_all(kmer.upper()))
+        positions_list.sort()
         if norm_vector is None:
             norm = 1
         else:
@@ -156,22 +156,22 @@ def createColorVector(k, tree, kmer_list, color_hm, no_sec_peak, norm_vector):
             if norm == 0:
                 norm = 1
         # if k-mer was found in template
-        for idx in indices_list:
-            if idx >= 0:
+        for pos in positions_list:
+            if pos >= 0:
                 # use only peak-position in 2-mer for visualization
                 if no_sec_peak == 0:
-                    idx = [idx + i for i in range(0, len(kmer)) if kmer[i].isupper()][0]
-                    str_idx = str(idx + 1)
-                    color_hm[str_idx] += (kmer_list[kmer] / norm)
+                    pos = [pos + i for i in range(0, len(kmer)) if kmer[i].isupper()][0]
+                    str_pos = str(pos + 1)
+                    color_hm[str_pos] += (kmer_list[kmer] / norm)
                 else:
                     for i in range(0, k):
                         # prevent double counts for overlap-positions
                         # loop index 'i' prevents to skip non-overlap positions
-                        if last_idx + 2 == idx + i + 1 and last_kmer == kmer:
+                        if last_pos + 2 == pos + i + 1 and last_kmer == kmer:
                             continue
-                        str_idx = str(idx + i + 1)
-                        color_hm[str_idx] += (kmer_list[kmer] / norm)
-                last_idx = idx
+                        str_pos = str(pos + i + 1)
+                        color_hm[str_pos] += (kmer_list[kmer] / norm)
+                last_pos = pos
                 last_kmer = kmer
             else:
                 not_matched_kmer.append(kmer)

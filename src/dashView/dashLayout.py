@@ -574,7 +574,7 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, apply_options_btn, sec
             else:
                 selected_struc = [struct_data[int(f3)]]
 
-    new_process = initializeData.initData(selected, selected, k, peak, top, pca_feature, selected_struc, no_sec_peak)
+    new_process = initializeData.initData(file_list, selected, k, peak, top, pca_feature, selected_struc, no_sec_peak)
 
     # calculate top-table
     top_k = Processing.getTopKmer(new_process).copy()
