@@ -101,7 +101,8 @@ class KMerAlignmentData(Processing):
 
                 algnm_list = []
                 for kmer in peak_kmer:
-                    idx = re.search(pattern, kmer).span()[0]  # index of peak position within k-mer
+                    # idx = re.search(pattern, kmer).span()[0]  # index of peak position within k-mer
+                    idx = re.search(pattern, kmer).start()  # index of peak position within k-mer
                     # Assume k-mer character are rotated until peak-position is at the end.
                     # Shift is the number of dashes and equal to number of character before peak-position.
                     # It is calculated through the difference between k-Mer length and peak-position.
