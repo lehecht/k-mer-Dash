@@ -1073,12 +1073,11 @@ def disableButton(ts):
 # Tables/Diagrams only get updated figures/datatables here
 
 @app.callback(dash.dependencies.Output('scatter', 'figure'),
-              dash.dependencies.Input('memory', 'modified_timestamp'),
-              dash.dependencies.State('memory', 'data'))
+              dash.dependencies.Input('memory', 'data'))
 # ts: timestamp when data was modified
 # data: storage to share data between callbacks
-def updateScatter(ts, data):
-    if ts is None:
+def updateScatter( data):
+    if data is None:
         raise PreventUpdate
     return data.get('scatter', 0)
 
@@ -1087,12 +1086,11 @@ def updateScatter(ts, data):
                dash.dependencies.Output('PCA2', 'figure'),
                dash.dependencies.Output('Tab1', 'label'),
                dash.dependencies.Output('Tab2', 'label')],
-              dash.dependencies.Input('memory', 'modified_timestamp'),
-              dash.dependencies.State('memory', 'data'))
+              dash.dependencies.Input('memory', 'data'))
 # ts: timestamp when data was modified
 # data: storage to share data between callbacks
-def updatePCAs(ts, data):
-    if ts is None:
+def updatePCAs( data):
+    if data is None:
         raise PreventUpdate
     pca_data = data.get('pcas', 0)
     pca1 = pca_data[0][0]
@@ -1103,22 +1101,20 @@ def updatePCAs(ts, data):
 
 
 @app.callback(dash.dependencies.Output('topK', 'children'),
-              dash.dependencies.Input('memory', 'modified_timestamp'),
-              dash.dependencies.State('memory', 'data'))
+              dash.dependencies.Input('memory', 'data'))
 # ts: timestamp when data was modified
 # data: storage to share data between callbacks
-def updateTopK(ts, data):
-    if ts is None:
+def updateTopK(data):
+    if data is None:
         raise PreventUpdate
     return data.get('topK', 0)
 
 
 @app.callback(dash.dependencies.Output('msa', 'children'),
-              dash.dependencies.Input('memory', 'modified_timestamp'),
-              dash.dependencies.State('memory', 'data'))
+              dash.dependencies.Input('memory', 'data'))
 # ts: timestamp when data was modified
 # data: storage to share data between callbacks
-def updateMSA(ts, data):
-    if ts is None:
+def updateMSA(data):
+    if data is None:
         raise PreventUpdate
     return data.get('msas', 0)
