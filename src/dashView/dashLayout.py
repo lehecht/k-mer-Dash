@@ -526,8 +526,11 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, apply_options_btn, sec
 
     no_sec_peak_true = 1
 
+    ctx = dash.callback_context
+    element_id = ctx.triggered[0]['prop_id'].split('.')[0]
+
     # if custom rates given, check input
-    if apply_options_btn is not None and norm_option == 'custom_vals':
+    if element_id == "opt_btn_apply" and norm_option == 'custom_vals':
         normalization_status = 1
         custom_rates = [ee, ss, ii, mm, bb, si, i_s, sm, ms, es, se, hh, hs, sh, sb, bs]
         # if input contains non-digits, prevent update
@@ -541,8 +544,11 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, apply_options_btn, sec
         # otherwise prevent update
         else:
             return dash.no_update
-    elif apply_options_btn is not None and norm_option == 'at_db':
+    elif element_id == "opt_btn_apply" and norm_option == 'at_db':
         normalization_status = 0
+    elif not element_id == "opt_btn_apply" and data is not None:
+        sec_peak = data['last_sec_peak']
+        normalization_status = data['last_norm_stat']
 
     # translate dropdown value into real value
     top_opt_val = {'0': 10, '1': 20, '2': 50, '3': 100}
@@ -672,7 +678,8 @@ def updateData(f1, f2, f3, f4, k, peak, top, pca_feature, apply_options_btn, sec
 
     data = {'topK': top_k_table, 'msas': msas, 'scatter': scatter, 'pcas': pcas, 'seqLen': seq_len,
             'templates': templates, 'dbs': dbs, 'colors': [color1, color2],
-            'color_max': [color_domain_max1, color_domain_max2], 'color_scale': color_scale}
+            'color_max': [color_domain_max1, color_domain_max2], 'color_scale': color_scale,
+            'last_sec_peak': sec_peak, 'last_norm_stat': normalization_status}
 
     return [data]
 
@@ -1076,7 +1083,7 @@ def disableButton(ts):
               dash.dependencies.Input('memory', 'data'))
 # ts: timestamp when data was modified
 # data: storage to share data between callbacks
-def updateScatter( data):
+def updateScatter(data):
     if data is None:
         raise PreventUpdate
     return data.get('scatter', 0)
@@ -1089,7 +1096,7 @@ def updateScatter( data):
               dash.dependencies.Input('memory', 'data'))
 # ts: timestamp when data was modified
 # data: storage to share data between callbacks
-def updatePCAs( data):
+def updatePCAs(data):
     if data is None:
         raise PreventUpdate
     pca_data = data.get('pcas', 0)
